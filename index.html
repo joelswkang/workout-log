@@ -1,3 +1,4 @@
+<!-- v1.2 - 11 Nov 2026, 12:49 AM NZDT: Export backup now falls back to a standard web download when the Claude-app downloads API is unavailable (GitHub Pages). Includes v1.1: stretch/static countdown beeps use the pre-rendered WAV (last 5 seconds; Web Audio fallback) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -184,6 +185,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline
       <div class="sm" data-i="deleted"></div><div class="opts" id="dels"></div>
       <div class="sm" data-i="recent"></div><div id="recent"></div>
       <button class="link" id="reset"></button>
+      <p class="hint" style="text-align:center;margin:14px 0 6px">v1.2 · 11 Nov 2026, 12:49 AM NZDT</p>
     </section>
   </div>
   <nav id="tabs"></nav>
@@ -571,7 +573,7 @@ function track(){var s=S.sess;if(!s||(s.ph!=="main"&&s.ph!=="cardio"))return;var
 function phTick(){var s=S.sess;if(!s){clearInterval(phTimer);phTimer=null;return}
  var key=s.ph==="warm"?"warm":s.ph==="cardio"?"cardio":null;
  if(key&&s.t[key].s){var n=$("ph-num");if(n){var ms=Date.now()-s.t[key].s,tg=key==="cardio"?cardioTarget():phTarget[key];n.textContent=fd(ms);var b=$("ph-bar");if(b)b.style.width=Math.min(100,ms/(tg*10))+"%";if(ms>=tg*1000&&!phFlag[key]){phFlag[key]=1;beep(660,.4)}}}
- if((s.ph==="stretch"||s.ph==="static")&&stEnd!==null){var rem=Math.ceil((stEnd-Date.now())/1000),sn=$("st-num");if(rem<=0){beep(440,.5);stEnd=null;renderWork();return}if(rem<=3&&!stBeep[rem]){stBeep[rem]=1;beep(880,.15)}if(sn)sn.textContent=rem}}
+ if((s.ph==="stretch"||s.ph==="static")&&stEnd!==null){var rem=Math.ceil((stEnd-Date.now())/1000),sn=$("st-num");if(rem<=0){if(!audioOK)beep(440,.5);stEnd=null;stopRest(true);renderWork();return}if(rem<=5&&!stBeep[rem]){stBeep[rem]=1;if(!audioOK)beep(880,.15)}if(sn)sn.textContent=rem}}
 function startPh(){clearInterval(phTimer);phTimer=setInterval(phTick,500);phTick()}
 function renderStart(c){var t=L(),d=el("div","mid");d.appendChild(el("div","sub",t.today));d.appendChild(el("div","exn",todayName()));
  d.appendChild(el("div","sub",isCardioDay()?t.cardioInfo(S.cardioMin||50):t.startInfo(active(R()).length,coreOn()?active(coreKey()).length:0)));var b=el("button","big",t.startW);b.addEventListener("click",function(){newSess();render()});d.appendChild(b);c.appendChild(d)}
@@ -597,11 +599,11 @@ function renderStretch(c,kind){kind=kind||"stretch";var t=L(),s=S.sess,pk=dayOf(
  c.appendChild(el("div","exn",ko?it[1]:it[0]));c.appendChild(el("div","sub",ko?it[3]:it[2]));
  var box=el("div","mid2");
  if(it[5]==="t"){if(stEnd!==null){var n=el("div","num");n.id="st-num";n.textContent=Math.max(0,Math.ceil((stEnd-Date.now())/1000));box.appendChild(n);startPh()}
-  else{box.appendChild(el("div","nxl",uTxt(it[4],"t")));var b=el("button","ghost",t.start);b.addEventListener("click",function(){audio();stEnd=Date.now()+it[4]*1000;stBeep={};renderWork()});box.appendChild(b)}}
+  else{box.appendChild(el("div","nxl",uTxt(it[4],"t")));var b=el("button","ghost",t.start);b.addEventListener("click",function(){audio();stEnd=Date.now()+it[4]*1000;stBeep={};startAudio(it[4],0);renderWork()});box.appendChild(b)}}
  else{var vv=el("div","num");vv.style.fontSize="30px";vv.textContent=uTxt(it[4],it[5]);box.appendChild(vv)}
  c.appendChild(box);
- function fin(){stEnd=null;s.t[kind]=s.t[kind]||{};s.t[kind].e=Date.now();if(kind==="static")finishSess();else enterMain()}
- var last=i===list.length-1,nx=el("button","big",last?(kind==="static"?t.finishStatic:t.finishStretch):t.next);nx.addEventListener("click",function(){stEnd=null;if(last)fin();else{s.si=i+1;save();renderWork()}});c.appendChild(nx);
+ function fin(){stEnd=null;stopAudio();s.t[kind]=s.t[kind]||{};s.t[kind].e=Date.now();if(kind==="static")finishSess();else enterMain()}
+ var last=i===list.length-1,nx=el("button","big",last?(kind==="static"?t.finishStatic:t.finishStretch):t.next);nx.addEventListener("click",function(){stEnd=null;stopAudio();if(last)fin();else{s.si=i+1;save();renderWork()}});c.appendChild(nx);
  var sk=el("button","link",kind==="static"?t.skipStatic:t.skipStretch);sk.addEventListener("click",fin);c.appendChild(sk)}
 
 function renderWork(){var t=L(),s;renderDone();
@@ -856,8 +858,10 @@ function renderSync(){var c=$("cloudcard");if(!c)return;var t=L();c.innerHTML=""
  var im=el("button","ghost",t.importB),fi=el("input");im.style.cssText="width:100%;margin-top:8px";fi.type="file";fi.accept=".json,application/json";fi.hidden=true;
  im.addEventListener("click",function(){fi.click()});fi.addEventListener("change",function(){var f=fi.files&&fi.files[0];if(!f)return;var r=new FileReader();r.onload=function(){importBackup(String(r.result))};r.readAsText(f)});c.appendChild(im);c.appendChild(fi);
  c.appendChild(el("p","hint",t.bkHint))}
-async function exportBackup(){var t=L();if(NB){try{NB.postMessage({type:"export",name:"workout-log-backup-"+dstr(nowD())+".json",data:JSON.stringify(stateObj(),null,1)})}catch(e){}return}try{var dl=await claude.use("downloads");if(!dl){toast(t.dlNo);return}
- await dl.save({filename:"workout-log-backup-"+dstr(nowD())+".json",data:JSON.stringify(stateObj(),null,1)});toast(t.exported)}catch(e){if(!e||e.code!=="declined")toast(t.dlNo)}}
+async function exportBackup(){var t=L(),name="workout-log-backup-"+dstr(nowD())+".json",data=JSON.stringify(stateObj(),null,1);
+ if(NB){try{NB.postMessage({type:"export",name:name,data:data})}catch(e){}return}
+ try{var dl=typeof claude!=="undefined"&&claude.use?await claude.use("downloads"):null;if(dl){await dl.save({filename:name,data:data});toast(t.exported);return}}catch(e){if(e&&e.code==="declined")return}
+ try{var url=URL.createObjectURL(new Blob([data],{type:"application/json"})),a=document.createElement("a");a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url)},4000);toast(t.exported)}catch(e){toast(t.dlNo)}}
 function importBackup(text){var t=L(),d=null;try{d=JSON.parse(text)}catch(e){}
  if(!d||!Array.isArray(d.sets)||!d.plan){toast(t.importBad);return}
  confirmSheet(t.importB,t.importConfirm,t.importB,function(){applyState(d);S.upd=Date.now();save();render();toast(t.imported)})}
