@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Workout Log</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fffaf3;--card:#fff;--ink:#2f2a3a;--muted:#7d7589;--line:#eee6f3;--mint:#bfeadb;--mint-ink:#1f5c4a;--lav:#dcd3f7;--lav-ink:#43377a;--peach:#ffd9c7;--peach-ink:#8a3f20;--accent:#8f7be0;--accent-ink:#fff;--red:#d93a46;--orange:#e07b14;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1d1a26;--card:#27233a;--ink:#f3eefb;--muted:#a79fb8;--line:#3a3552;--mint:#2c4f46;--mint-ink:#c9f3e5;--lav:#3b3463;--lav-ink:#e2dcff;--peach:#5a3a2d;--peach-ink:#ffdcca;--accent:#a996f0;--accent-ink:#1d1a26;--red:#ff8b94;--orange:#ffb066;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#1d1a26;--card:#27233a;--ink:#f3eefb;--muted:#a79fb8;--line:#3a3552;--mint:#2c4f46;--mint-ink:#c9f3e5;--lav:#3b3463;--lav-ink:#e2dcff;--peach:#5a3a2d;--peach-ink:#ffdcca;--accent:#a996f0;--accent-ink:#1d1a26;--red:#ff8b94;--orange:#ffb066;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;overflow:hidden;overscroll-behavior:none;touch-action:none;-webkit-user-select:none;user-select:none}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{background:var(--bg);color:var(--ink);font-family:"Nunito",system-ui,-apple-system,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic",sans-serif;font-weight:500;line-height:1.4}
+input{-webkit-user-select:text;user-select:text}
+#app{height:100%;max-width:520px;margin:0 auto;padding:10px 16px 8px;display:flex;flex-direction:column}
+h1{font-size:24px;font-weight:800;margin:0 0 8px}
+h2{font-size:17px;font-weight:800;margin:0}
+#screen{flex:1;min-height:0;overflow:hidden}
+section{display:none}section.on{display:block;height:100%}
+#tab-plan.on{display:flex;flex-direction:column}
+.sc{overflow-y:auto;touch-action:pan-y;overscroll-behavior:contain;scrollbar-width:none}.sc::-webkit-scrollbar{display:none}
+.statline{color:var(--muted);font-weight:700;font-size:13px;margin:0 2px 6px}
+.fields{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:6px}
+input[readonly]{background:var(--line);color:var(--muted)}
+.rate{display:grid;grid-template-columns:repeat(10,1fr);gap:3px}
+.rate button{border:0;border-radius:9px;background:var(--lav);color:var(--lav-ink);font-weight:800;padding:7px 0;font-size:14px}
+.rate button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.rest{padding:10px 14px}.rest[hidden]{display:none}
+.rtop{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+.rest .num{font-size:34px}
+.sk{border:0;border-radius:12px;background:var(--peach);color:var(--peach-ink);font-weight:800;padding:10px 14px}
+.acts{display:flex;gap:8px;margin-bottom:8px}
+.acts>button{flex:1;border:1.5px solid var(--line);background:var(--card);border-radius:14px;padding:9px;font-weight:800}
+
+.li{display:flex;width:100%;align-items:center;justify-content:space-between;gap:10px;text-align:left;border:1.5px solid var(--line);background:var(--bg);border-radius:16px;padding:10px 14px;margin-bottom:8px}
+.li b{display:block;font-weight:800}.li span{color:var(--muted);font-size:13px;font-weight:700}
+.badge{flex:none;font-size:12px;font-weight:800;background:var(--mint);color:var(--mint-ink);border-radius:999px;padding:2px 9px}
+.lst{max-height:52vh}
+.strow{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);font-weight:800}
+.strow:last-of-type{border-bottom:0}
+.strow .step b{min-width:54px;text-align:center}
+.strow input{width:72px;text-align:center;padding:7px 4px}
+.rbar{display:flex;justify-content:space-between;align-items:center;margin:0 2px 8px}.rt{font-size:22px;font-weight:800;line-height:1.1}
+.sk.lv{background:var(--lav);color:var(--lav-ink)}
+.fields2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px}
+.fields3{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:6px}.fields3 label{font-size:12px;white-space:nowrap}
+.sr{display:flex;gap:2px;align-items:center}.sr button{flex:none;width:26px;height:38px;border:0;border-radius:9px;background:var(--lav);color:var(--lav-ink);font-weight:800;font-size:16px;padding:0}
+.sr input{flex:1;min-width:0;width:100%;height:38px;font-size:16px;padding:0;text-align:center;border-radius:10px}
+.mus{color:var(--muted);font-size:13px;font-weight:700;margin:2px 0 4px}.mus b{color:var(--accent)}
+.dline{margin-bottom:8px}.dline:last-child{margin-bottom:0}.dline b{font-size:14px;font-weight:800}.dline .chips{min-height:0;margin:4px 0 0}
+#donecard[hidden]{display:none}.acts4{display:grid;grid-template-columns:36px 36px;gap:4px;flex:none}.exrow{display:flex;align-items:center;justify-content:space-between;gap:8px}.exrow .ib{width:34px;height:34px}.how{margin:0 0 6px;line-height:1.45;font-weight:500}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
+.wbars{display:flex;align-items:flex-end;gap:6px;height:84px}.wcol{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:2px}.wcol i{display:block;width:100%;border-radius:6px 6px 2px 2px;background:var(--accent)}.wcol small{font-size:10.5px;color:var(--muted);font-weight:700}
+.mrow{display:grid;grid-template-columns:86px 1fr 24px;gap:8px;align-items:center;font-size:13px;font-weight:700;margin-bottom:5px}.mrow em{font-style:normal;text-align:right;color:var(--muted)}.mbar{height:10px;border-radius:99px;background:var(--line);overflow:hidden}.mbar i{display:block;height:100%;background:var(--mint-ink);opacity:.75}
+.prg{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;padding:5px 0;border-bottom:1px solid var(--line);font-size:14px}.prg:last-of-type{border-bottom:0}.prg b{font-weight:800}.prg span{color:var(--muted);font-weight:700;font-size:13px}.badge.neg{background:var(--peach);color:var(--peach-ink)}
+.ins{margin:0 0 6px;font-weight:700;font-size:14px}.ins:last-child{margin:0}
+#tabs button{font-size:13px;padding:11px 1px}
+.fbar{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:8px 8px 8px 14px;margin-bottom:8px;cursor:pointer}.fbl{flex:1;min-width:0}.fb1{font-weight:700;font-size:14px}.fb1 b{font-size:20px;font-weight:800}.fb2{font-size:11.5px;color:var(--muted);font-weight:700;margin-top:3px}.fbar .bar{height:6px;margin-top:3px}
+.fbig b{font-size:34px;font-weight:800}.fbig span{color:var(--muted);font-weight:700}
+.mbar i.fp{background:var(--accent)}.mbar i.fc{background:var(--orange)}.mbar i.ff{background:var(--mint-ink);opacity:.8}
+.fe{display:flex;width:100%;justify-content:space-between;align-items:center;gap:10px;text-align:left;border:0;background:none;border-top:1px solid var(--line);padding:8px 0}.fe b{display:block;font-weight:800;font-size:15px}.fe span{color:var(--muted);font-size:12.5px;font-weight:700}.fe em{font-style:normal;font-weight:800}
+.idea{display:flex;justify-content:space-between;align-items:center;gap:10px;border-top:1px solid var(--line);padding:9px 0}.idea b{display:block;font-weight:800;font-size:15px}.idea span{display:block;color:var(--accent);font-size:13px;font-weight:800}.idea small{color:var(--muted);font-size:12px;font-weight:700}
+.cd.c{background:#cfe6fb;color:#1c4a72;border-color:transparent}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .cd.c{background:#27455f;color:#cfe6fb}}
+.dlist{max-height:38vh}.tmb{margin-top:10px;text-align:center}.tmb .num{font-size:52px}.big.ready{background:var(--mint);color:var(--mint-ink);box-shadow:0 0 0 3px var(--accent)}
+.bsline{display:flex;align-items:center;gap:6px;color:var(--lav-ink);background:var(--lav);border-radius:999px;padding:4px 12px;width:max-content;max-width:100%;margin:8px 0 2px;font-weight:800;font-size:13px}.bsline svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.mbar{display:flex}.mbar i{display:block;height:100%;opacity:1}.mbar i.bp{background:var(--red)}.mbar i.bq{background:var(--orange)}.leg{font-size:12px;color:var(--muted);font-weight:700;margin:-4px 0 8px}
+.chkrow{display:flex;align-items:center;gap:10px;padding:9px 2px;border-bottom:1px solid var(--line);font-weight:700}.chkrow input{width:22px;height:22px;padding:0}
+.doneck{width:64px;height:64px;border-radius:50%;background:var(--mint);color:var(--mint-ink);display:grid;place-items:center}.doneck svg{width:34px;height:34px;stroke:currentColor;fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.cd{min-height:54px}input[type=number]{touch-action:none}
+.btnrow{display:grid;grid-template-columns:1fr auto auto;gap:8px;margin-top:12px}.ghost.sm{padding:0 14px;border-radius:16px;font-size:15px;white-space:nowrap}
+.wu{display:flex;align-items:center;gap:6px;margin:8px 0 2px;font-size:13px;font-weight:700;color:var(--muted)}.wu input{width:20px;height:20px;padding:0}
+.chip.skp{background:var(--line);color:var(--muted)}button.chip{cursor:pointer}
+.ntop{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}.nbtn{display:grid;grid-template-columns:repeat(2,34px);gap:4px;flex:none}.nbtn .ib{width:34px;height:34px}
+.bdg{display:flex;flex-direction:column;gap:5px;align-items:center;flex:none}.badge.bs{background:var(--lav);color:var(--lav-ink)}
+.bsi{display:inline-grid;vertical-align:-3px;margin-left:5px;color:var(--lav-ink)}.bsi svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.mid2{min-height:130px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center}.rbtn .ib{width:34px;height:34px}
+.calh{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}.calg{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}.cdh{text-align:center;color:var(--muted);font-weight:800;font-size:12px}
+.cd{border:1.5px solid var(--line);background:var(--bg);border-radius:12px;padding:3px 1px;min-height:46px;display:flex;flex-direction:column;align-items:center;font-weight:800;font-size:13px;color:var(--ink);gap:1px}
+.cd small{font-size:9px;font-weight:800;line-height:1.1}.cd.p{background:var(--mint);color:var(--mint-ink);border-color:transparent}.cd.l{background:var(--lav);color:var(--lav-ink);border-color:transparent}.cd.g{background:var(--peach);color:var(--peach-ink);border-color:transparent}
+.cd.today{border-color:var(--accent)}.cd.sel{outline:2px solid var(--accent)}.cd.e{visibility:hidden;border:0}.caldet{margin-top:10px}
+.rate{position:relative;display:grid;grid-template-columns:repeat(10,1fr);background:var(--lav);border-radius:18px;padding:3px;touch-action:none;user-select:none;-webkit-user-select:none;cursor:pointer}
+.rate span{position:relative;z-index:2;text-align:center;padding:9px 0;font-weight:700;font-size:15px;color:var(--lav-ink);transition:transform .2s,font-weight .2s}
+.rate span.on{font-weight:800;transform:scale(1.18)}
+.rate .glass{position:absolute;z-index:1;top:3px;bottom:3px;left:3px;width:calc((100% - 6px)/10);border-radius:15px;transform:translateX(calc(var(--i,4)*100%));transition:transform .28s cubic-bezier(.3,1.35,.5,1),scale .18s;
+ background:linear-gradient(160deg,rgba(255,255,255,.85),rgba(255,255,255,.35));-webkit-backdrop-filter:blur(8px) saturate(1.7);backdrop-filter:blur(8px) saturate(1.7);
+ box-shadow:inset 0 1px 1px rgba(255,255,255,.95),inset 0 -1px 2px rgba(143,123,224,.25),0 3px 10px rgba(80,60,150,.3);border:1px solid rgba(255,255,255,.7)}
+.rate.press .glass{scale:1.14 1.1;transition:transform .08s linear,scale .18s}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .rate .glass{background:linear-gradient(160deg,rgba(255,255,255,.4),rgba(255,255,255,.12));border-color:rgba(255,255,255,.3);box-shadow:inset 0 1px 1px rgba(255,255,255,.5),0 3px 10px rgba(0,0,0,.4)}}
+#nextcard[hidden]{display:none}.nxn{font-size:20px;font-weight:800;line-height:1.2}.nxl{font-weight:800;color:var(--accent);margin:2px 0 4px}.mp,.mus .mp{color:var(--red);font-weight:800}.ms,.mus .ms{color:var(--orange);font-weight:800}
+.pinfo .mline b,.li span b{display:inline;font-size:inherit}.mline{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12.5px}
+.badge.up{display:grid;place-items:center;width:30px;height:30px;padding:0;border-radius:50%;flex:none}.badge.up svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.stk{display:flex;flex-direction:column;gap:4px;flex:none}.stk .ib{width:34px;height:34px}.rb{display:flex;gap:6px;flex:none}
+.sr.sw input{height:44px;font-size:18px;touch-action:none;cursor:ns-resize}.hintl{font-size:12px;color:var(--muted);font-weight:700;text-align:center;margin-top:4px}.rbtn{display:flex;gap:6px}.rbtn .sk{padding:10px 12px}.nextl{margin-top:8px;text-align:center;color:var(--muted);font-weight:700;font-size:13px}.pinfo .tag{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}.liw{display:flex;gap:8px;align-items:center;margin-bottom:8px}.liw .li{margin-bottom:0;flex:1;width:auto;min-width:0}.prow .ib{width:36px;height:36px}.prow{gap:6px}
+.hrrow{display:flex;align-items:center;justify-content:space-between;margin-top:8px}.hrrow label{margin:0}.hrrow input{width:120px;text-align:center;padding:8px}
+.ib.grip{background:none;color:var(--muted);width:34px;touch-action:none;cursor:grab}
+.prow.drag{position:relative;z-index:3;box-shadow:0 8px 20px rgba(60,40,100,.25);opacity:.95}
+@media (max-height:700px){h1{display:none}#app{padding-top:6px}.card{padding:12px;margin-bottom:8px}.big{padding:11px;margin-top:8px}}
+button{font:inherit;color:inherit;cursor:pointer}
+.card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:16px;margin-bottom:12px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
+.stat{border-radius:18px;padding:8px 12px}.stat b{display:block;font-size:21px;font-weight:800;line-height:1.1}.stat span{font-size:12.5px}
+.s1{background:var(--mint);color:var(--mint-ink)}.s2{background:var(--lav);color:var(--lav-ink)}.s3{background:var(--peach);color:var(--peach-ink)}
+.seg{display:flex;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:3px;margin-bottom:10px}
+.seg button{flex:1;border:0;background:none;color:var(--muted);font-weight:800;padding:7px 4px;border-radius:999px}
+.seg button[aria-pressed="true"]{background:var(--lav);color:var(--lav-ink)}
+.head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+.meta{color:var(--muted);font-weight:700;font-size:14px}
+.exn{font-size:22px;font-weight:800;line-height:1.2}
+.sub{color:var(--muted);font-weight:700;font-size:14px}
+.chips{display:flex;gap:6px;min-height:28px;margin:8px 0 2px;flex-wrap:wrap}
+.chip{font-size:13px;font-weight:700;background:var(--mint);color:var(--mint-ink);border-radius:999px;padding:3px 10px;border:0}
+label{display:block;font-size:13px;font-weight:700;color:var(--muted);margin:0 0 4px}
+input{width:100%;font:inherit;font-weight:700;font-size:17px;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:14px;padding:10px 12px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.big{width:100%;margin-top:12px;border:0;border-radius:16px;background:var(--accent);color:var(--accent-ink);font-weight:800;font-size:17px;padding:14px}
+.big:active{transform:scale(.98)}
+.link{border:0;background:none;color:var(--muted);font-weight:700;text-decoration:underline;padding:8px 0 0;display:block;margin:0 auto}
+.mid{min-height:250px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:8px}
+.num{font-size:64px;font-weight:800;line-height:1;color:var(--accent)}
+.bar{width:100%;height:8px;border-radius:99px;background:var(--line);overflow:hidden}.bar i{display:block;height:100%;background:var(--accent);width:100%}
+.hint{color:var(--muted);font-size:14px;font-weight:700;margin:0 0 8px}
+.prow{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:6px 8px 6px 4px;margin-bottom:8px}
+.pinfo{flex:1;text-align:left;border:0;background:none;padding:6px 10px;min-width:0}
+.pinfo b{display:block;font-weight:800}.pinfo span{color:var(--muted);font-size:14px;font-weight:700}
+.ib{width:40px;height:40px;border-radius:12px;border:0;display:grid;place-items:center;flex:none}
+.ib svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.sw{background:var(--lav);color:var(--lav-ink)}.dl{background:var(--peach);color:var(--peach-ink)}
+.set-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);font-weight:700}
+.set-row:last-child{border-bottom:0}.set-row small{color:var(--muted);font-weight:700}
+.step{display:flex;align-items:center;gap:10px}.step button{width:34px;height:34px;border-radius:10px;border:0;background:var(--lav);color:var(--lav-ink);font-weight:800;font-size:18px}
+.opts{display:flex;flex-wrap:wrap;gap:6px}.opt{border:1.5px solid var(--line);background:var(--bg);border-radius:999px;padding:6px 12px;font-weight:700;font-size:14px}
+.opt.r{background:var(--mint);color:var(--mint-ink);border-color:transparent}
+.sm{font-size:14px;font-weight:800;color:var(--muted);margin:10px 0 4px}
+#tabs{flex:none;display:flex;gap:6px;padding-top:6px}
+#tabs button{flex:1;border:0;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:11px 4px;font-weight:800;color:var(--muted)}
+#tabs button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:transparent}
+#sheet{position:fixed;inset:0;background:rgba(20,15,30,.45);display:none;align-items:flex-end;justify-content:center;z-index:5}
+#sheet.on{display:flex}
+#panel{width:100%;max-width:520px;background:var(--card);border-radius:24px 24px 0 0;padding:18px 16px calc(16px + env(safe-area-inset-bottom,0px))}
+#panel h2{margin-bottom:12px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.ghost{border:1.5px solid var(--line);background:none;border-radius:16px;font-weight:800;padding:13px}
+#toast{position:fixed;left:50%;bottom:84px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:999px;font-weight:700;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:6;white-space:nowrap}
+#toast.on{opacity:1}
+button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+</style>
+</head>
+<body>
+<div id="app">
+  <h1 id="title"></h1>
+  <div id="screen">
+    <section id="tab-work" class="sc on">
+      
+      <div class="fbar" id="foodbar"></div>
+      <div class="rbar" id="routine"></div>
+      <div class="card" id="logcard"></div>
+      <div class="card rest" id="restcard" hidden></div>
+      <div class="card" id="nextcard" hidden></div>
+      <div class="card" id="donecard" hidden></div>
+    </section>
+    <section id="tab-food" class="sc"><div id="food-body"></div></section>
+    <section id="tab-plan">
+      <div class="seg" id="seg-plan"></div>
+      <div class="acts"><div class="seg" id="seg-ab" style="margin:0;flex:1"></div><button id="add" style="flex:1.5"></button><button id="shuffle" style="flex:1.1"></button></div>
+      <div class="sc" id="plist" style="flex:1;min-height:0"></div>
+    </section>
+    <section id="tab-ana" class="sc"><div class="seg" id="seg-ana"></div><div id="ana-body"></div></section>
+    <section id="tab-set" class="sc">
+      <div class="sm" data-i="profBk" style="margin-top:0"></div><div class="card" id="cloudcard" style="padding:12px 14px"></div>
+      <div class="card" style="padding:4px 16px">
+        <div class="strow"><span data-i="language"></span><div class="seg" style="margin:0;min-width:150px" id="seg-lang"></div></div>
+        <div class="strow"><span data-i="manualRest"></span><button class="chip" id="manual"></button></div>
+        <div id="restrow" style="display:none"></div>
+        <p class="hint" id="autohint" style="margin:6px 0"></p>
+        <div class="strow" id="calrow"><span data-i="calib"></span><span><b id="calv"></b> <button class="chip" id="calreset"></button></span></div>
+        <div class="strow"><span data-i="beeps"></span><button class="chip" id="beep"></button></div>
+      </div>
+      <div class="sm" data-i="equip"></div><p class="hint" data-i="equipHint" style="margin:0 0 6px"></p><div class="opts" id="eqs"></div>
+      <div class="strow" style="margin-top:8px"><span data-i="backSafe"></span><button class="chip" id="bsbtn"></button></div><p class="hint" data-i="bsHint" style="margin:0 0 6px"></p>
+      <div class="sm" data-i="profile"></div><div class="card" style="padding:4px 16px;margin-bottom:6px" id="prof"></div><p class="hint" data-i="preHint" style="margin:0 0 6px"></p><button class="ghost" id="applyw" style="width:100%"></button>
+      <div class="sm" data-i="deleted"></div><div class="opts" id="dels"></div>
+      <div class="sm" data-i="recent"></div><div id="recent"></div>
+      <button class="link" id="reset"></button>
+    </section>
+  </div>
+  <nav id="tabs"></nav>
+</div>
+<div id="sheet"><div id="panel"></div></div>
+<div id="toast"></div>
+
+<script>
+(function(){
+var KEY="workout-log-v2";
+var RAW="Bench press|push|chest|triceps,shoulders|4|8|bb,bench|.55;Incline bench press|push|chest|shoulders,triceps|3|8|bb,bench|.45;Smith machine bench press|push|chest|triceps,shoulders|3|8|smith,bench|.5;Dumbbell bench press|push|chest|triceps,shoulders|3|10|db,bench|.2;Incline dumbbell press|push|chest|shoulders,triceps|3|10|db,bench|.18;Machine chest press|push|chest|triceps,shoulders|3|10|chestm|.45;Cable fly|push|chest|shoulders|3|12|cable|.1;Low-to-high cable fly|push|chest|shoulders|3|12|cable|.08;Dumbbell fly|push|chest|shoulders|3|12|db,bench|.08;Pec deck|push|chest|shoulders|3|12|chestm|.3;Push-up|push|chest|triceps,shoulders|3|15||0;Dips|push|chest|triceps,shoulders|3|10|dip|0;"+
+"Overhead press|push|shoulders|triceps,chest|3|8|bb|.35;Smith machine shoulder press|push|shoulders|triceps|3|10|smith|.3;Dumbbell shoulder press|push|shoulders|triceps|3|10|db|.15;Arnold press|push|shoulders|triceps|3|10|db|.12;Machine shoulder press|push|shoulders|triceps|3|10|chestm|.35;Lateral raise|push|shoulders||3|12|db|.06;Cable lateral raise|push|shoulders||3|12|cable|.05;Front raise|push|shoulders|chest|3|12|db|.07;"+
+"Triceps pushdown|push|triceps||3|12|cable|.25;Overhead cable triceps extension|push|triceps|shoulders|3|12|cable|.2;Overhead triceps extension|push|triceps|shoulders|3|12|db|.15;Skull crusher|push|triceps||3|10|bb,bench|.25;Close-grip bench press|push|triceps|chest,shoulders|3|8|bb,bench|.45;Bench dips|push|triceps|chest,shoulders|3|12|bench|0;Dumbbell kickback|push|triceps||3|12|db|.05;"+
+"Barbell row|pull|back|biceps,rear|4|8|bb|.5;Lat pulldown|pull|back|biceps|3|10|cable|.55;Pull-up|pull|back|biceps|3|8|bar|0;Chin-up|pull|back|biceps|3|8|bar|0;Seated cable row|pull|back|biceps,rear|3|10|cable|.5;One-arm dumbbell row|pull|back|biceps,rear|3|10|db|.2;T-bar row|pull|back|biceps,rear|3|10|rowm|.4;Machine row|pull|back|biceps,rear|3|10|rowm|.45;Straight-arm pulldown|pull|back||3|12|cable|.2;"+
+"Face pull|pull|rear|shoulders,back|3|15|cable|.15;Reverse fly|pull|rear|back|3|15|db|.04;Reverse pec deck|pull|rear|back|3|15|chestm|.25;"+
+"Barbell curl|pull|biceps|forearms|3|10|bb|.25;Dumbbell curl|pull|biceps|forearms|3|10|db|.1;Hammer curl|pull|biceps|forearms|3|12|db|.1;Incline dumbbell curl|pull|biceps||3|10|db,bench|.08;Preacher curl|pull|biceps||3|10|bb,bench|.2;Cable curl|pull|biceps|forearms|3|12|cable|.2;"+
+"Squat|legs|quads|glutes,hams|4|8|bb,rack|.75;Smith machine squat|legs|quads|glutes|3|10|smith|.6;Leg press|legs|quads|glutes|3|10|legm|1.2;Front squat|legs|quads|glutes|3|8|bb,rack|.55;Bulgarian split squat|legs|quads|glutes,hams|3|10|db,bench|.15;Goblet squat|legs|quads|glutes|3|12|db|.25;Walking lunge|legs|quads|glutes,hams|3|12|db|.12;Leg extension|legs|quads||3|12|legm/lextb|.4;"+
+"Romanian deadlift|legs|hams|glutes,back|3|8|bb|.6;Dumbbell Romanian deadlift|legs|hams|glutes,back|3|10|db|.25;Leg curl|legs|hams||3|12|legm/lextb|.35;Deadlift|legs|hams|glutes,back|3|5|bb|.9;Good morning|legs|hams|glutes,back|3|10|bb,rack|.35;"+
+"Hip thrust|legs|glutes|hams|3|10|bb,bench|.8;Glute bridge|legs|glutes|hams|3|12||0;Cable kickback|legs|glutes|hams|3|12|cable|.1;"+
+"Standing calf raise|legs|calves||4|12|calfm|.8;Seated calf raise|legs|calves||3|15|calfm|.5;Smith machine calf raise|legs|calves||4|12|smith|.6;Dumbbell calf raise|legs|calves||4|15|db|.2;"+
+"Smith machine incline press|push|chest|shoulders,triceps|3|10|smith,bench|.4;Incline machine press|push|chest|shoulders,triceps|3|10|chestm|.4;Floor press|push|chest|triceps|3|10|db|.2;Hex press|push|chest|triceps|3|12|db|.12;Decline push-up|push|chest|shoulders,triceps|3|12|bench|0;Incline push-up|push|chest|triceps,shoulders|3|15|bench|0;Dumbbell push press|push|shoulders|triceps|3|8|db|.2;Landmine press|push|shoulders|chest,triceps|3|10|bb|.15;Pike push-up|push|shoulders|triceps|3|10||0;Cable front raise|push|shoulders|chest|3|12|cable|.06;Diamond push-up|push|triceps|chest,shoulders|3|12||0;Cable triceps kickback|push|triceps||3|12|cable|.08;Single-arm cable pushdown|push|triceps||3|12|cable|.12;Smith machine close-grip bench press|push|triceps|chest,shoulders|3|8|smith,bench|.4;Pendlay row|pull|back|biceps,rear|4|6|bb|.45;Inverted row|pull|back|biceps,rear|3|10|rack|0;Close-grip lat pulldown|pull|back|biceps|3|10|cable|.5;Wide-grip seated cable row|pull|back|rear,biceps|3|10|cable|.45;Single-arm cable row|pull|back|biceps,rear|3|10|cable|.2;Single-arm lat pulldown|pull|back|biceps|3|10|cable|.25;Chest-supported dumbbell row|pull|back|biceps,rear|3|10|db,bench|.18;Cable reverse fly|pull|rear|back|3|15|cable|.05;Rear delt row|pull|rear|back,biceps|3|12|db|.1;EZ-bar curl|pull|biceps|forearms|3|10|bb|.22;Concentration curl|pull|biceps||3|12|db|.08;Spider curl|pull|biceps||3|12|db,bench|.07;Bayesian cable curl|pull|biceps||3|12|cable|.12;Cable hammer curl|pull|biceps|forearms|3|12|cable|.18;Reverse curl|pull|biceps|forearms|3|12|bb|.18;Hack squat|legs|quads|glutes|3|10|legm|.8;Step-up|legs|quads|glutes,hams|3|10|db,bench|.15;Reverse lunge|legs|quads|glutes,hams|3|10|db|.12;Smith machine split squat|legs|quads|glutes,hams|3|10|smith|.4;Seated leg curl|legs|hams||3|12|legm|.35;Stiff-leg deadlift|legs|hams|glutes,back|3|8|bb|.55;Single-leg Romanian deadlift|legs|hams|glutes|3|10|db|.12;Sumo deadlift|legs|hams|glutes,quads|3|5|bb|.85;Smith machine Romanian deadlift|legs|hams|glutes|3|10|smith|.5;Cable pull-through|legs|hams|glutes|3|12|cable|.2;Smith machine hip thrust|legs|glutes|hams|3|10|smith,bench|.7;Dumbbell hip thrust|legs|glutes|hams|3|12|db,bench|.3;Single-leg glute bridge|legs|glutes|hams|3|12||0;Leg press calf raise|legs|calves||4|15|legm|.9;Single-leg calf raise|legs|calves||3|12||0;"+
+"Crunch|core|abs|obl|3|15||0;Cable crunch|core|abs||3|12|cable|.35;Decline sit-up|core|abs||3|12|bench|0;Sit-up|core|abs||3|15||0;Hanging knee raise|core|abs||3|12|bar|0;Hanging leg raise|core|abs|obl|3|10|bar|0;Lying leg raise|core|abs||3|12||0;Reverse crunch|core|abs||3|15||0;Dead bug|core|abs||3|12||0;Bicycle crunch|core|abs|obl|3|20||0;V-up|core|abs||3|12||0;Mountain climber|core|abs|obl|3|30||0;Plank|core|abs|lback|3|45||0|t;Hollow body hold|core|abs||3|30||0|t;Weighted crunch|core|abs||3|12|db|.1;Barbell rollout|core|abs|lback|3|8|bb|0;Russian twist|core|obl|abs|3|20||0;Weighted Russian twist|core|obl|abs|3|16|db|.1;Side plank|core|obl|abs|3|30||0|t;Cable woodchop|core|obl|abs|3|12|cable|.15;Pallof press|core|obl|abs|3|12|cable|.1;Dumbbell side bend|core|obl||3|12|db|.2;Hanging oblique knee raise|core|obl|abs|3|10|bar|0;Heel touch|core|obl||3|20||0;Superman|core|lback|glutes|3|12||0;Bird dog|core|lback|abs,glutes|3|12||0;McGill curl-up|core|abs||3|8||0;Knee plank|core|abs|lback|3|30||0|t;"+
+"Bear plank hold|core|abs|obl|3|30||0|t;Plank shoulder taps|core|abs|obl|3|20||0;Side plank (knees)|core|obl|abs|3|30||0|t;Half-kneeling Pallof press|core|obl|abs|3|12|cable|.1;Heel slide dead bug|core|abs||3|10||0;Quadruped leg lift|core|lback|glutes,abs|3|10||0;Bridge march|core|abs|glutes,lback|3|12||0;Suitcase hold|core|obl|abs|3|30|db|.15|t;Plank with leg lift|core|abs|lback,glutes|3|10||0;Anti-rotation cable hold|core|obl|abs|3|20|cable|.1|t;Flutter kicks|core|abs||3|30||0;Plank jacks|core|abs||3|20||0;Oblique crunch|core|obl|abs|3|15||0;Seated knee tuck|core|abs||3|12|bench|0;Landmine twist|core|obl|abs|3|10|bb|.1";
+var XL=RAW.split(";").map(function(r){var f=r.split("|");return {k:f[0],day:f[1],p:f[2],s:f[3]?f[3].split(","):[],sets:+f[4],reps:+f[5],eq:f[6]?f[6].split(","):[],r:parseFloat(f[7])||0,tm:f[8]==="t"}}),X={};XL.forEach(function(x){X[x.k]=x});
+var EQK=["bb","db","cable","smith","bench","rack","bar","dip","legm","lextb","chestm","rowm","calfm"];
+var EQ={en:{bb:"Barbell & plates",db:"Dumbbells (fixed or adjustable)",cable:"Cable machine",smith:"Smith machine",bench:"Adjustable bench",rack:"Squat / power rack",bar:"Pull-up bar",dip:"Dip station",legm:"Leg machines",lextb:"Bench with leg extension/curl",chestm:"Chest / shoulder machines",rowm:"Row machine",calfm:"Calf raise machine"},
+ ko:{bb:"바벨·원판",db:"덤벨 (고정식·조절식)",cable:"케이블 머신",smith:"스미스 머신",bench:"조절식 벤치",rack:"스쿼트·파워 랙",bar:"풀업 바",dip:"딥 스테이션",legm:"레그 머신",lextb:"레그 익스텐션/컬 겸용 벤치",chestm:"가슴·어깨 머신",rowm:"로우 머신",calfm:"카프 레이즈 머신"}};
+var KOX={"Incline bench press":"인클라인 벤치프레스","Smith machine bench press":"스미스 머신 벤치프레스","Dumbbell bench press":"덤벨 벤치프레스","Low-to-high cable fly":"로우투하이 케이블 플라이","Dumbbell fly":"덤벨 플라이","Pec deck":"펙덱 플라이","Smith machine shoulder press":"스미스 머신 숄더 프레스","Machine shoulder press":"머신 숄더 프레스","Cable lateral raise":"케이블 레터럴 레이즈","Overhead cable triceps extension":"케이블 오버헤드 트라이셉스 익스텐션","Dumbbell kickback":"덤벨 킥백","Chin-up":"친업","Machine row":"머신 로우","Straight-arm pulldown":"스트레이트암 풀다운","Reverse pec deck":"리버스 펙덱","Incline dumbbell curl":"인클라인 덤벨 컬","Smith machine squat":"스미스 머신 스쿼트","Walking lunge":"워킹 런지","Dumbbell Romanian deadlift":"덤벨 루마니안 데드리프트","Cable kickback":"케이블 킥백","Smith machine calf raise":"스미스 머신 카프 레이즈","Dumbbell calf raise":"덤벨 카프 레이즈","Smith machine incline press":"스미스 머신 인클라인 프레스","Incline machine press":"인클라인 머신 프레스","Floor press":"플로어 프레스","Hex press":"헥스 프레스","Decline push-up":"디클라인 푸시업","Incline push-up":"인클라인 푸시업","Dumbbell push press":"덤벨 푸시 프레스","Landmine press":"랜드마인 프레스","Pike push-up":"파이크 푸시업","Cable front raise":"케이블 프론트 레이즈","Diamond push-up":"다이아몬드 푸시업","Cable triceps kickback":"케이블 트라이셉스 킥백","Single-arm cable pushdown":"원암 케이블 푸시다운","Smith machine close-grip bench press":"스미스 머신 클로즈그립 벤치프레스","Pendlay row":"펜들레이 로우","Inverted row":"인버티드 로우","Close-grip lat pulldown":"클로즈그립 랫 풀다운","Wide-grip seated cable row":"와이드그립 시티드 케이블 로우","Single-arm cable row":"원암 케이블 로우","Single-arm lat pulldown":"원암 랫 풀다운","Chest-supported dumbbell row":"체스트 서포티드 덤벨 로우","Cable reverse fly":"케이블 리버스 플라이","Rear delt row":"리어 델트 로우","EZ-bar curl":"EZ바 컬","Concentration curl":"컨센트레이션 컬","Spider curl":"스파이더 컬","Bayesian cable curl":"베이지안 케이블 컬","Cable hammer curl":"케이블 해머 컬","Reverse curl":"리버스 컬","Hack squat":"핵 스쿼트","Step-up":"스텝업","Reverse lunge":"리버스 런지","Smith machine split squat":"스미스 머신 스플릿 스쿼트","Seated leg curl":"시티드 레그 컬","Stiff-leg deadlift":"스티프 레그 데드리프트","Single-leg Romanian deadlift":"싱글 레그 루마니안 데드리프트","Sumo deadlift":"스모 데드리프트","Smith machine Romanian deadlift":"스미스 머신 루마니안 데드리프트","Cable pull-through":"케이블 풀스루","Smith machine hip thrust":"스미스 머신 힙 쓰러스트","Dumbbell hip thrust":"덤벨 힙 쓰러스트","Single-leg glute bridge":"싱글 레그 글루트 브릿지","Leg press calf raise":"레그 프레스 카프 레이즈","Single-leg calf raise":"싱글 레그 카프 레이즈","Crunch":"크런치","Cable crunch":"케이블 크런치","Decline sit-up":"디클라인 싯업","Sit-up":"싯업","Hanging knee raise":"행잉 니 레이즈","Hanging leg raise":"행잉 레그 레이즈","Lying leg raise":"라잉 레그 레이즈","Reverse crunch":"리버스 크런치","Dead bug":"데드버그","Bicycle crunch":"바이시클 크런치","V-up":"브이업","Mountain climber":"마운틴 클라이머","Plank":"플랭크","Hollow body hold":"할로우 바디 홀드","Weighted crunch":"웨이티드 크런치","Barbell rollout":"바벨 롤아웃","Russian twist":"러시안 트위스트","Weighted Russian twist":"웨이티드 러시안 트위스트","Side plank":"사이드 플랭크","Cable woodchop":"케이블 우드촙","Pallof press":"팔로프 프레스","Dumbbell side bend":"덤벨 사이드 벤드","Hanging oblique knee raise":"행잉 오블리크 니 레이즈","Heel touch":"힐 터치","Superman":"슈퍼맨","Bird dog":"버드독","McGill curl-up":"맥길 컬업","Knee plank":"니 플랭크","Bear plank hold":"베어 플랭크 홀드","Plank shoulder taps":"플랭크 숄더 탭","Side plank (knees)":"사이드 플랭크 (무릎)","Half-kneeling Pallof press":"하프 닐링 팔로프 프레스","Heel slide dead bug":"힐 슬라이드 데드버그","Quadruped leg lift":"쿼드러페드 레그 리프트","Bridge march":"브릿지 마치","Suitcase hold":"슈트케이스 홀드","Plank with leg lift":"레그 리프트 플랭크","Anti-rotation cable hold":"안티 로테이션 케이블 홀드","Flutter kicks":"플러터 킥","Plank jacks":"플랭크 잭","Oblique crunch":"오블리크 크런치","Seated knee tuck":"시티드 니 턱","Landmine twist":"랜드마인 트위스트"};
+var KO={"Bench press":"벤치프레스","Incline dumbbell press":"인클라인 덤벨 프레스","Machine chest press":"머신 체스트 프레스","Cable fly":"케이블 플라이","Push-up":"푸시업","Dips":"딥스","Overhead press":"오버헤드 프레스","Dumbbell shoulder press":"덤벨 숄더 프레스","Arnold press":"아놀드 프레스","Lateral raise":"레터럴 레이즈","Front raise":"프론트 레이즈","Triceps pushdown":"트라이셉스 푸시다운","Overhead triceps extension":"오버헤드 트라이셉스 익스텐션","Skull crusher":"스컬 크러셔","Close-grip bench press":"클로즈그립 벤치프레스","Bench dips":"벤치 딥스","Barbell row":"바벨 로우","Lat pulldown":"랫 풀다운","Pull-up":"풀업","Seated cable row":"시티드 케이블 로우","One-arm dumbbell row":"원암 덤벨 로우","T-bar row":"티바 로우","Face pull":"페이스 풀","Reverse fly":"리버스 플라이","Barbell curl":"바벨 컬","Dumbbell curl":"덤벨 컬","Hammer curl":"해머 컬","Preacher curl":"프리처 컬","Cable curl":"케이블 컬","Squat":"스쿼트","Leg press":"레그 프레스","Front squat":"프론트 스쿼트","Bulgarian split squat":"불가리안 스플릿 스쿼트","Leg extension":"레그 익스텐션","Goblet squat":"고블릿 스쿼트","Romanian deadlift":"루마니안 데드리프트","Leg curl":"레그 컬","Deadlift":"데드리프트","Good morning":"굿모닝","Hip thrust":"힙 쓰러스트","Glute bridge":"글루트 브릿지","Standing calf raise":"스탠딩 카프 레이즈","Seated calf raise":"시티드 카프 레이즈"};
+var MU={en:{chest:"Chest",shoulders:"Shoulders",triceps:"Triceps",back:"Back",rear:"Rear delts",biceps:"Biceps",forearms:"Forearms",quads:"Quads",hams:"Hamstrings",glutes:"Glutes",calves:"Calves",abs:"Abs",obl:"Obliques",lback:"Lower back"},
+ ko:{chest:"가슴",shoulders:"어깨",triceps:"삼두",back:"등",rear:"후면 어깨",biceps:"이두",forearms:"전완",quads:"대퇴사두",hams:"햄스트링",glutes:"둔근",calves:"종아리",abs:"복근",obl:"복사근",lback:"척추기립근"}};
+for(var kk in KOX)KO[kk]=KOX[kk];
+var HOW={
+bench:{en:["Lie back with your eyes under the bar or dumbbells. Feet flat, shoulder blades pulled back and down.","Lower to mid-chest with elbows about 45° from your body, then press up until your arms are straight.","Keep wrists stacked over elbows and don’t bounce the weight off your chest."],
+ ko:["눈이 바(덤벨) 아래에 오도록 눕고, 발은 바닥에 두고 견갑을 뒤로·아래로 모으세요.","팔꿈치를 몸에서 약 45° 벌려 가슴 중앙까지 내린 뒤 팔이 펴질 때까지 밀어 올리세요.","손목이 팔꿈치 바로 위에 오게 하고 가슴에서 반동을 주지 마세요."]},
+mpress:{en:["Adjust the seat so the handles line up with mid-chest. Back flat against the pad.","Press forward until your arms are nearly straight, then return slowly.","Keep your shoulders down and don’t lock out hard."],
+ ko:["손잡이가 가슴 중앙 높이에 오도록 시트를 조절하고 등을 패드에 붙이세요.","팔이 거의 펴질 때까지 밀고 천천히 돌아오세요.","어깨를 내리고 팔꿈치를 세게 잠그지 마세요."]},
+fly:{en:["Keep a slight bend in your elbows and your chest up.","Open your arms wide until you feel a chest stretch, then bring your hands together in an arc.","Hold the elbow bend steady. This is not a press."],
+ ko:["팔꿈치를 살짝 굽히고 가슴을 펴세요.","가슴이 늘어나는 느낌이 들 때까지 팔을 벌린 뒤 원을 그리며 손을 모으세요.","팔꿈치 각도를 유지하세요. 프레스 동작이 아니에요."]},
+push:{en:["Hands (or bars) just outside shoulder width and your body in a straight line.","Lower until your chest (or upper arms) is about parallel to the floor, then push back up.","Brace your core and don’t let your hips sag."],
+ ko:["손(또는 바)을 어깨너비보다 약간 넓게 잡고 몸을 일직선으로 만드세요.","가슴(또는 상완)이 바닥과 거의 평행해질 때까지 내린 뒤 밀어 올리세요.","코어에 힘을 주고 골반이 처지지 않게 하세요."]},
+ohp:{en:["Stand or sit tall with the weight at shoulder height and your core braced.","Press straight overhead until your arms are extended, then lower under control to your shoulders.","Don’t arch your lower back. Squeeze your glutes."],
+ ko:["바른 자세로 서거나 앉아 무게를 어깨 높이에 두고 코어에 힘을 주세요.","머리 위로 똑바로 밀어 올린 뒤 어깨까지 천천히 내리세요.","허리를 꺾지 말고 엉덩이에 힘을 주세요."]},
+raise:{en:["Stand tall with a slight bend in your elbows and the weights at your sides.","Raise the weights out to the side (or front) to shoulder height, then lower slowly.","Use a light weight and don’t swing."],
+ ko:["팔꿈치를 살짝 굽히고 무게를 몸 옆에 두고 서세요.","무게를 옆(또는 앞)으로 어깨 높이까지 들어 올린 뒤 천천히 내리세요.","가벼운 무게를 쓰고 반동을 주지 마세요."]},
+pdown:{en:["Stand close to the cable with your elbows pinned to your sides and chest up.","Push the handle down until your arms are straight, then let it rise until your forearms are about parallel to the floor.","Only your forearms move."],
+ ko:["케이블 가까이 서서 팔꿈치를 옆구리에 붙이고 가슴을 펴세요.","팔이 펴질 때까지 아래로 누른 뒤 전완이 바닥과 평행해질 때까지 천천히 올라오세요.","전완만 움직여야 해요."]},
+text:{en:["Keep your upper arms still with elbows pointing forward or up.","Bend at the elbows to lower the weight behind your head (or toward your forehead), then extend until your arms are straight.","Don’t let your elbows flare out."],
+ ko:["상완을 고정하고 팔꿈치가 앞(또는 위)을 향하게 하세요.","팔꿈치를 굽혀 무게를 머리 뒤(또는 이마 쪽)로 내린 뒤 팔이 펴질 때까지 뻗으세요.","팔꿈치가 벌어지지 않게 하세요."]},
+row:{en:["Hinge forward with a flat back (or sit tall) and your arms extended.","Pull the weight toward your lower ribs, squeezing your shoulder blades together, then lower slowly.","Lead with your elbows and don’t yank with your lower back."],
+ ko:["등을 편 채 상체를 숙이거나(또는 바르게 앉아) 팔을 뻗으세요.","무게를 아랫갈비뼈 쪽으로 당기며 견갑을 모은 뒤 천천히 내리세요.","팔꿈치로 이끌고 허리 반동으로 당기지 마세요."]},
+pull:{en:["Sit with your thighs under the pad and a grip slightly wider than your shoulders.","Pull the bar to your upper chest by driving your elbows down, then let it rise with control.","Lean back slightly and never pull behind your neck."],
+ ko:["허벅지를 패드 아래에 넣고 어깨보다 약간 넓게 바를 잡으세요.","팔꿈치를 아래로 내리며 바를 상체 위쪽으로 당긴 뒤 천천히 올려 보내세요.","상체를 살짝 젖히고 목 뒤로 당기지 마세요."]},
+pullup:{en:["Hang from the bar with your shoulders pulled down and a full stretch.","Pull until your chin clears the bar, then lower all the way down.","No kicking or swinging. Use a band or assisted option if you need it."],
+ ko:["어깨를 내린 채 바에 매달려 몸을 충분히 늘리세요.","턱이 바 위로 올라올 때까지 당긴 뒤 끝까지 내려오세요.","반동을 쓰지 마세요. 필요하면 밴드나 보조 기구를 쓰세요."]},
+rear:{en:["Set the weight at face height (or hinge forward) with soft elbows.","Pull or open your arms back toward your ears, squeezing your rear shoulders, then return slowly.","Use light weight and higher reps."],
+ ko:["얼굴 높이에 케이블을 두거나 상체를 숙이고 팔꿈치를 살짝 굽히세요.","후면 어깨를 조이며 팔을 귀 쪽으로 당기거나 벌린 뒤 천천히 돌아오세요.","가벼운 무게로 높은 반복 횟수를 하세요."]},
+curl:{en:["Stand tall (or sit) with your elbows tucked at your sides.","Curl the weight toward your shoulders, squeeze at the top, then lower slowly.","Keep your elbows still and don’t swing your body."],
+ ko:["바르게 서거나 앉아 팔꿈치를 옆구리에 붙이세요.","무게를 어깨 쪽으로 말아 올려 위에서 조인 뒤 천천히 내리세요.","팔꿈치를 고정하고 몸을 흔들지 마세요."]},
+squat:{en:["Feet about shoulder width, chest up, core braced, with the weight on your upper back or at your chest.","Sit down and back until your thighs are at least parallel, then drive through your whole foot to stand.","Knees track over your toes and your back stays neutral."],
+ ko:["발을 어깨너비로 벌리고 가슴을 펴고 코어에 힘을 준 채, 무게는 등 위쪽이나 가슴 앞에 두세요.","엉덩이를 뒤로 빼며 허벅지가 바닥과 평행하거나 더 깊게 앉은 뒤 발 전체로 밀며 일어서세요.","무릎은 발끝 방향을 따르고 허리는 중립을 유지하세요."]},
+lpress:{en:["Sit with your back flat against the pad and your feet shoulder width on the platform.","Lower until your knees reach about 90°, then press back up without locking your knees.","Don’t let your hips lift off the seat."],
+ ko:["등을 패드에 붙이고 발을 어깨너비로 플랫폼에 올리세요.","무릎이 약 90°가 될 때까지 내린 뒤 무릎을 잠그지 말고 밀어 올리세요.","엉덩이가 시트에서 뜨지 않게 하세요."]},
+lunge:{en:["Take a long step (or rest your rear foot on a bench) with your torso upright and weights at your sides.","Lower your back knee toward the floor, then drive up through your front heel.","Keep your front knee over your ankle."],
+ ko:["보폭을 넓게 서거나(뒷발을 벤치에 올리고) 상체를 세우고 무게를 몸 옆에 두세요.","뒤쪽 무릎을 바닥 쪽으로 내린 뒤 앞발 뒤꿈치로 밀어 올라오세요.","앞쪽 무릎이 발목 위에 오게 하세요."]},
+hinge:{en:["Feet hip width, weight close to your legs, back flat.","Push your hips back and lower the weight along your legs until you feel a hamstring stretch (to the floor for a deadlift), then drive your hips forward to stand.","Keep your spine neutral and never round your back."],
+ ko:["발을 골반 너비로 벌리고 무게를 다리에 가깝게 두고 등을 평평하게 유지하세요.","엉덩이를 뒤로 빼며 햄스트링이 늘어나는 느낌이 들 때까지 무게를 다리를 따라 내린 뒤(데드리프트는 바닥까지) 엉덩이를 앞으로 밀며 일어서세요.","척추를 중립으로 유지하고 등을 둥글게 말지 마세요."]},
+thrust:{en:["Upper back on a bench (or lie on the floor), feet flat, weight across your hips.","Drive your hips up until your body forms a straight line, squeeze your glutes, then lower.","Tuck your chin and don’t over-arch your lower back."],
+ ko:["윗등을 벤치에 대거나 바닥에 누워 발을 평평하게 두고 무게를 골반 위에 올리세요.","몸이 일직선이 될 때까지 골반을 들어 올려 엉덩이를 조이고 내려오세요.","턱을 당기고 허리를 과하게 꺾지 마세요."]},
+lmach:{en:["Adjust the pad to your shins or ankles and line your knees up with the machine’s pivot.","Extend (or curl) your legs smoothly, pause, then lower slowly.","No jerking. Control both directions."],
+ ko:["패드를 정강이(발목)에 맞추고 무릎을 기구의 회전축에 맞추세요.","다리를 부드럽게 펴거나(굽히고) 잠시 멈춘 뒤 천천히 내리세요.","반동 없이 올릴 때와 내릴 때 모두 조절하세요."]},
+calf:{en:["Balls of your feet on the edge, heels free to drop.","Rise as high as you can, pause, then lower to a full stretch.","Use a slow tempo."],
+ ko:["발볼을 모서리에 올리고 뒤꿈치는 아래로 내릴 수 있게 하세요.","최대한 높이 올라가 잠시 멈춘 뒤 끝까지 늘어나게 내려오세요.","천천히 움직이세요."]}};
+var PATS={bench:["Bench press","Incline bench press","Smith machine bench press","Dumbbell bench press","Incline dumbbell press","Close-grip bench press"],mpress:["Machine chest press"],fly:["Cable fly","Low-to-high cable fly","Dumbbell fly","Pec deck"],push:["Push-up","Dips","Bench dips"],
+ ohp:["Overhead press","Smith machine shoulder press","Dumbbell shoulder press","Arnold press","Machine shoulder press"],raise:["Lateral raise","Cable lateral raise","Front raise"],pdown:["Triceps pushdown"],text:["Overhead cable triceps extension","Overhead triceps extension","Skull crusher","Dumbbell kickback"],
+ row:["Barbell row","One-arm dumbbell row","T-bar row","Machine row","Seated cable row"],pull:["Lat pulldown","Straight-arm pulldown"],pullup:["Pull-up","Chin-up"],rear:["Face pull","Reverse fly","Reverse pec deck"],
+ curl:["Barbell curl","Dumbbell curl","Hammer curl","Incline dumbbell curl","Preacher curl","Cable curl"],squat:["Squat","Smith machine squat","Front squat","Goblet squat"],lpress:["Leg press"],lunge:["Bulgarian split squat","Walking lunge"],
+ hinge:["Romanian deadlift","Dumbbell Romanian deadlift","Deadlift","Good morning"],thrust:["Hip thrust","Glute bridge","Cable kickback"],lmach:["Leg extension","Leg curl"],calf:["Standing calf raise","Seated calf raise","Smith machine calf raise","Dumbbell calf raise"]};
+var ADD={bench:["Smith machine incline press","Floor press","Hex press","Smith machine close-grip bench press"],mpress:["Incline machine press"],push:["Decline push-up","Incline push-up","Diamond push-up","Pike push-up"],ohp:["Dumbbell push press","Landmine press"],raise:["Cable front raise"],pdown:["Single-arm cable pushdown"],text:["Cable triceps kickback"],row:["Pendlay row","Inverted row","Wide-grip seated cable row","Single-arm cable row","Chest-supported dumbbell row"],pull:["Close-grip lat pulldown","Single-arm lat pulldown"],rear:["Cable reverse fly","Rear delt row"],curl:["EZ-bar curl","Concentration curl","Spider curl","Bayesian cable curl","Cable hammer curl","Reverse curl"],squat:["Hack squat"],lunge:["Step-up","Reverse lunge","Smith machine split squat"],hinge:["Stiff-leg deadlift","Single-leg Romanian deadlift","Sumo deadlift","Smith machine Romanian deadlift","Cable pull-through"],thrust:["Smith machine hip thrust","Dumbbell hip thrust","Single-leg glute bridge"],lmach:["Seated leg curl"],calf:["Leg press calf raise","Single-leg calf raise"]};for(var ak in ADD)ADD[ak].forEach(function(n){PATS[ak].push(n)});
+var PM={};for(var pk in PATS)PATS[pk].forEach(function(n){PM[n]=pk});
+var NOTES={"Incline bench press":["Set the bench to about 30°.","벤치를 약 30°로 세우세요."],"Incline dumbbell press":["Set the bench to about 30°.","벤치를 약 30°로 세우세요."],"Smith machine bench press":["Position the bench so the bar lowers to mid-chest.","바가 가슴 중앙으로 내려오도록 벤치 위치를 맞추세요."],
+ "Close-grip bench press":["Hands about shoulder width and elbows tucked to hit the triceps.","손을 어깨너비로 잡고 팔꿈치를 붙여 삼두를 자극하세요."],"Low-to-high cable fly":["Cables set low. Sweep your hands up and together to chest height.","케이블을 낮게 두고 가슴 높이까지 위로 모으세요."],
+ "Pec deck":["Keep your elbows at shoulder height.","팔꿈치를 어깨 높이에 두세요."],"Dips":["Lean slightly forward for chest, stay upright for triceps.","가슴은 상체를 약간 숙이고, 삼두는 상체를 세우세요."],"Bench dips":["Hands on a bench behind you with heels on the floor.","벤치를 뒤로 짚고 뒤꿈치는 바닥에 두세요."],
+ "Arnold press":["Start with palms facing you and rotate them outward as you press.","손바닥이 얼굴을 향한 상태에서 올리며 바깥으로 돌리세요."],"Cable lateral raise":["Cable set low on the opposite side of your working arm.","운동하는 팔의 반대쪽 낮은 케이블을 쓰세요."],
+ "Overhead cable triceps extension":["Face away from the cable with elbows by your ears.","케이블을 등지고 팔꿈치를 귀 옆에 두세요."],"Skull crusher":["Lower the bar toward your forehead, then extend.","바를 이마 쪽으로 내린 뒤 펴세요."],"Dumbbell kickback":["Hinge forward with your upper arm parallel to the floor.","상체를 숙이고 상완을 바닥과 평행하게 유지하세요."],
+ "Barbell row":["Bar over mid-foot and torso about 45°.","바를 발 중앙 위에 두고 상체를 약 45° 숙이세요."],"One-arm dumbbell row":["Support yourself with one hand and knee on a bench or a sturdy surface.","한 손과 한 무릎을 벤치(또는 단단한 곳)에 올려 지지하세요."],
+ "Straight-arm pulldown":["Arms nearly straight. Sweep the bar down to your thighs.","팔을 거의 편 채 바를 허벅지까지 쓸어내리세요."],"Chin-up":["Palms facing you with a shoulder-width grip.","손바닥이 나를 향하게 어깨너비로 잡으세요."],"Hammer curl":["Palms face each other throughout.","손바닥이 서로 마주 보게 유지하세요."],
+ "Incline dumbbell curl":["Sit back on an incline bench so your arms hang behind your torso.","벤치를 눕혀 앉아 팔이 몸통 뒤로 늘어지게 하세요."],"Preacher curl":["Rest your upper arms on the pad and don’t fully lock out at the bottom.","상완을 패드에 올리고 아래에서 완전히 펴지 마세요."],
+ "Front squat":["Bar rests on your front shoulders with elbows high.","바를 앞쪽 어깨에 얹고 팔꿈치를 높게 유지하세요."],"Goblet squat":["Hold one dumbbell against your chest.","덤벨 하나를 가슴 앞에 안으세요."],"Smith machine squat":["Place your feet slightly in front of the bar.","발을 바보다 약간 앞에 두세요."],
+ "Bulgarian split squat":["Rear foot resting on a bench behind you.","뒷발을 뒤쪽 벤치에 올리세요."],"Walking lunge":["Step forward each rep and alternate legs.","한 번 할 때마다 앞으로 걸으며 다리를 번갈아 하세요."],"Deadlift":["Bar over mid-foot. Lift by pushing the floor away.","바를 발 중앙 위에 두고 바닥을 밀어내듯 드세요."],
+ "Good morning":["Bar on your upper back with soft knees.","바를 등 위쪽에 얹고 무릎을 살짝 굽히세요."],"Cable kickback":["Ankle strap on, kick straight back and squeeze.","발목 스트랩을 차고 뒤로 곧게 차며 조이세요."],"Glute bridge":["Lie on the floor, no bench needed.","바닥에 누워서 하며 벤치는 필요 없어요."],"Seated calf raise":["Pad on your lower thighs, knees at 90°.","패드를 허벅지 아래쪽에 두고 무릎을 90°로 하세요."]};
+
+Object.assign(NOTES,{"Floor press":["Lie on the floor and stop when your upper arms touch it.","바닥에 누워 상완이 바닥에 닿으면 멈추세요."],"Hex press":["Squeeze the dumbbells together on your chest and press up while keeping them pressed.","덤벨을 가슴 위에서 서로 붙인 채 눌러 올리세요."],"Decline push-up":["Feet on a bench, hands on the floor.","발을 벤치에 올리고 손은 바닥을 짚으세요."],"Incline push-up":["Hands on a bench with your body in a straight line.","손을 벤치에 올리고 몸을 일직선으로 유지하세요."],"Diamond push-up":["Hands close so your thumbs and index fingers form a diamond.","엄지와 검지가 다이아몬드 모양이 되게 손을 모으세요."],"Pike push-up":["Hips high in an inverted V. Lower your head toward the floor.","엉덩이를 높이 든 역 V자에서 머리를 바닥 쪽으로 내리세요."],"Landmine press":["Press one end of the bar up and forward at an angle.","바 한쪽 끝을 비스듬히 위·앞으로 미세요."],"Dumbbell push press":["Dip slightly at the knees and use leg drive to start the press.","무릎을 살짝 굽혔다 펴는 힘으로 프레스를 시작하세요."],"Cable triceps kickback":["Hinge forward and extend your arm back with the upper arm still.","상체를 숙이고 상완을 고정한 채 팔을 뒤로 펴세요."],"Pendlay row":["Torso parallel to the floor and the bar returns to the floor every rep.","상체를 바닥과 평행하게 하고 매 반복마다 바를 바닥에 내려놓으세요."],"Inverted row":["Hang under a fixed bar with your body straight and pull your chest to the bar.","고정된 바 아래에 몸을 일직선으로 매달려 가슴을 바로 당기세요."],"Wide-grip seated cable row":["Wide grip. Pull to your upper stomach with elbows slightly flared.","넓게 잡고 팔꿈치를 약간 벌려 윗배 쪽으로 당기세요."],"Chest-supported dumbbell row":["Lie chest-down on an incline bench.","인클라인 벤치에 가슴을 대고 엎드리세요."],"Rear delt row":["Hinge forward and row with your elbows wide.","상체를 숙이고 팔꿈치를 넓게 벌려 당기세요."],"Concentration curl":["Brace your elbow against your inner thigh.","팔꿈치를 안쪽 허벅지에 대고 고정하세요."],"Spider curl":["Lie chest-down on an incline bench with your arms hanging.","인클라인 벤치에 엎드려 팔을 늘어뜨리세요."],"Bayesian cable curl":["Face away from the cable with your arm behind you.","케이블을 등지고 팔을 뒤쪽에 두세요."],"Reverse curl":["Overhand grip. This also works your forearms.","오버핸드 그립으로 하며 전완도 함께 자극돼요."],"Hack squat":["Feet shoulder width on the platform with your back flat on the pad.","발을 어깨너비로 플랫폼에 두고 등을 패드에 붙이세요."],"Step-up":["Step onto a bench and drive through your front heel.","벤치에 올라 앞발 뒤꿈치로 밀어 올라가세요."],"Stiff-leg deadlift":["Legs nearly straight with only a slight knee bend.","무릎을 살짝만 굽히고 다리를 거의 편 채 하세요."],"Single-leg Romanian deadlift":["Balance on one leg and hinge until your torso is parallel to the floor.","한 다리로 균형을 잡고 상체가 바닥과 평행해질 때까지 숙이세요."],"Sumo deadlift":["Wide stance, toes out, hands inside your knees.","발을 넓게 벌리고 발끝을 바깥으로, 손은 무릎 안쪽에 두세요."],"Cable pull-through":["Face away from the cable, hinge back, then thrust your hips forward.","케이블을 등지고 엉덩이를 뒤로 뺐다가 앞으로 밀어내세요."],"Single-leg glute bridge":["One foot on the floor and the other leg extended.","한 발은 바닥에 두고 다른 다리는 뻗으세요."],"Leg press calf raise":["Press with the balls of your feet on the lower edge of the platform.","플랫폼 아래쪽 가장자리에 발볼을 대고 미세요."],"Single-leg calf raise":["Hold a wall for balance and rise on one foot.","벽을 잡아 균형을 잡고 한 발로 올라가세요."]});
+HOW.crunch={en:["Lie back with your knees bent and feet flat, hands by your ears or across your chest.","Curl your ribs toward your hips, pause, then lower slowly.","Don’t pull on your neck. Breathe out as you curl."],ko:["무릎을 굽히고 발을 바닥에 둔 채 누워 손은 귀 옆이나 가슴 위에 두세요.","갈비뼈를 골반 쪽으로 말아 올려 잠시 멈춘 뒤 천천히 내리세요.","목을 당기지 말고 올라올 때 숨을 내쉬세요."]};
+HOW.lraise={en:["Hang from a bar (or lie flat on the floor) with your core braced.","Raise your knees or legs toward your chest, pause, then lower slowly.","No swinging, and don’t let your lower back arch."],ko:["바에 매달리거나 바닥에 누워 코어에 힘을 주세요.","무릎(또는 다리)을 가슴 쪽으로 들어 올려 잠시 멈춘 뒤 천천히 내리세요.","반동을 쓰지 말고 허리가 꺾이지 않게 하세요."]};
+HOW.hold={en:["Forearms (or one forearm) on the floor with your body in a straight line from head to heels.","Hold the position, squeezing your abs and glutes while breathing steadily.","Don’t let your hips sag or pike up. The reps number is seconds."],ko:["팔뚝(또는 한쪽 팔뚝)을 바닥에 대고 머리부터 발뒤꿈치까지 일직선을 만드세요.","복근과 엉덩이를 조이며 호흡을 유지한 채 버티세요.","골반이 처지거나 솟지 않게 하세요. 횟수 칸의 숫자는 초예요."]};
+HOW.twist={en:["Sit leaning back slightly with your feet raised or on the floor, or lie back for bicycle and heel touches.","Rotate your torso from side to side, reaching past each hip or bringing opposite elbow and knee together.","Rotate from your ribs, not just your arms."],ko:["상체를 살짝 뒤로 기울여 앉아 발을 들거나 바닥에 두세요(바이시클·힐 터치는 누워서).","상체를 좌우로 돌려 양쪽 골반 옆으로 손을 보내거나 반대쪽 팔꿈치와 무릎을 맞대세요.","팔이 아니라 갈비뼈에서부터 회전하세요."]};
+HOW.cabcore={en:["Stand side-on to the cable with feet shoulder width apart and core braced.","Press out (or chop diagonally) with control, then return slowly.","Use light weight and keep your hips square unless the move is meant to rotate."],ko:["케이블 옆으로 서서 발을 어깨너비로 벌리고 코어에 힘을 주세요.","천천히 밀어내거나(대각선으로 당겨) 천천히 돌아오세요.","가벼운 무게를 쓰고 회전하는 동작이 아니라면 골반을 고정하세요."]};
+HOW.cback={en:["Start on the floor: face down for Superman, on all fours for Bird dog.","Lift opposite arm and leg (or both arms and legs) slowly, hold briefly, then lower.","Keep your neck neutral and don’t over-arch."],ko:["슈퍼맨은 엎드려서, 버드독은 네발 자세로 시작하세요.","반대쪽 팔과 다리(또는 양팔·양다리)를 천천히 들어 잠시 버틴 뒤 내리세요.","목을 중립으로 유지하고 허리를 과하게 꺾지 마세요."]};
+HOW.dyn={en:["Get into the start position with your core braced.","Move with control and keep your lower back stable throughout.","Quality over speed."],ko:["코어에 힘을 주고 시작 자세를 잡으세요.","허리를 안정적으로 유지하며 천천히 조절해서 움직이세요.","속도보다 정확한 자세가 중요해요."]};
+var CADD={crunch:["McGill curl-up","Crunch","Weighted crunch","Decline sit-up","Sit-up","Cable crunch","Reverse crunch"],lraise:["Hanging knee raise","Hanging leg raise","Lying leg raise","Hanging oblique knee raise"],hold:["Knee plank","Plank","Side plank","Hollow body hold"],twist:["Russian twist","Weighted Russian twist","Bicycle crunch","Heel touch"],cabcore:["Cable woodchop","Pallof press"],cback:["Superman","Bird dog"],dyn:["Mountain climber","V-up","Dead bug","Barbell rollout","Dumbbell side bend"]};
+for(var ck in CADD)CADD[ck].forEach(function(n){PM[n]=ck});
+var CADD2={hold:["Bear plank hold","Side plank (knees)","Suitcase hold","Plank with leg lift"],dyn:["Plank shoulder taps","Heel slide dead bug","Bridge march","Plank jacks"],cabcore:["Half-kneeling Pallof press","Anti-rotation cable hold"],cback:["Quadruped leg lift"],lraise:["Flutter kicks","Seated knee tuck"],crunch:["Oblique crunch"],twist:["Landmine twist"]};
+for(var ck2 in CADD2)CADD2[ck2].forEach(function(n){PM[n]=ck2});
+Object.assign(NOTES,{"Cable crunch":["Kneel facing the cable with the rope by your head and crunch down by curling your spine.","케이블을 향해 무릎 꿇고 로프를 머리 옆에 둔 채 척추를 말며 내려가세요."],"Decline sit-up":["Hook your feet under the pad and keep your chin tucked.","발을 패드에 걸고 턱을 당기세요."],"Reverse crunch":["Lift your hips off the floor by curling your pelvis toward your ribs.","골반을 갈비뼈 쪽으로 말아 엉덩이를 바닥에서 떼세요."],"Dead bug":["Lower the opposite arm and leg while pressing your lower back into the floor.","허리를 바닥에 붙인 채 반대쪽 팔과 다리를 내리세요."],"V-up":["Lift your legs and torso at the same time to meet in a V.","다리와 상체를 동시에 들어 V자로 만나게 하세요."],"Mountain climber":["From a high plank, drive your knees toward your chest alternately. Reps = total steps.","플랭크 자세에서 무릎을 번갈아 가슴 쪽으로 당기세요. 횟수는 전체 스텝 수예요."],"Barbell rollout":["Kneel and roll the bar forward as far as you can keep your back flat, then pull back.","무릎을 꿇고 허리가 평평하게 유지되는 만큼 바를 굴렸다가 되돌아오세요."],"Dumbbell side bend":["Hold one dumbbell and bend sideways, then return upright.","덤벨 하나를 들고 옆으로 숙였다가 바로 서세요."],"Heel touch":["Lie back with knees bent and reach each hand toward the same-side heel.","무릎을 굽히고 누워 같은 쪽 손으로 발뒤꿈치를 터치하세요."],"Bicycle crunch":["Bring opposite elbow to knee as you pedal your legs.","다리를 페달 밟듯 움직이며 반대쪽 팔꿈치와 무릎을 맞대세요."],"Cable woodchop":["Chop diagonally from high to low, rotating through your torso.","높은 곳에서 낮은 곳으로 대각선으로 당기며 몸통을 회전하세요."],"Pallof press":["Press straight out and resist the pull. Don’t rotate.","정면으로 밀어내며 케이블이 당기는 힘을 버티고 몸을 돌리지 마세요."],"Side plank":["Stack your feet and lift your hips so your body is a straight line sideways.","발을 포개고 골반을 들어 옆으로 일직선을 만드세요."],"Hollow body hold":["Press your lower back into the floor with arms and legs extended and raised.","허리를 바닥에 붙이고 팔과 다리를 뻗어 들어 올리세요."],"Weighted crunch":["Hold a dumbbell or plate on your chest.","덤벨이나 원판을 가슴 위에 올리세요."]});
+Object.assign(NOTES,{"Bear plank hold":["On hands and knees, lift your knees one inch off the floor and hold with a flat back.","네발 자세에서 무릎을 바닥에서 2~3cm 띄우고 등을 평평하게 버티세요."],"Plank shoulder taps":["From a plank, tap one shoulder with the opposite hand without letting your hips rock. Reps = total taps.","플랭크에서 반대쪽 손으로 어깨를 터치하되 골반이 흔들리지 않게 하세요. 횟수는 전체 터치 수예요."],"Side plank (knees)":["Side plank with your knees bent and on the floor, forearm under your shoulder. Do each side.","무릎을 굽혀 바닥에 대고 팔뚝을 어깨 아래에 둔 사이드 플랭크예요. 양쪽 모두 하세요."],"Half-kneeling Pallof press":["Kneel on one knee side-on to the cable and press straight out without rotating.","한쪽 무릎을 꿇고 케이블 옆에 서서 몸을 돌리지 말고 정면으로 미세요."],"Heel slide dead bug":["Lie on your back with knees bent, slide one heel out along the floor and back while your lower back stays still.","무릎을 굽히고 누워 허리를 고정한 채 한쪽 발뒤꿈치를 바닥을 따라 뻗었다가 되돌리세요."],"Quadruped leg lift":["On all fours, extend one leg back to hip height and hold briefly. Don’t arch your lower back.","네발 자세에서 한쪽 다리를 엉덩이 높이로 뻗어 잠시 버티세요. 허리를 꺾지 마세요."],"Bridge march":["Hold a glute bridge and lift one foot at a time without letting your hips drop.","글루트 브릿지 자세를 유지한 채 골반이 내려가지 않게 한 발씩 들어 올리세요."],"Suitcase hold":["Hold one heavy dumbbell at your side and stand tall without leaning. Do each side.","무거운 덤벨 하나를 옆에 들고 기울지 않게 똑바로 서세요. 양쪽 모두 하세요."],"Plank with leg lift":["From a plank, lift one leg a few inches without rotating your hips.","플랭크에서 골반을 돌리지 않고 한 다리를 조금 드세요."],"Anti-rotation cable hold":["Hold the Pallof position with arms extended and resist the cable’s pull.","팔을 뻗은 팔로프 자세로 케이블이 당기는 힘을 버티세요."],"Flutter kicks":["Lie back with legs low and straight, kick them up and down in small alternating movements. Reps = seconds.","다리를 낮게 편 채 누워 작게 번갈아 위아래로 차세요. 횟수는 초예요."],"Plank jacks":["From a plank, jump your feet out and in like a jumping jack.","플랭크에서 발을 점핑잭처럼 벌렸다 모으세요."],"Oblique crunch":["Lie on your side or crunch toward one knee, bringing your elbow toward your hip.","옆으로 누워 팔꿈치를 골반 쪽으로 당기며 옆구리를 수축하세요."],"Seated knee tuck":["Sit on the edge of a bench leaning back slightly and pull your knees toward your chest.","벤치 끝에 앉아 상체를 약간 뒤로 기울이고 무릎을 가슴 쪽으로 당기세요."],"Landmine twist":["Hold the end of the bar with both hands and rotate it from hip to hip using your torso.","바 끝을 양손으로 잡고 몸통으로 좌우 골반 쪽으로 돌리세요."],"McGill curl-up":["Lie with one knee bent and your hands under your lower back. Lift only your head and shoulders a little and keep your spine neutral.","한쪽 무릎을 굽히고 손을 허리 밑에 둔 채 머리와 어깨만 살짝 들어 올리고 척추를 중립으로 유지하세요."],"Knee plank":["Plank from your knees with a straight line from head to knees.","무릎을 대고 머리부터 무릎까지 일직선으로 버티세요."]});
+var UNI={};["One-arm dumbbell row","Single-arm cable row","Single-arm lat pulldown","Single-arm cable pushdown","Cable triceps kickback","Dumbbell kickback","Concentration curl","Cable lateral raise","Bayesian cable curl","Landmine press","Bulgarian split squat","Reverse lunge","Step-up","Single-leg Romanian deadlift","Single-leg glute bridge","Single-leg calf raise","Smith machine split squat","Cable kickback","Dumbbell side bend","Side plank","Cable woodchop","Pallof press","Side plank (knees)","Half-kneeling Pallof press","Quadruped leg lift","Suitcase hold","Anti-rotation cable hold"].forEach(function(k){UNI[k]=1});
+/* core moves with low spinal load (neutral spine, no loaded bending or twisting): general guidance, not medical advice */
+var BS={};["Dead bug","Bird dog","Plank","Knee plank","Side plank","Pallof press","McGill curl-up","Bear plank hold","Plank shoulder taps","Side plank (knees)","Half-kneeling Pallof press","Heel slide dead bug","Quadruped leg lift","Bridge march","Suitcase hold","Plank with leg lift","Anti-rotation cable hold"].forEach(function(k){BS[k]=1});
+var STR={
+push:[["Arm circles","팔 돌리기","Big, slow circles forward, then backward.","크게 천천히 앞으로, 그다음 뒤로 돌리세요.",10,"d"],["Cat-cow","캣카우","On all fours, arch and round your back slowly.","네발 자세에서 등을 천천히 말았다 펴세요.",10,"r"],["Thoracic rotation","흉추 회전","On all fours, hand behind your head, rotate your chest up and open.","네발 자세에서 한 손을 머리 뒤에 두고 가슴을 위로 열며 돌리세요.",8,"s"],["Scapular push-ups","견갑 푸시업","In a plank, let your chest sink between your shoulder blades, then push apart.","플랭크 자세에서 가슴을 견갑 사이로 내렸다가 밀어내세요.",10,"r"],["Wall slides","월 슬라이드","Back to a wall, slide your arms up and down keeping elbows and wrists on the wall.","벽에 등을 대고 팔꿈치와 손목을 벽에 붙인 채 팔을 위아래로 미끄러뜨리세요.",10,"r"],["Open-book chest stretch","오픈북 가슴 스트레칭","Lie on your side with knees bent, open your top arm back and hold. Switch sides halfway.","옆으로 누워 무릎을 굽히고 위쪽 팔을 뒤로 열어 버티세요. 중간에 방향을 바꾸세요.",40,"t"]],
+pull:[["Arm circles","팔 돌리기","Big, slow circles forward, then backward.","크게 천천히 앞으로, 그다음 뒤로 돌리세요.",10,"d"],["Cat-cow","캣카우","On all fours, arch and round your back slowly.","네발 자세에서 등을 천천히 말았다 펴세요.",10,"r"],["Thread the needle","스레드 더 니들","On all fours, slide one arm under your body and rotate, then reach up.","네발 자세에서 한 팔을 몸 아래로 넣어 돌린 뒤 위로 뻗으세요.",8,"s"],["Prone Y raises","프론 Y 레이즈","Lie face down, raise your arms in a Y and squeeze your shoulder blades.","엎드려 팔을 Y자로 들어 올리며 견갑을 조이세요.",10,"r"],["Child’s pose lat stretch","차일드 포즈 광배 스트레칭","Sit back on your heels with your arms reaching forward.","발뒤꿈치에 앉아 팔을 앞으로 길게 뻗으세요.",30,"t"],["Standing torso twists","서서 몸통 비틀기","Rotate your torso side to side with relaxed arms.","팔을 편하게 두고 상체를 좌우로 돌리세요.",10,"r"]],
+legs:[["Leg swings","레그 스윙","Hold a support and swing one leg front to back, then switch.","무언가를 잡고 한 다리를 앞뒤로 흔든 뒤 바꾸세요.",10,"s"],["Hip circles","힙 서클","Hands on hips, draw big circles with your pelvis.","손을 허리에 두고 골반으로 크게 원을 그리세요.",10,"d"],["Bodyweight squats","맨몸 스쿼트","Sit down and back, then stand tall.","엉덩이를 뒤로 빼며 앉았다가 일어서세요.",10,"r"],["Walking lunge with twist","트위스트 워킹 런지","Step into a lunge and rotate toward the front leg.","런지 자세로 앞다리 쪽으로 몸통을 돌리세요.",6,"s"],["Glute bridges","글루트 브릿지","Lie back, drive your hips up and squeeze your glutes.","누워서 골반을 들어 올리고 엉덩이를 조이세요.",10,"r"],["World’s greatest stretch","월드 그레이티스트 스트레칭","Lunge, place your hands inside your front foot, rotate and reach up.","런지 자세에서 손을 앞발 안쪽에 짚고 돌려 위로 뻗으세요.",5,"s"]]};
+var STR2={
+push:[["Doorway chest stretch","문틀 가슴 스트레칭","Forearm on a door frame, step through until you feel your chest open. Switch sides halfway.","문틀에 팔뚝을 대고 한 걸음 나아가며 가슴을 늘리세요. 중간에 방향을 바꾸세요.",40,"t"],["Cross-body shoulder stretch","크로스 바디 어깨 스트레칭","Pull one arm across your chest with the other. Switch sides halfway.","한 팔을 반대 팔로 가슴 앞으로 당기세요. 중간에 방향을 바꾸세요.",40,"t"],["Overhead triceps stretch","오버헤드 삼두 스트레칭","Reach one hand down your back and press the elbow gently. Switch sides halfway.","한 손을 등 뒤로 내리고 팔꿈치를 부드럽게 눌러주세요. 중간에 방향을 바꾸세요.",40,"t"],["Wrist and forearm stretch","손목·전완 스트레칭","Arm straight, gently pull your fingers back, then press them down.","팔을 편 채 손가락을 부드럽게 뒤로 당겼다가 아래로 눌러주세요.",30,"t"],["Child’s pose","차일드 포즈","Sit back on your heels with arms reaching forward and breathe slowly.","발뒤꿈치에 앉아 팔을 앞으로 뻗고 천천히 호흡하세요.",30,"t"]],
+pull:[["Child’s pose lat stretch","차일드 포즈 광배 스트레칭","Sit back on your heels with your arms reaching forward.","발뒤꿈치에 앉아 팔을 앞으로 길게 뻗으세요.",30,"t"],["Overhead lat side stretch","오버헤드 광배 사이드 스트레칭","Reach one arm overhead and lean away from it. Switch sides halfway.","한 팔을 머리 위로 뻗고 반대쪽으로 기울이세요. 중간에 방향을 바꾸세요.",40,"t"],["Doorway biceps stretch","문틀 이두 스트레칭","Palm on a door frame with the arm straight, turn your body away.","팔을 편 채 손바닥을 문틀에 대고 몸을 반대로 돌리세요.",30,"t"],["Cross-body rear-shoulder stretch","크로스 바디 후면 어깨 스트레칭","Pull one arm across your chest with the other. Switch sides halfway.","한 팔을 반대 팔로 가슴 앞으로 당기세요. 중간에 방향을 바꾸세요.",40,"t"],["Neck side stretch","목 옆 스트레칭","Tilt your ear toward your shoulder, relaxed. Switch sides halfway.","귀를 어깨 쪽으로 편하게 기울이세요. 중간에 방향을 바꾸세요.",40,"t"]],
+legs:[["Standing quad stretch","서서 대퇴사두 스트레칭","Hold your ankle behind you with knees together. Switch legs halfway.","발목을 뒤로 잡고 무릎을 모으세요. 중간에 다리를 바꾸세요.",40,"t"],["Seated hamstring stretch","앉아서 햄스트링 스트레칭","Sit with one leg straight and hinge forward from the hips. Switch halfway.","한 다리를 펴고 앉아 고관절부터 앞으로 숙이세요. 중간에 다리를 바꾸세요.",40,"t"],["Figure-4 glute stretch","피겨4 둔근 스트레칭","Lie back, cross one ankle over the opposite knee and pull the leg in. Switch halfway.","누워서 한쪽 발목을 반대쪽 무릎에 올리고 다리를 당기세요. 중간에 바꾸세요.",40,"t"],["Kneeling hip flexor stretch","니링 고관절 굴곡근 스트레칭","Half-kneel, tuck your pelvis and shift forward. Switch halfway.","한쪽 무릎을 꿇고 골반을 말아 앞으로 체중을 실으세요. 중간에 다리를 바꾸세요.",40,"t"],["Standing calf stretch","서서 종아리 스트레칭","Hands on a wall, one heel down behind you. Switch halfway.","벽을 짚고 한쪽 발뒤꿈치를 뒤에서 바닥에 대세요. 중간에 다리를 바꾸세요.",40,"t"]]};
+STR2.cardio=STR2.legs;
+var phTarget={warm:300,cardio:1800};
+
+
+var T={
+en:{title:"Workout Log",cardioDay:"Cardio day",cardioInfo:function(m){return "Cardio only · about "+m+" min"},cardioHintDay:function(m){return "Pick a machine and tap Start. Aim for about "+m+" minutes."},restDayL:"Cardio rest day after every Legs day",cardioMin:"Cardio day length (min)",bike:"Bike",
+ food:"Food",addFood:"Add food",searchFood:"Search food (English or 한국어)",recentsL:"Recent and common foods",noFood:"No match. Estimate it with Claude or add your own.",findClaude:function(q){return "Estimate “"+q+"” with Claude"},thinking:"Thinking…",claudeFail:"Couldn’t look that up right now.",claudeBusy:"Claude is busy. Try again in a minute.",customFood:"Custom food",saveLog:"Save and add",nameL:"Name",kcalL:"Calories",protL:"Protein (g)",carbL:"Carbs (g)",fatL:"Fat (g)",protShort:"Protein g",fatShort:"Fat g",
+ addedF:function(n,m){return "Added "+n+" to "+m},servings:"Servings",mB:"Breakfast",mL:"Lunch",mD:"Dinner",mS:"Snacks",todayL:"Today",prevD:"Previous day",nextD:"Next day",leftKcal:function(n){return n>=0?n.toLocaleString()+" kcal left":(-n).toLocaleString()+" kcal over"},pcf:function(p,gp,c,gc,f,gf){return "P "+p+"/"+gp+" · C "+c+"/"+gc+" · F "+f+"/"+gf+" g"},
+ targetsL:"Daily targets",targetsHint:"Starting point from your body weight (about 27 kcal and 1.8 g protein per kg). Set your own numbers. Rough guide, not medical advice.",carbsAuto:function(c){return "Carbs fill the rest: about "+c+" g"},ideasL:"What to eat next",ideaBudget:function(k,p){return "Fits about "+k+" kcal and "+p+" g protein"},logIt:"Log",moreIdeas:"More ideas from Claude",noEntries:"Nothing logged yet.",deleteL:"Delete",foodTip:"Tap an item to change servings or delete it. ≈ means estimated.",timeUp:"Time’s up",restMain:"Main workout rest (sec)",restCoreL:"Core rest (sec)",staticS:"Static stretch",finishStatic:"Finish stretching",skipStatic:"Skip static stretching",profBk:"Profile & backup",cloudOff:"Not saved to your account (sign in to Claude to turn this on). Your data is kept on this device.",cloudOk:function(t){return "Saved to your account · "+t},cloudSync:"Saving…",cloudErr:"Couldn’t reach account storage. Your data is still on this device.",
+ syncNow:"Sync now",exportB:"Export backup",importB:"Import backup",bkHint:"Your routine, plans, settings, history, analysis and calendar are kept on this device and, when you’re signed in, in your private account storage (only you can read it). If two devices differ, the newest save wins. The backup file is an extra copy.",importConfirm:"Replace everything on this device with this backup?",imported:"Backup restored.",importBad:"That file isn’t a valid backup.",exported:"Backup ready.",dlNo:"Couldn’t save the file here.",signedAs:function(n){return "Signed in as "+n},doneToday:"Done for today",mainR:"Main routine",coreBlock:"Core block",coreAlt:"Core alternates A and B on every workout day.",includeL:"Include in the workout",srf:function(s,r,tm){return s+(s===1?" set ":" sets ")+r+(tm?" sec":(r===1?" rep":" reps"))},wuTag:"WU",wuLabel:"Warm-up set (doesn’t count toward your sets)",sideL:"L",sideR:"R",leftS:"Left side",rightS:"Right side",perSide:"each side",rightNow:"Now the right side.",
+ tapEdit:"Tap a set to edit it.",skippedChip:"skipped",unskip:"Skip removed.",diffL:"Difficulty (1–10)",restL:"Rest (sec)",delSet:"Delete set",skippedTo:function(n){return "Skipped "+n+"."},skipEx:"Skip workout",skipSet:"Skip",addSet:"+ Set",skippedSet:"Set skipped.",setAdded:"Added a set for today.",
+ startInfo:function(a,b){return a+" workouts + "+b+" core"},startW:"Start workout",startedL:"Started",mainW:"Main workout",totalL:"Total",warm:"Warm-up",stretch:"Dynamic stretch",cardio:"Cardio",treadmill:"Treadmill",elliptical:"Elliptical",
+ warmHint:"Pick a machine and tap Start. About 5 minutes.",cardioHint:"Pick a machine and tap Start. Aim for about 30 minutes.",start:"Start",skipPhase:"Skip",targetL:"Target",
+ uf:{r:function(v){return v+" reps"},s:function(v){return v+" each side"},d:function(v){return v+" each direction"},t:function(v){return v+" sec"}},finishStretch:"Finish stretch",next:"Next",skipStretch:"Skip stretching",
+ calendar:"Calendar",prevM:"Previous month",nextM:"Next month",noWorkout:"No workout recorded.",workoutL:"Workout",incomplete:"incomplete",stats2:function(n,v){return n+" sets · "+v+" kg lifted"},pToday:"Today",calN:function(n){return n+(n===1?" workout":" workouts")},
+ backSafe:"Back-safe core only",bsHint:"Marks core moves with low spinal load (neutral spine, no loaded bending or twisting) and makes shuffle and auto-swaps use only those. General guidance, not medical advice.",bsTip:"Back-safe core move",core:"Core",upNext:"Up next",secs:"Seconds",targetS:function(r){return "Target "+r+" sec"},coreStart:"Main workout done. Core next!",swipeHint:"Swipe a box up or down, or use the buttons.",plus30:"+30s",back:"Back",nextEx:function(n,s,r){return "Next: "+n+" · "+s+" × "+r},lastEx:"Last workout of this routine",nextUp:function(n,i,m){return "Next: "+n+" · set "+i+" of "+m},calib:"Auto rest calibration",calReset:"Reset",calHint:"Skipping a rest early trims future auto rests. +30s adds time.",ana:"Analysis",p7:"7 days",p30:"30 days",pall:"All",aNone:"Log some sets to see how things are going.",aDays:"workout days",aSets:"sets",aVol:"kg lifted",aHr:"avg heart rate",aRpe:"avg difficulty",aRest:"avg rest",aWeek:"Volume by week (kg)",aMuscle:"Muscle balance (sets)",aProg:"Strength progress",aProgNone:"Train a lift on two different days to see progress.",aProgNote:"First vs latest day: best set (estimated 1-rep max).",aReps:"reps",
+ insBal:function(m,n){return "Least trained: "+m+" ("+n+" sets)."},insNone:function(m){return "No sets for "+m+" in this period."},insEasy:function(x){return "Sets feel easy (avg "+x+"/10). Try adding weight or reps."},insHard:function(x){return "Sets feel very hard (avg "+x+"/10). Consider a lighter weight or longer rests."},insOk:function(x){return "Effort looks well balanced (avg "+x+"/10)."},insProg:function(n,m){return n+" of "+m+" lifts improved."},insFreq:function(x){return "About "+x+" workout days per week."},insVol:function(p){return "Volume is "+(p>=0?"up ":"down ")+Math.abs(p)+"% vs the previous period."},insRest:function(x){return "Average rest between sets: "+x+"."},
+ info:"How to do it",hSetup:"Setup",hMove:"Movement",hTip:"Tip",hNote:"This variation",close:"Close",replaced:function(a,b){return "Disliked "+a+". Replaced with "+b+"."},bodyw:"Bodyweight",equip:"Equipment",equipHint:"Untick what you don’t have. Your plans switch to workouts you can do.",fit:function(n){return "Adjusted "+n+" workout"+(n===1?"":"s")+" to your equipment."},profile:"Body profile",height:"Height (cm)",bweight:"Body weight (kg)",
+ preHint:"Preset weights are conservative starting estimates (about 8 reps) from your body weight, adjusted for height. Fine-tune them in the Plan tab.",applyW:"Apply preset weights to all",applyConfirm:"Replace the weights of every workout with the preset estimates?",applied:"Preset weights applied.",profNeed:"Enter your body weight first.",
+ shuffle:"Shuffle",shuffleTitle:"Shuffle workouts",shuffleMsg:function(n){return "Replace the workouts in "+n+" with a random all-round mix? Disliked workouts and equipment you don’t have are skipped."},shuffled:"Shuffled.",dis:"Dislike",removedPlan:"Removed from the plan.",disliked:"Disliked. Restore it in Settings.",prim:"Primary",sec:"Secondary",doneTitle:"Completed sets",today:"Today",change:"Change",chTitle:"Change routine",drag:"Hold and drag to reorder",nextR:function(n){return "Next: "+n},work:"Workout",plan:"Plan",settings:"Settings",log:"Log a set",weight:"Weight (kg)",reps:"Reps",hr:"Heart rate",bpm:"bpm",rate:"How hard was it? (1 easy – 10 max)",done:"Done",rest:"Rest",restAuto:"Auto",restManual:"Manual",skip:"Skip",undo:"Undo last set",
+ complete:"Workout complete",again:"Start again",emptyPlan:"No workouts in this plan. Add or restore some.",push:"Push",pull:"Pull",legs:"Legs",
+ swap:"Swap",del:"Delete",swapTitle:"Swap with a similar workout",noAlt:"No similar workouts left to swap in.",save:"Save",cancel:"Cancel",sl:"Sets",removed:"Removed. Restore it in Settings.",
+ add:"+ Add workout",sort:"Sort",sortDone:"Done sorting",addTitle:"Add a workout",rec:"Recommended",noAdd:"Nothing left to add for this day.",added:"Added to your plan.",up:"Move up",down:"Move down",
+ language:"Language",manualRest:"Manual rest time",rv:"Rest time",autoHint:"Auto: rest is calculated from weight, reps, heart rate and your 1–10 rating.",beeps:"Countdown beeps",on:"On",off:"Off",deleted:"Disliked workouts (tap to restore)",noDel:"No disliked workouts.",
+ recent:"Recent days",noRecent:"Past workouts show up here.",reset:"Reset all data",confirm:"Delete all logs and reset the plans? This can’t be undone.",
+ stats:function(n,e,v){return n+" sets · "+e+" exercises · "+v+" kg today"},setOf:function(n,m){return "Set "+n+" of "+m},target:function(r){return "Target "+r+" reps"},sc:function(n){return n+(n===1?" set":" sets")},ls:"en-US"},
+ko:{title:"운동 기록",cardioDay:"유산소 데이",cardioInfo:function(m){return "유산소만 · 약 "+m+"분"},cardioHintDay:function(m){return "기구를 고르고 시작을 누르세요. 약 "+m+"분이 목표예요."},restDayL:"레그 데이 다음에 유산소 휴식일 넣기",cardioMin:"유산소 데이 시간 (분)",bike:"자전거",
+ food:"음식",addFood:"음식 추가",searchFood:"음식 검색 (영어 또는 한국어)",recentsL:"최근·자주 먹는 음식",noFood:"결과가 없어요. Claude로 추정하거나 직접 추가하세요.",findClaude:function(q){return "“"+q+"” Claude로 추정"},thinking:"생각 중…",claudeFail:"지금은 찾지 못했어요.",claudeBusy:"Claude가 바빠요. 잠시 후 다시 시도하세요.",customFood:"직접 입력",saveLog:"저장하고 추가",nameL:"이름",kcalL:"칼로리",protL:"단백질 (g)",carbL:"탄수화물 (g)",fatL:"지방 (g)",protShort:"단백질 g",fatShort:"지방 g",
+ addedF:function(n,m){return n+"을(를) "+m+"에 추가했어요"},servings:"인분",mB:"아침",mL:"점심",mD:"저녁",mS:"간식",todayL:"오늘",prevD:"전날",nextD:"다음 날",leftKcal:function(n){return n>=0?n.toLocaleString()+" kcal 남음":(-n).toLocaleString()+" kcal 초과"},pcf:function(p,gp,c,gc,f,gf){return "단 "+p+"/"+gp+" · 탄 "+c+"/"+gc+" · 지 "+f+"/"+gf+" g"},
+ targetsL:"하루 목표",targetsHint:"체중 기준 시작점이에요(kg당 약 27 kcal, 단백질 1.8 g). 원하는 값으로 바꾸세요. 대략적인 가이드이며 의학적 조언이 아니에요.",carbsAuto:function(c){return "탄수화물은 나머지로 약 "+c+" g"},ideasL:"다음에 먹을 것",ideaBudget:function(k,p){return "약 "+k+" kcal, 단백질 "+p+" g에 맞춰요"},logIt:"기록",moreIdeas:"Claude에게 더 추천받기",noEntries:"아직 기록이 없어요.",deleteL:"삭제",foodTip:"항목을 눌러 인분을 바꾸거나 삭제하세요. ≈는 추정값이에요.",timeUp:"시간 끝",restMain:"메인 운동 휴식 (초)",restCoreL:"코어 휴식 (초)",staticS:"정적 스트레칭",finishStatic:"스트레칭 완료",skipStatic:"정적 스트레칭 건너뛰기",profBk:"프로필 및 백업",cloudOff:"계정에 저장되지 않았어요(Claude에 로그인하면 켜져요). 데이터는 이 기기에 보관돼요.",cloudOk:function(t){return "계정에 저장됨 · "+t},cloudSync:"저장 중…",cloudErr:"계정 저장소에 연결하지 못했어요. 데이터는 이 기기에 그대로 있어요.",
+ syncNow:"지금 동기화",exportB:"백업 내보내기",importB:"백업 불러오기",bkHint:"루틴, 플랜, 설정, 기록, 분석, 캘린더는 이 기기에 보관되고, 로그인하면 본인만 볼 수 있는 계정 저장소에도 저장돼요. 기기마다 다르면 가장 최근에 저장한 것이 적용돼요. 백업 파일은 추가 사본이에요.",importConfirm:"이 기기의 모든 데이터를 이 백업으로 바꿀까요?",imported:"백업을 복원했어요.",importBad:"올바른 백업 파일이 아니에요.",exported:"백업이 준비됐어요.",dlNo:"여기서는 파일을 저장할 수 없어요.",signedAs:function(n){return n+" 님으로 로그인됨"},doneToday:"오늘 운동 완료",mainR:"메인 루틴",coreBlock:"코어 블록",coreAlt:"코어는 운동하는 날마다 A와 B가 번갈아 나와요.",includeL:"운동에 포함",srf:function(s,r,tm){return s+"세트 "+r+(tm?"초":"회")},wuTag:"웜업",wuLabel:"웜업 세트 (세트 수에 포함되지 않아요)",sideL:"왼",sideR:"오",leftS:"왼쪽",rightS:"오른쪽",perSide:"한쪽씩",rightNow:"이제 오른쪽이에요.",
+ tapEdit:"세트를 눌러 수정하세요.",skippedChip:"건너뜀",unskip:"건너뜀을 취소했어요.",diffL:"난이도 (1–10)",restL:"휴식 (초)",delSet:"세트 삭제",skippedTo:function(n){return n+"을(를) 건너뛰었어요."},skipEx:"운동 건너뛰기",skipSet:"건너뛰기",addSet:"+ 세트",skippedSet:"세트를 건너뛰었어요.",setAdded:"오늘 세트를 하나 추가했어요.",
+ startInfo:function(a,b){return "메인 "+a+"개 + 코어 "+b+"개"},startW:"운동 시작",startedL:"시작",mainW:"메인 운동",totalL:"총 시간",warm:"웜업",stretch:"동적 스트레칭",cardio:"유산소",treadmill:"러닝머신",elliptical:"일립티컬",
+ warmHint:"기구를 고르고 시작을 누르세요. 약 5분.",cardioHint:"기구를 고르고 시작을 누르세요. 약 30분이 목표예요.",start:"시작",skipPhase:"건너뛰기",targetL:"목표",
+ uf:{r:function(v){return v+"회"},s:function(v){return "한쪽 "+v+"회"},d:function(v){return "각 방향 "+v+"회"},t:function(v){return v+"초"}},finishStretch:"스트레칭 완료",next:"다음",skipStretch:"스트레칭 건너뛰기",
+ calendar:"캘린더",prevM:"이전 달",nextM:"다음 달",noWorkout:"기록된 운동이 없어요.",workoutL:"운동",incomplete:"미완료",stats2:function(n,v){return n+"세트 · "+v+" kg"},pToday:"오늘",calN:function(n){return n+"개 운동"},
+ backSafe:"허리 안전 코어만",bsHint:"척추 부담이 적은 코어 운동(중립 척추, 하중을 싣고 굽히거나 비트는 동작 제외)을 표시하고, 셔플과 자동 교체에서 이것만 사용해요. 일반적인 안내이며 의학적 조언이 아니에요.",bsTip:"허리 안전 코어 운동",core:"코어",upNext:"다음 운동",secs:"초",targetS:function(r){return "목표 "+r+"초"},coreStart:"메인 운동 끝! 이제 코어예요.",swipeHint:"상자를 위아래로 밀거나 버튼을 쓰세요.",plus30:"+30초",back:"뒤로",nextEx:function(n,s,r){return "다음: "+n+" · "+s+" × "+r},lastEx:"이 루틴의 마지막 운동",nextUp:function(n,i,m){return "다음: "+n+" · "+m+"세트 중 "+i+"번째"},calib:"자동 휴식 보정",calReset:"초기화",calHint:"휴식을 일찍 건너뛰면 다음 자동 휴식이 줄고, +30초는 시간을 더해요.",ana:"분석",p7:"7일",p30:"30일",pall:"전체",aNone:"세트를 기록하면 진행 상황을 볼 수 있어요.",aDays:"운동한 날",aSets:"세트",aVol:"kg 들어올림",aHr:"평균 심박수",aRpe:"평균 난이도",aRest:"평균 휴식",aWeek:"주간 볼륨 (kg)",aMuscle:"근육 균형 (세트)",aProg:"근력 향상",aProgNone:"같은 운동을 서로 다른 날 두 번 하면 향상도를 볼 수 있어요.",aProgNote:"첫날 대비 최근: 최고 세트(추정 1RM).",aReps:"회",
+ insBal:function(m,n){return "가장 적게 한 부위: "+m+" ("+n+"세트)"},insNone:function(m){return "이 기간에 "+m+" 운동 기록이 없어요."},insEasy:function(x){return "세트가 쉬워 보여요 (평균 "+x+"/10). 무게나 횟수를 늘려 보세요."},insHard:function(x){return "세트가 매우 힘들어요 (평균 "+x+"/10). 무게를 낮추거나 더 오래 쉬어 보세요."},insOk:function(x){return "운동 강도가 적절해 보여요 (평균 "+x+"/10)."},insProg:function(n,m){return m+"개 운동 중 "+n+"개가 향상됐어요."},insFreq:function(x){return "주당 약 "+x+"일 운동했어요."},insVol:function(p){return "이전 기간 대비 볼륨이 "+Math.abs(p)+"% "+(p>=0?"늘었어요.":"줄었어요.")},insRest:function(x){return "세트 간 평균 휴식: "+x},
+ info:"운동 방법",hSetup:"준비 자세",hMove:"동작",hTip:"팁",hNote:"이 변형",close:"닫기",replaced:function(a,b){return a+"을(를) 싫어요 처리하고 "+b+"(으)로 교체했어요."},bodyw:"맨몸",equip:"장비",equipHint:"없는 장비는 체크를 해제하세요. 플랜이 할 수 있는 운동으로 바뀌어요.",fit:function(n){return "장비에 맞게 운동 "+n+"개를 조정했어요."},profile:"신체 정보",height:"키 (cm)",bweight:"체중 (kg)",
+ preHint:"체중과 키를 바탕으로 한 보수적인 시작 무게(약 8회 기준)예요. 플랜 탭에서 조정하세요.",applyW:"모든 운동에 추천 무게 적용",applyConfirm:"모든 운동의 무게를 추천 무게로 바꿀까요?",applied:"추천 무게를 적용했어요.",profNeed:"체중을 먼저 입력하세요.",
+ shuffle:"셔플",shuffleTitle:"운동 셔플",shuffleMsg:function(n){return n+"의 운동을 전신 균형 있는 무작위 조합으로 바꿀까요? 싫어요한 운동과 없는 장비는 제외돼요."},shuffled:"셔플했어요.",dis:"싫어요",removedPlan:"플랜에서 삭제했어요.",disliked:"싫어요 처리했어요. 설정에서 복원할 수 있어요.",prim:"주동근",sec:"보조근",doneTitle:"완료한 세트",today:"오늘",change:"변경",chTitle:"루틴 변경",drag:"길게 눌러 순서 변경",nextR:function(n){return "다음: "+n},work:"운동",plan:"플랜",settings:"설정",log:"세트 기록",weight:"무게 (kg)",reps:"횟수",hr:"심박수",bpm:"bpm",rate:"얼마나 힘들었나요? (1 쉬움 – 10 최대)",done:"완료",rest:"휴식",restAuto:"자동",restManual:"수동",skip:"건너뛰기",undo:"마지막 세트 취소",
+ complete:"운동 완료",again:"다시 시작",emptyPlan:"이 플랜에 운동이 없어요. 추가하거나 복원하세요.",push:"푸시",pull:"풀",legs:"레그",
+ swap:"교체",del:"삭제",swapTitle:"비슷한 운동으로 교체",noAlt:"교체할 비슷한 운동이 없어요.",save:"저장",cancel:"취소",sl:"세트",removed:"삭제했어요. 설정에서 복원할 수 있어요.",
+ add:"+ 운동 추가",sort:"정렬",sortDone:"정렬 완료",addTitle:"운동 추가",rec:"추천",noAdd:"추가할 운동이 더 없어요.",added:"플랜에 추가했어요.",up:"위로",down:"아래로",
+ language:"언어",manualRest:"휴식 시간 직접 설정",rv:"휴식 시간",autoHint:"자동: 무게, 횟수, 심박수, 1–10 난이도로 휴식 시간을 계산해요.",beeps:"카운트다운 알림음",on:"켜짐",off:"꺼짐",deleted:"싫어요한 운동 (눌러서 복원)",noDel:"싫어요한 운동이 없어요.",
+ recent:"최근 기록",noRecent:"지난 운동이 여기에 표시돼요.",reset:"모든 데이터 초기화",confirm:"모든 기록을 삭제하고 플랜을 초기화할까요? 되돌릴 수 없어요.",
+ stats:function(n,e,v){return "오늘 "+n+"세트 · "+e+"종목 · "+v+" kg"},setOf:function(n,m){return m+"세트 중 "+n+"번째"},target:function(r){return "목표 "+r+"회"},sc:function(n){return n+"세트"},ls:"ko-KR"}};
+var ROUT=["pushA","pullA","legsA","pushB","pullB","legsB"],ROT=["pushA","pullA","legsA","cardioA","pushB","pullB","legsB","cardioB"],TYPES=["push","pull","legs"],CT=["push","pull","legs","core"],PK=["pushA","pullA","legsA","pushB","pullB","legsB","coreA","coreB"],$=function(i){return document.getElementById(i)};
+var uid=function(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)};
+function mk(k,s,r){return {id:uid(),k:k,sets:s,reps:r,w:presetW(k),del:false}}
+function defPlan(){return {
+ pushA:[mk("Bench press",4,8),mk("Overhead press",3,8),mk("Incline dumbbell press",3,10),mk("Lateral raise",3,12),mk("Triceps pushdown",3,12)],
+ pullA:[mk("Barbell row",4,8),mk("Lat pulldown",3,10),mk("Seated cable row",3,10),mk("Face pull",3,15),mk("Barbell curl",3,10)],
+ legsA:[mk("Squat",4,8),mk("Romanian deadlift",3,8),mk("Leg press",3,10),mk("Leg curl",3,12),mk("Standing calf raise",4,12)],
+ pushB:[mk("Incline dumbbell press",4,10),mk("Dumbbell shoulder press",3,10),mk("Machine chest press",3,12),mk("Lateral raise",3,15),mk("Overhead triceps extension",3,12)],
+ pullB:[mk("Pull-up",4,8),mk("One-arm dumbbell row",3,10),mk("T-bar row",3,10),mk("Reverse fly",3,15),mk("Hammer curl",3,12)],
+ legsB:[mk("Deadlift",3,5),mk("Front squat",3,8),mk("Bulgarian split squat",3,10),mk("Hip thrust",3,10),mk("Seated calf raise",4,15)],
+ coreA:[mk("Hanging leg raise",3,10),mk("Cable crunch",3,12),mk("Plank",3,45),mk("Russian twist",3,20)],
+ coreB:[mk("Reverse crunch",3,15),mk("Cable woodchop",3,12),mk("Side plank",3,30),mk("Dead bug",3,12)]}}
+var S={sets:[],plan:defPlan(),ri:0,doneOn:null,pv:"pushA",eq:{},h:null,bw:null,dis:[],restAdj:0,skips:[],extra:{},rad:{},upd:0,restCore:60,restDay:true,cardioMin:50,foodLog:[],foodCustom:[],foodGoals:{kc:0,p:0,f:0},foodRecent:[],foodDay:null,ca:"A",inc:{},coreDone:null,sess:null,hist:[],bs:false,mach:"treadmill",tab:"work",since:{},rest:90,manual:false,beep:true,lang:"en"};
+var restLogId=null,restStart=0,restEnd=null,restTotal=0,restAuto=true,beeped={},timer=null,ctx=null,toastT=null,rpe=null;
+function L(){return T[S.lang]}
+function nm(k){return S.lang==="ko"&&KO[k]?KO[k]:k}
+function mus(x){if(!x)return "";var m=MU[S.lang];return m[x.p]+(x.s.length?" · "+x.s.map(function(k){return m[k]}).join(", "):"")}
+function nowD(){return new Date(Date.now()-108e5)}
+function today(){var d=nowD();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function fmt(n){return (Math.round(n*10)/10).toLocaleString()}
+function el(tag,cls,txt){var e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e}
+function R(){return ROT[S.ri]}
+function isCardioDay(){return R().indexOf("cardio")===0}
+function cardioTarget(){return isCardioDay()?(S.cardioMin||50)*60:1800}
+function pvKey(){var k=R();return S.plan[k]?k:(S.plan[S.pv]?S.pv:"pushA")}
+function nextKey(){var i=S.ri;do{i=(i+1)%ROT.length}while(S.restDay===false&&ROT[i].indexOf("cardio")===0);return i}
+function todayName(){return rname(R())+(coreOn()&&!isCardioDay()?" + "+rname(coreKey()):"")}
+function dayOf(k){return k.slice(0,-1)}
+function rname(k){return dayOf(k)==="cardio"?L().cardioDay:L()[dayOf(k)]+" "+k.slice(-1)}
+function applyState(d){try{
+ if(d&&Array.isArray(d.sets)){S.sets=d.sets;S.lang=d.lang==="ko"?"ko":"en";S.since=d.since||{};S.rest=d.rest||90;S.manual=d.manual===true;S.beep=d.beep!==false;
+  S.ri=ROT.indexOf(d.rt)>=0?ROT.indexOf(d.rt):0;S.doneOn=d.doneOn||null;S.eq=d.eq&&typeof d.eq==="object"?d.eq:{};S.h=d.h||null;S.bw=d.bw||null;S.dis=Array.isArray(d.dis)?d.dis:[];S.restAdj=+d.ra||0;S.skips=Array.isArray(d.sk)?d.sk:[];S.extra=d.ex&&typeof d.ex==="object"?d.ex:{};S.rad=d.rad&&typeof d.rad==="object"?d.rad:{};S.sess=d.sess||null;S.hist=Array.isArray(d.hist)?d.hist:[];S.bs=d.bs===true;S.mach=d.mach||"treadmill";S.ca=d.ca==="B"?"B":"A";S.inc=d.inc&&typeof d.inc==="object"?d.inc:{};S.coreDone=d.cd||null;S.upd=+d.upd||0;S.restCore=+d.rc||60;S.restDay=d.rd!==false;S.cardioMin=+d.cm||50;S.foodLog=Array.isArray(d.fl)?d.fl:[];S.foodCustom=Array.isArray(d.fc)?d.fc:[];S.foodGoals=d.fg&&typeof d.fg==="object"?d.fg:{kc:0,p:0,f:0};S.foodRecent=Array.isArray(d.fr)?d.fr:[];
+  if(d.plan&&ROUT.every(function(x){return Array.isArray(d.plan[x])}))S.plan=d.plan;
+  else if(d.plan&&Array.isArray(d.plan.push)){var p=defPlan();TYPES.forEach(function(x){if(Array.isArray(d.plan[x]))p[x+"A"]=d.plan[x]});S.plan=p;if(TYPES.indexOf(d.day)>=0)S.ri=ROT.indexOf(d.day+"A")}
+  PK.forEach(function(x){if(!Array.isArray(S.plan[x]))S.plan[x]=defPlan()[x]});
+  TYPES.forEach(function(x){if(S.since[x]&&!S.since[x+"A"])S.since[x+"A"]=S.since[x]});
+  S.sets.forEach(function(s){if(!s.rt&&s.day)s.rt=s.day+"A"});
+  PK.forEach(function(r){S.plan[r].forEach(function(e){if(e.del&&S.dis.indexOf(e.k)<0)S.dis.push(e.k)})})}}catch(e){}S.pv=pvKey()}
+function load(){try{var raw=localStorage.getItem(KEY);if(raw)applyState(JSON.parse(raw))}catch(e){}S.pv=pvKey()}
+function stateObj(){return {sets:S.sets,plan:S.plan,rt:R(),doneOn:S.doneOn,since:S.since,rest:S.rest,manual:S.manual,beep:S.beep,lang:S.lang,eq:S.eq,h:S.h,bw:S.bw,dis:S.dis,ra:S.restAdj,sk:S.skips,ex:S.extra,rad:S.rad,sess:S.sess,hist:S.hist,bs:S.bs,mach:S.mach,ca:S.ca,inc:S.inc,cd:S.coreDone,rc:S.restCore,rd:S.restDay,cm:S.cardioMin,fl:S.foodLog,fc:S.foodCustom,fg:S.foodGoals,fr:S.foodRecent,upd:S.upd}}
+function writeLocal(){try{localStorage.setItem(KEY,JSON.stringify(stateObj()))}catch(e){}}
+function save(){S.upd=Date.now();writeLocal();schedulePush()}
+/* after a finished routine, the next day moves on to the next routine automatically (Push A, Pull A, Legs A, Push B, ...) */
+function rollover(){if(S.doneOn&&S.doneOn!==today()){var d0=S.doneOn;S.ri=nextKey();S.doneOn=null;if(S.coreDone===d0)S.ca=S.ca==="B"?"A":"B";S.pv=pvKey();save()}}
+/* equipment, preset weights, dislikes */
+function okx(x){return can(x)&&!(S.bs&&x.day==="core"&&!BS[x.k])}
+function can(x){return x.eq.every(function(k){return k.split("/").some(function(a){return S.eq[a]!==false})})}
+function eqtxt(x){return x?(x.eq.length?x.eq.map(function(k){return k.split("/").map(function(a){return EQ[S.lang][a]}).join(" / ")}).join(", "):L().bodyw):""}
+function effMass(){var bw=S&&S.bw;if(!bw)return 0;var h=S.h;if(!h)return bw;var ref=25*Math.pow(h/100,2);return bw<=ref?bw:ref+.5*(bw-ref)}
+function presetW(k){var x=X[k],m=effMass();if(!x||!x.r||!m)return 0;return Math.max(2.5,Math.round(x.r*m/2.5)*2.5)}
+function fillZeros(){PK.forEach(function(r){S.plan[r].forEach(function(e){if(!(e.w>0))e.w=presetW(e.k)})})}
+function addDis(k){if(S.dis.indexOf(k)<0)S.dis.push(k);PK.forEach(function(r){S.plan[r].forEach(function(e){if(e.k===k)e.del=true})})}
+function removeDis(k){S.dis=S.dis.filter(function(x){return x!==k});PK.forEach(function(r){S.plan[r].forEach(function(e){if(e.k===k)e.del=false})})}
+function swapOpts(rk,e,th){var cur=X[e.k],used={},o=[];if(!cur)return o;S.plan[rk].forEach(function(x){used[x.k]=1});S.dis.forEach(function(k){used[k]=1});
+ XL.forEach(function(x){if(used[x.k]||x.day!==cur.day||!okx(x))return;var sc=0;if(x.p===cur.p)sc+=3;x.s.forEach(function(m){if(cur.s.indexOf(m)>=0)sc++});
+  if(cur.s.indexOf(x.p)>=0||x.s.indexOf(cur.p)>=0)sc++;if(sc>=th)o.push({x:x,sc:sc})});
+ o.sort(function(a,b){return b.sc-a.sc});return o}
+/* when equipment changes, swap anything you can no longer do for a similar workout (or drop it if nothing fits) */
+function fitPlans(){var n=0;PK.forEach(function(rk){var arr=S.plan[rk];for(var i=arr.length-1;i>=0;i--){var e=arr[i],x=X[e.k];if(e.del||!x||okx(x))continue;
+ var o=swapOpts(rk,e,3);if(!o.length)o=swapOpts(rk,e,2);if(o.length){e.k=o[0].x.k;e.w=presetW(e.k);n++}else{arr.splice(i,1);n++}}});
+ if(n){save();toast(L().fit(n))}}
+function active(k){return (S.plan[k]||[]).filter(function(e){return !e.del})}
+function dayLogs(k){var td=today(),since=S.since[k]||0;return S.sets.filter(function(s){return s.date===td&&s.rt===k&&s.t>=since})}
+function coreKey(){return "core"+(S.ca||"A")}
+function incOn(k){return S.inc[k]!==false}
+function coreOn(){return incOn("core")}
+function allLogs(){return dayLogs(R()).concat(dayLogs(coreKey())).sort(function(a,b){return a.t-b.t})}
+function ru(x,n){return n+(x&&x.tm?"s":"")}
+function setsFor(e,rk){return e.sets+(S.extra[today()+"|"+rk+"|"+e.k]||0)}
+function dskips(k){var td=today(),since=S.since[k]||0;return S.skips.filter(function(s){return s.date===td&&s.rt===k&&s.t>=since})}
+/* main workout first, then that routine's core block */
+function current(){var ks=isCardioDay()?[]:(coreOn()?[R(),coreKey()]:[R()]);
+ for(var q=0;q<ks.length;q++){var k=ks[q],list=active(k),logs=dayLogs(k).filter(function(s){return !s.wu}),sk=dskips(k);
+  for(var i=0;i<list.length;i++){var e=list[i],m=UNI[e.k]?2:1,done=logs.filter(function(s){return s.ex===e.k}).length+sk.filter(function(s){return s.ex===e.k}).length,sets=setsFor(e,k);
+   if(done<sets*m)return {e:e,n:Math.floor(done/m),side:m===2?(done%2?"R":"L"):null,sets:sets,i:i,total:list.length,rk:k,core:q===1,list:list}}}return null}
+
+/* smart rest: base from rep range, scaled by 1-10 difficulty, nudged by heart rate and heavy low-rep work */
+function autoRest(w,r,hr,rp,k){var base=r<=5?150:r<=8?120:r<=12?90:60,m=1+((rp||7)-7)*.12;m=Math.max(.6,Math.min(1.4,m));var t=base*m;
+ if(hr>0)t+=Math.max(-15,Math.min(45,(hr-130)*1.2));if(w>0&&r<=6)t+=15;
+ t+=S.rad[k]||0;return Math.max(30,Math.min(300,Math.round(t/5)*5))}
+
+/* audio */
+function audio(){try{ctx=ctx||new (window.AudioContext||window.webkitAudioContext)();if(ctx.resume)ctx.resume()}catch(e){}}
+function beep(f,d){if(!S.beep)return;try{audio();var o=ctx.createOscillator(),g=ctx.createGain(),t=ctx.currentTime;o.frequency.value=f;o.type="sine";g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.4,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(ctx.destination);o.start(t);o.stop(t+d+.02)}catch(e){}}
+
+/* rest timer (shown below the log box) */
+/* countdown audio: a pre-rendered sound file so it can keep playing with the screen locked (best effort on iOS); Web Audio beeps are the fallback */
+var rAudio=null,audioOK=false;
+function wavFor(total){var sr=8000,n=Math.round((total+.7)*sr),buf=new ArrayBuffer(44+n),v=new DataView(buf),u=new Uint8Array(buf);
+ function ws(o,x){for(var i=0;i<x.length;i++)v.setUint8(o+i,x.charCodeAt(i))}
+ ws(0,"RIFF");v.setUint32(4,36+n,true);ws(8,"WAVEfmt ");v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);v.setUint32(24,sr,true);v.setUint32(28,sr,true);v.setUint16(32,1,true);v.setUint16(34,8,true);ws(36,"data");v.setUint32(40,n,true);
+ u.fill(128,44);
+ function tone(at,f,d){var s0=Math.round(at*sr),len=Math.round(d*sr);for(var i=0;i<len;i++){var j=s0+i;if(j<0||j>=n)break;u[44+j]=128+Math.round(Math.sin(6.2832*f*i/sr)*110*Math.min(1,i/60,(len-i)/60))}}
+ for(var k=5;k>=1;k--)if(total-k>=0)tone(total-k,880,.15);tone(total,440,.55);return buf}
+function stopAudio(){if(rAudio){try{rAudio.pause();URL.revokeObjectURL(rAudio.src)}catch(e){}rAudio=null}audioOK=false}
+function startAudio(total,seek){stopAudio();if(!S.beep||typeof Audio==="undefined")return;
+ try{var url=URL.createObjectURL(new Blob([wavFor(total)],{type:"audio/wav"})),a=new Audio(url);rAudio=a;
+  if(seek>0)a.addEventListener("loadedmetadata",function(){try{a.currentTime=seek}catch(e){}},{once:true});
+  var p=a.play();if(p&&p.then)p.then(function(){if(rAudio===a)audioOK=true},function(){})}catch(e){}}
+function stopRest(keep){clearInterval(timer);timer=null;restEnd=null;if(keep&&rAudio){var a=rAudio;setTimeout(function(){if(rAudio===a)stopAudio()},1300)}else stopAudio()}
+/* ending a rest early (skip, or starting the next set) teaches the auto rest for THAT workout: that much less next time */
+function finishRest(natural){if(restEnd!==null){var e=Math.max(0,Math.round((Date.now()-restStart)/1000));
+ if(!natural&&restAuto&&!S.manual&&restEx&&e>=5&&e<restTotal)S.rad[restEx]=Math.max(-90,Math.min(120,(S.rad[restEx]||0)+(e-restTotal)));
+ if(restLogId){var s=S.sets.filter(function(x){return x.id===restLogId})[0];if(s)s.rest=natural?restTotal:e}save()}stopRest(natural)}
+function addRest(){if(restEnd===null)return;restEnd+=30000;restTotal+=30;beeped={};if(restAuto&&!S.manual&&restEx)S.rad[restEx]=Math.min(120,(S.rad[restEx]||0)+30);save();startAudio(restTotal,(Date.now()-restStart)/1000);tick()}
+function startRest(secs,auto,id,ex){restTotal=secs;restAuto=auto;restLogId=id;restEx=ex;restStart=Date.now();restEnd=restStart+secs*1000;beeped={};clearInterval(timer);timer=setInterval(tick,200);startAudio(secs,0);renderRest()}
+function tick(){if(restEnd===null)return;var ms=restEnd-Date.now(),s=Math.ceil(ms/1000);
+ if(s<=0){if(!audioOK)beep(440,.5);finishRest(true);renderRest();renderDone();return}
+ if(s<=5&&!beeped[s]){beeped[s]=1;if(!audioOK)beep(880,.15)}
+ var n=$("rest-num"),b=$("rest-bar");if(n)n.textContent=mmss(s);if(b)b.style.width=Math.max(0,ms/(restTotal*10))+"%"}
+function mmss(n){return Math.floor(n/60)+":"+String(n%60).padStart(2,"0")}
+function renderRest(){var c=$("restcard"),t=L();c.innerHTML="";if(restEnd===null){c.hidden=true;return}c.hidden=false;
+ var top=el("div","rtop"),l=el("div");l.appendChild(el("div","sub",t.rest+" · "+(restAuto?t.restAuto:t.restManual)));var n=el("div","num");n.id="rest-num";l.appendChild(n);
+ var cu=current();if(cu)l.appendChild(el("div","sub",t.nextUp(nm(cu.e.k),cu.n+1,cu.sets)+(cu.side?" · "+(cu.side==="L"?t.leftS:t.rightS):"")));
+ var sk=el("button","sk",t.skip),pl=el("button","sk lv",t.plus30),bt=el("div","rbtn");sk.addEventListener("click",function(){finishRest(false);renderRest();renderDone()});pl.addEventListener("click",addRest);
+ bt.appendChild(pl);bt.appendChild(sk);top.appendChild(l);top.appendChild(bt);c.appendChild(top);
+ var bar=el("div","bar"),i=el("i");i.id="rest-bar";bar.appendChild(i);c.appendChild(bar);tick()}
+
+function openSheet(build){var p=$("panel");p.innerHTML="";build(p);$("sheet").classList.add("on")}
+function closeSheet(){$("sheet").classList.remove("on")}
+function toast(m){var t=$("toast");t.textContent=m;t.classList.add("on");clearTimeout(toastT);toastT=setTimeout(function(){t.classList.remove("on")},2400)}
+function seg(box,items,cur,fn){box.innerHTML="";items.forEach(function(it){var b=el("button",null,it[1]);b.setAttribute("aria-pressed",it[0]===cur);b.addEventListener("click",function(){fn(it[0])});box.appendChild(b)})}
+
+/* workout tab */
+function musNode(x,lab){var t=L(),m=MU[S.lang],d=document.createElement("span");if(!x)return d;
+ if(lab)d.appendChild(document.createTextNode(t.prim+" "));d.appendChild(el("b","mp",m[x.p]));
+ if(x.s.length){d.appendChild(document.createTextNode(lab?"  ·  "+t.sec+" ":" · "));x.s.forEach(function(k,i){if(i)d.appendChild(document.createTextNode(", "));d.appendChild(el("b","ms",m[k]))})}return d}
+/* swipe a number box up or down to change it (a tap still lets you type) */
+function swipeAdj(i,step,cap,set,cur){var y0=0,v0=0,on=false,moved=false;
+ i.addEventListener("pointerdown",function(e){y0=e.clientY;v0=cur();on=true;moved=false});
+ i.addEventListener("pointermove",function(e){if(!on)return;var dy=y0-e.clientY;if(!moved){if(Math.abs(dy)<8)return;moved=true;i.blur();try{i.setPointerCapture(e.pointerId)}catch(_){}}
+  var n=Math.floor(Math.abs(dy)/14),k=n<=6?n:6+(n-6)*Math.min(cap,2);set(v0+(dy>0?k:-k)*step)});
+ function end(){on=false;if(moved){i.blur();moved=false}}
+ i.addEventListener("pointerup",end);i.addEventListener("pointercancel",end);
+ i.addEventListener("wheel",function(e){e.preventDefault();set(cur()+(e.deltaY<0?1:-1)*step)},{passive:false})}
+/* hold a +/- button to repeat; the step grows the longer you hold */
+function holdBtn(btn,dir,bump,cap){var tm,iv,t0;function stop(){clearTimeout(tm);clearInterval(iv)}
+ btn.addEventListener("pointerdown",function(e){e.preventDefault();stop();t0=Date.now();bump(dir,1);tm=setTimeout(function(){iv=setInterval(function(){var d=Date.now()-t0;bump(dir,Math.min(cap||2,d>2600?4:d>1400?2:1))},180)},420)});
+ ["pointerup","pointercancel","pointerleave"].forEach(function(n){btn.addEventListener(n,stop)});btn.addEventListener("contextmenu",function(e){e.preventDefault()});
+ btn.addEventListener("click",function(e){if(e.detail===0)bump(dir,1)})}
+function fld(label,id,val,step,min,max,int,commit,def,swipe){var d=el("div"),l=el("label",null,label),r=el("div","sr"),m=el("button",null,"−"),p=el("button",null,"+"),i=el("input");
+ l.htmlFor=id;i.id=id;i.type="number";i.inputMode=int?"numeric":"decimal";i.min=min;i.step=step;i.value=val;m.setAttribute("aria-label","−");p.setAttribute("aria-label","+");
+ function set(v){v=Math.max(min,Math.min(max,Math.round(v*10)/10));if(int)v=Math.round(v);i.value=v;commit(v)}
+ function bump(dir,mult){var c=parseFloat(i.value);if(isNaN(c)){if(def!=null){set(def);return}c=0}set(c+dir*step*(mult||1))}
+ if(swipe)swipeAdj(i,step,capOf(step),set,function(){var c=parseFloat(i.value);return isNaN(c)?(def!=null?def:0):c});holdBtn(m,-1,bump,capOf(step));holdBtn(p,1,bump,capOf(step));
+ i.addEventListener("change",function(){if(i.value===""&&def!=null){commit(null);return}set(isNaN(parseFloat(i.value))?min:parseFloat(i.value))});
+ r.appendChild(m);r.appendChild(i);r.appendChild(p);d.appendChild(l);d.appendChild(r);return d}
+function sr(x,s,r){return L().srf(s,r,x&&x.tm)}
+function wstep(x){return x&&x.eq.indexOf("db")>=0?.5:2.5}
+function capOf(step){return step===2.5||step===.5?4:2}
+var tmS={key:null,start:0,total:0,beeped:{},fin:0},tmTimer=null;
+function tmKeyOf(cur){return cur.rk+"|"+cur.e.k+"|"+cur.n+"|"+(cur.side||"")}
+function tmTick(){if(tmS.key===null)return;var el_=(Date.now()-tmS.start)/1000,rem=Math.ceil(tmS.total-el_),n=$("tm-num");
+ if(n)n.textContent=rem>0?rem:L().timeUp;var b=$("tm-bar");if(b)b.style.width=Math.min(100,el_/tmS.total*100)+"%";
+ if(rem<=5&&rem>0&&!tmS.beeped[rem]){tmS.beeped[rem]=1;beep(880,.15)}
+ if(rem<=0&&!tmS.fin){tmS.fin=1;beep(440,.5);var d=$("tm-done");if(d)d.classList.add("ready")}}
+var liveHr={v:0,samples:[]},NB=(window.webkit&&window.webkit.messageHandlers&&window.webkit.messageHandlers.wl)||null,wuOn=false,phTimer=null,phFlag={},stEnd=null,stBeep={};
+function fd(ms){var s=Math.round(ms/1000),h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;return h?h+":"+String(m).padStart(2,"0")+":"+String(x).padStart(2,"0"):m+":"+String(x).padStart(2,"0")}
+function hhmm(ts){return new Date(ts).toLocaleTimeString(L().ls,{hour:"2-digit",minute:"2-digit"})}
+function events(){var ks=[R(),coreKey()],o=[];ks.forEach(function(k){dayLogs(k).forEach(function(s){o.push({k:"l",s:s})});dskips(k).forEach(function(s){o.push({k:"s",s:s})})});return o.sort(function(a,b){return a.s.t-b.s.t})}
+function renderDone(){var c=$("donecard"),t=L(),ev=events(),show=S.sess?(S.sess.ph==="main"||S.sess.ph==="cardio"||S.sess.ph==="static"):S.doneOn===today();c.innerHTML="";if(!ev.length||!show){c.hidden=true;return}c.hidden=false;
+ var head=el("div","head"),u=el("button","link",t.undo);head.appendChild(el("h2",null,t.doneTitle));u.style.cssText="margin:0;padding:0";u.addEventListener("click",undoSet);head.appendChild(u);c.appendChild(head);
+ var rs=el("div","sub",todayName());rs.style.cssText="font-size:13px;margin:-2px 0 6px";c.appendChild(rs);
+ var order=[],map={};ev.forEach(function(e){var k=e.s.ex;if(!map[k]){map[k]=[];order.push(k)}map[k].push(e)});
+ var lst=el("div","sc dlist");order.slice().reverse().forEach(function(k){var row=el("div","dline"),tm=X[k]&&X[k].tm,seenG={};row.appendChild(el("b",null,nm(k)));var ch=el("div","chips");
+  map[k].forEach(function(e){var s=e.s;
+   if(e.k==="s"){if(s.g){if(seenG[s.g])return;seenG[s.g]=1}var b=el("button","chip skp",t.skippedChip);b.addEventListener("click",function(){S.skips=S.skips.filter(function(x){return s.g?x.g!==s.g:x.id!==s.id});save();toast(t.unskip);render()});ch.appendChild(b);return}
+   var b=el("button","chip",(s.wu?t.wuTag+" · ":"")+(s.side?(s.side==="L"?t.sideL:t.sideR)+" · ":"")+fmt(s.w)+" kg · "+s.r+(tm?" sec":s.r===1?" rep":" reps")+(s.hr?" · ♥"+s.hr:"")+(s.rpe?" · "+s.rpe+"/10":"")+(s.rest!=null?" · ⏱"+mmss(s.rest):""));
+   b.addEventListener("click",function(){editSetSheet(s)});ch.appendChild(b)});row.appendChild(ch);lst.appendChild(row)});c.appendChild(lst);
+ c.appendChild(el("div","hintl",t.tapEdit))}
+/* tap a completed set to edit or delete it */
+function editSetSheet(s){var t=L(),x=X[s.ex],tm=x&&x.tm;openSheet(function(p){p.appendChild(el("h2",null,nm(s.ex)));
+ var w=stepRow(t.weight,s.w,wstep(x),0,500),r=stepRow(tm?t.secs:t.reps,s.r,1,1,300),h=stepRow(t.hr,s.hr||0,5,0,240),d=stepRow(t.diffL,s.rpe||5,1,1,10),rs=stepRow(t.restL,s.rest!=null?s.rest:0,5,0,600);
+ [w,r,h,d,rs].forEach(function(q){p.appendChild(q.row)});
+ var two=el("div","two"),dl=el("button","ghost",t.delSet),sv=el("button","big",t.save);sv.style.margin="0";dl.style.cssText="color:var(--peach-ink);background:var(--peach);border-color:transparent";
+ dl.addEventListener("click",function(){S.sets=S.sets.filter(function(q){return q.id!==s.id});S.sess&&S.sess.ph==="cardio"&&(S.sess.ph="main");save();closeSheet();render()});
+ sv.addEventListener("click",function(){var wv=parseFloat(w.input.value),rv=parseInt(r.input.value,10),hv=parseInt(h.input.value,10),dv=parseInt(d.input.value,10),sv2=parseInt(rs.input.value,10);
+  if(wv>=0)s.w=wv;if(rv>0)s.r=rv;s.hr=hv>0?hv:null;if(dv>0)s.rpe=dv;if(s.rest!=null||sv2>0)s.rest=sv2>0?sv2:0;save();closeSheet();render()});
+ two.appendChild(dl);two.appendChild(sv);p.appendChild(two);var c=el("button","link",t.cancel);c.addEventListener("click",closeSheet);p.appendChild(c)})}
+/* "how hard was it" 1-10: tap or swipe across; a glass pill slides to the chosen number */
+function rateCtl(){var rt=el("div","rate"),g=el("i","glass"),cells=[];rt.setAttribute("role","slider");rt.setAttribute("aria-valuemin",1);rt.setAttribute("aria-valuemax",10);rt.tabIndex=0;rt.appendChild(g);
+ for(var n=1;n<=10;n++){var sp=el("span",null,n);cells.push(sp);rt.appendChild(sp)}
+ function show(){rt.style.setProperty("--i",rpe-1);rt.setAttribute("aria-valuenow",rpe);cells.forEach(function(c,i){c.className=i===rpe-1?"on":""})}
+ function at(e){var r=rt.getBoundingClientRect(),w=(r.width-6)/10,i=Math.floor((e.clientX-r.left-3)/w);rpe=Math.max(1,Math.min(10,i+1));show()}
+ var down=false;
+ rt.addEventListener("pointerdown",function(e){down=true;rt.classList.add("press");try{rt.setPointerCapture(e.pointerId)}catch(_){}at(e)});
+ rt.addEventListener("pointermove",function(e){if(down)at(e)});
+ ["pointerup","pointercancel"].forEach(function(n){rt.addEventListener(n,function(){down=false;rt.classList.remove("press")})});
+ rt.addEventListener("keydown",function(e){if(e.key==="ArrowRight"||e.key==="ArrowUp"){rpe=Math.min(10,rpe+1);show()}else if(e.key==="ArrowLeft"||e.key==="ArrowDown"){rpe=Math.max(1,rpe-1);show()}});
+ show();return rt}
+/* skip a whole exercise: every remaining step is marked skipped */
+function remain(e,rk){var m=UNI[e.k]?2:1,done=dayLogs(rk).filter(function(s){return s.ex===e.k&&!s.wu}).length+dskips(rk).filter(function(s){return s.ex===e.k}).length;return setsFor(e,rk)*m-done}
+function skipExercise(e,rk){var m=UNI[e.k]?2:1,done=dayLogs(rk).filter(function(s){return s.ex===e.k&&!s.wu}).length+dskips(rk).filter(function(s){return s.ex===e.k}).length,need=setsFor(e,rk)*m-done;
+ var gid=uid();for(var i=0;i<need;i++)S.skips.push({id:uid(),g:gid,t:Date.now()+i,date:today(),rt:rk,ex:e.k});save();toast(L().skippedTo(nm(e.k)));render()}
+/* bigger "up next" box under the log box (the next exercise, which can be the first core move) */
+function renderNext(cur){var c=$("nextcard"),t=L(),nx=null,nrk=cur.rk,core=cur.core;c.innerHTML="";
+ for(var q=cur.i+1;q<cur.list.length;q++)if(remain(cur.list[q],cur.rk)>0){nx=cur.list[q];break}
+ if(!nx&&!cur.core&&coreOn()){var cl=active(coreKey());for(var q2=0;q2<cl.length;q2++)if(remain(cl[q2],coreKey())>0){nx=cl[q2];nrk=coreKey();core=true;break}}
+ c.hidden=false;var top=el("div","ntop"),lf=el("div");lf.appendChild(el("div","sub",t.upNext+(core?" · "+t.core:"")));
+ if(!nx){lf.appendChild(el("div","nxn",t.lastEx));top.appendChild(lf);c.appendChild(top);return}
+ var x=X[nx.k];lf.appendChild(el("div","nxn",nm(nx.k)));lf.appendChild(el("div","nxl",sr(x,nx.sets,nx.reps)+" · "+(nx.w>0?fmt(nx.w)+" kg":(x&&x.r?"— kg":t.bodyw))));
+ var mm=el("div","mus");mm.appendChild(musNode(x));lf.appendChild(mm);top.appendChild(lf);
+ var bt=el("div","nbtn");bt.appendChild(ib("sw",ICON.info,t.info,function(){infoSheet(nx.k)}));bt.appendChild(ib("sw",ICON.swap,t.swap,function(){swapSheet(nx,nrk)}));
+ bt.appendChild(ib("sw",ICON.dis,t.dis,function(){dislikeRow(nx,nrk)}));bt.appendChild(ib("dl",ICON.skip,t.skipEx,function(){skipExercise(nx,nrk)}));top.appendChild(bt);c.appendChild(top)}
+
+/* ---------- workout session: warm-up, dynamic stretch, main, core, cardio ---------- */
+function newSess(){var n=Date.now(),ph=incOn("warm")?"warm":(isCardioDay()?"cardio":incOn("stretch")?"stretch":"main");S.sess={id:uid(),date:today(),start:n,rt:R(),ck:coreKey(),ph:ph,si:0,t:{warm:{},stretch:{},main:{},core:{},cardio:{},static:{}}};if(ph==="stretch")S.sess.t.stretch.s=n;if(ph==="main")S.sess.t.main.s=n;phFlag={};stEnd=null;stBeep={};save()}
+function lastT(s){var m=s.start;["warm","stretch","main","core","cardio"].forEach(function(k){var p=s.t[k]||{};m=Math.max(m,p.s||0,p.e||0)});return m}
+function closeSess(inc){var s=S.sess;if(!s)return;s.end=inc?lastT(s):Date.now();if(inc)s.inc=true;S.hist.push(s);S.sess=null;save()}
+function closeStale(){var s=S.sess;if(s&&s.date!==today()){if(s.t.core&&s.t.core.e)S.doneOn=s.date;closeSess(true)}}
+function finishSess(){var s=S.sess;if(!s)return;S.doneOn=s.date;closeSess(false);stopRest();render()}
+function toStatic(){var s=S.sess;s.ph="static";s.si=0;s.t.static={s:Date.now()};stEnd=null;stBeep={};save()}
+function afterCardio(){if(incOn("static")){toStatic();render()}else finishSess()}
+function enterMain(){var s=S.sess,n=Date.now();s.ph="main";s.t.main.s=n;save();render()}
+function enterStretch(){if(isCardioDay()){S.sess.ph="cardio";save();render();return}if(!incOn("stretch")){enterMain();return}var s=S.sess,n=Date.now();s.ph="stretch";s.si=0;s.t.stretch.s=n;stEnd=null;stBeep={};save();render()}
+function track(){var s=S.sess;if(!s||(s.ph!=="main"&&s.ph!=="cardio"))return;var cur=current(),now=Date.now(),T=s.t;
+ if(cur&&s.ph==="cardio"&&!T.cardio.s){s.ph="main";T.core.e=null;save();return}
+ if(s.ph!=="main")return;if(!T.main.s)T.main.s=now;
+ if(!cur||cur.core){if(!T.main.e)T.main.e=now;if(!T.core.s)T.core.s=T.main.e}
+ if(!cur){T.core.e=now;if(coreOn()&&active(coreKey()).length)S.coreDone=s.date;if(incOn("cardio")){s.ph="cardio";save()}else if(incOn("static")){toStatic()}else{closeSess(false);S.doneOn=s.date;stopRest();save()}}}
+function phTick(){var s=S.sess;if(!s){clearInterval(phTimer);phTimer=null;return}
+ var key=s.ph==="warm"?"warm":s.ph==="cardio"?"cardio":null;
+ if(key&&s.t[key].s){var n=$("ph-num");if(n){var ms=Date.now()-s.t[key].s,tg=key==="cardio"?cardioTarget():phTarget[key];n.textContent=fd(ms);var b=$("ph-bar");if(b)b.style.width=Math.min(100,ms/(tg*10))+"%";if(ms>=tg*1000&&!phFlag[key]){phFlag[key]=1;beep(660,.4)}}}
+ if((s.ph==="stretch"||s.ph==="static")&&stEnd!==null){var rem=Math.ceil((stEnd-Date.now())/1000),sn=$("st-num");if(rem<=0){beep(440,.5);stEnd=null;renderWork();return}if(rem<=3&&!stBeep[rem]){stBeep[rem]=1;beep(880,.15)}if(sn)sn.textContent=rem}}
+function startPh(){clearInterval(phTimer);phTimer=setInterval(phTick,500);phTick()}
+function renderStart(c){var t=L(),d=el("div","mid");d.appendChild(el("div","sub",t.today));d.appendChild(el("div","exn",todayName()));
+ d.appendChild(el("div","sub",isCardioDay()?t.cardioInfo(S.cardioMin||50):t.startInfo(active(R()).length,coreOn()?active(coreKey()).length:0)));var b=el("button","big",t.startW);b.addEventListener("click",function(){newSess();render()});d.appendChild(b);c.appendChild(d)}
+function renderSummary(c){var t=L(),s=S.hist.filter(function(x){return x.date===today()}).pop(),d=el("div","mid"),ck=el("div","doneck");ck.innerHTML=ICON.check;d.appendChild(ck);d.appendChild(el("div","exn",t.doneToday));d.appendChild(el("div","sub",t.nextR(rname(ROT[nextKey()]))));
+ if(s)d.appendChild(sessLines(s));c.appendChild(d)}
+function sessLines(s){var t=L(),box=el("div","sl");box.style.cssText="width:100%;text-align:left";
+ function row(a,b){var r=el("div","strow");r.appendChild(el("span",null,a));r.appendChild(el("b",null,b));box.appendChild(r)}
+ row(t.startedL,new Date(s.start).toLocaleDateString(t.ls,{weekday:"short",month:"short",day:"numeric"})+" · "+hhmm(s.start));
+ [["warm",t.warm],["stretch",t.stretch],["main",t.mainW],["core",t.core],["cardio",t.cardio],["static",t.staticS]].forEach(function(k){var p=s.t&&s.t[k[0]];if(p&&p.s&&p.e)row(k[1]+(p.m?" ("+t[p.m]+")":""),fd(p.e-p.s))});
+ if(s.end)row(t.totalL,fd(s.end-s.start));return box}
+function renderMachine(c,key){var t=L(),s=S.sess,p=s.t[key],target=key==="cardio"?cardioTarget():phTarget[key],head=el("div","head");
+ head.appendChild(el("h2",null,key==="warm"?t.warm:t.cardio));head.appendChild(el("span","meta",t.targetL+" "+mmss(target)));c.appendChild(head);
+ var mc=p.m||S.mach||"treadmill";
+ if(!p.s){var sg=el("div","seg");sg.style.margin="8px 0 12px";[["treadmill",t.treadmill],["elliptical",t.elliptical],["bike",t.bike]].forEach(function(m){var b=el("button",null,m[1]);b.setAttribute("aria-pressed",m[0]===mc);b.addEventListener("click",function(){S.mach=m[0];save();renderWork()});sg.appendChild(b)});c.appendChild(sg);
+  c.appendChild(el("div","sub",key==="warm"?t.warmHint:(isCardioDay()?t.cardioHintDay(S.cardioMin||50):t.cardioHint)));
+  var go=el("button","big",t.start);go.addEventListener("click",function(){audio();p.s=Date.now();p.m=mc;phFlag[key]=0;save();renderWork()});c.appendChild(go);
+  var sk=el("button","link",t.skipPhase);sk.addEventListener("click",function(){if(key==="warm")enterStretch();else afterCardio()});c.appendChild(sk)}
+ else{var m=el("div","mid2");m.appendChild(el("div","sub",t[p.m||mc]));var n=el("div","num");n.id="ph-num";m.appendChild(n);var bar=el("div","bar"),i=el("i");i.id="ph-bar";bar.appendChild(i);m.appendChild(bar);c.appendChild(m);
+  var dn=el("button","big",t.done);dn.addEventListener("click",function(){p.e=Date.now();save();if(key==="warm")enterStretch();else afterCardio()});c.appendChild(dn);startPh()}}
+function uTxt(v,u){return L().uf[u](v)}
+function renderStretch(c,kind){kind=kind||"stretch";var t=L(),s=S.sess,pk=dayOf(s.rt),src=kind==="static"?STR2:STR,list=src[pk]||src.push,i=Math.min(s.si||0,list.length-1),it=list[i],ko=S.lang==="ko",head=el("div","head");
+ head.appendChild(el("h2",null,kind==="static"?t.staticS:t.stretch));head.appendChild(el("span","meta",(i+1)+"/"+list.length));c.appendChild(head);
+ c.appendChild(el("div","exn",ko?it[1]:it[0]));c.appendChild(el("div","sub",ko?it[3]:it[2]));
+ var box=el("div","mid2");
+ if(it[5]==="t"){if(stEnd!==null){var n=el("div","num");n.id="st-num";n.textContent=Math.max(0,Math.ceil((stEnd-Date.now())/1000));box.appendChild(n);startPh()}
+  else{box.appendChild(el("div","nxl",uTxt(it[4],"t")));var b=el("button","ghost",t.start);b.addEventListener("click",function(){audio();stEnd=Date.now()+it[4]*1000;stBeep={};renderWork()});box.appendChild(b)}}
+ else{var vv=el("div","num");vv.style.fontSize="30px";vv.textContent=uTxt(it[4],it[5]);box.appendChild(vv)}
+ c.appendChild(box);
+ function fin(){stEnd=null;s.t[kind]=s.t[kind]||{};s.t[kind].e=Date.now();if(kind==="static")finishSess();else enterMain()}
+ var last=i===list.length-1,nx=el("button","big",last?(kind==="static"?t.finishStatic:t.finishStretch):t.next);nx.addEventListener("click",function(){stEnd=null;if(last)fin();else{s.si=i+1;save();renderWork()}});c.appendChild(nx);
+ var sk=el("button","link",kind==="static"?t.skipStatic:t.skipStretch);sk.addEventListener("click",fin);c.appendChild(sk)}
+
+function renderWork(){var t=L(),s;renderDone();
+ var bar=$("routine");bar.innerHTML="";var lf=el("div");lf.appendChild(el("div","sub",t.today));lf.appendChild(el("div","rt",todayName()));
+ var chg=el("button","sk lv",t.change),cb=ib("sw",ICON.cal,t.calendar,function(){calSheet()}),rr=el("div","rbtn");chg.addEventListener("click",routineSheet);rr.appendChild(cb);rr.appendChild(chg);bar.appendChild(lf);bar.appendChild(rr);
+ var c=$("logcard");c.innerHTML="";rpe=5;wuOn=false;$("nextcard").hidden=true;clearInterval(phTimer);phTimer=null;clearInterval(tmTimer);tmTimer=null;
+ track();s=S.sess;
+ if(!s){if(S.doneOn===today())renderSummary(c);else renderStart(c);return}
+ if(s.ph==="warm"){renderMachine(c,"warm");return}
+ if(s.ph==="stretch"){renderStretch(c,"stretch");return}
+ if(s.ph==="static"){renderStretch(c,"static");return}
+ if(s.ph==="cardio"){renderMachine(c,"cardio");return}
+ var cur=current();if(!cur){s.ph="cardio";save();renderMachine(c,"cardio");return}
+ var head=el("div","head");head.appendChild(el("h2",null,t.log));head.appendChild(el("span","meta",(cur.core?t.core+" · ":"")+(cur.i+1)+"/"+cur.total));var lh=el("span","meta");lh.id="live-hr";lh.textContent=liveHr.v?"♥ "+liveHr.v:"";head.appendChild(lh);c.appendChild(head);
+ var e=cur.e,x=X[e.k],tm=x&&x.tm,sub=el("div","sub");function subTxt(){sub.textContent=t.setOf(cur.n+1,cur.sets)+(cur.side?" · "+(cur.side==="L"?t.leftS:t.rightS):"")+" · "+(tm?t.targetS(e.reps):t.target(e.reps))}subTxt();
+ var nr=el("div","exrow");nr.appendChild(el("div","exn",nm(e.k)));var rb=el("div","rb");rb.appendChild(ib("sw",ICON.info,t.info,function(){infoSheet(e.k)}));rb.appendChild(ib("sw",ICON.swap,t.swap,function(){swapSheet(e,cur.rk)}));nr.appendChild(rb);c.appendChild(nr);
+ if(x){var ml=el("div","mus");ml.appendChild(musNode(x,true));c.appendChild(ml);var ql=el("div","mus");ql.appendChild(document.createTextNode(t.equip+": "+eqtxt(x)+(UNI[e.k]?" · "+t.perSide:"")));c.appendChild(ql)}
+ c.appendChild(sub);
+ var lastHr=100;for(var q=S.sets.length-1;q>=0;q--)if(S.sets[q].hr){lastHr=S.sets[q].hr;break}
+ var f=el("div","fields3"),wIn,rIn;
+ f.appendChild(fld(t.weight,"w-in",e.w||0,wstep(x),0,500,false,function(v){if(!wuOn){e.w=v;save()}},undefined,true));
+ f.appendChild(fld(tm?t.secs:t.reps,"r-in",e.reps,1,1,300,true,function(v){if(!wuOn){e.reps=v;save();subTxt()}},undefined,true));
+ f.appendChild(fld(t.hr,"h-in","",5,30,240,true,function(){},lastHr,true));
+ if(cur.n===0&&cur.side!=="R"){var wl=el("label","wu"),cb2=el("input");cb2.type="checkbox";cb2.id="wu-in";wl.appendChild(cb2);wl.appendChild(document.createTextNode(" "+t.wuLabel));
+  cb2.addEventListener("change",function(){wuOn=cb2.checked;var w=$("w-in"),r=$("r-in");if(wuOn){w.value=e.w>0?Math.max(0,Math.round(e.w*.5/wstep(x))*wstep(x)):0}else{w.value=e.w||0}r.value=e.reps});c.appendChild(wl)}
+ c.appendChild(f);c.appendChild(el("div","hintl",t.swipeHint));
+ f.querySelector("#h-in").placeholder=t.bpm;
+ var rl=el("label",null,t.rate);rl.style.margin="10px 0 4px";c.appendChild(rl);c.appendChild(rateCtl());
+ var tk=tmKeyOf(cur),running=!!tm&&tmS.key===tk;
+ if(running){var tb=el("div","tmb"),tn=el("div","num"),bar2=el("div","bar"),bi=el("i");tn.id="tm-num";bi.id="tm-bar";bar2.appendChild(bi);tb.appendChild(tn);tb.appendChild(bar2);c.appendChild(tb)}
+ var br=el("div","btnrow"),go=el("button","big",(tm&&!running)?t.start:t.done),sk=el("button","ghost sm",t.skipSet),as=el("button","ghost sm",t.addSet);go.style.margin="0";go.id="tm-done";
+ go.addEventListener("click",function(){if(tm&&!running){audio();var tot=parseInt($("r-in").value,10)||e.reps;tmS={key:tk,start:Date.now(),total:tot,beeped:{},fin:0};renderWork()}else doneSet(cur)});sk.addEventListener("click",function(){skipSet(cur)});as.addEventListener("click",function(){addSet(cur)});
+ br.appendChild(go);br.appendChild(sk);br.appendChild(as);c.appendChild(br);
+ f.querySelector("#h-in").addEventListener("keydown",function(ev){if(ev.key==="Enter"&&(!tm||running))doneSet(cur)});
+ if(running){tmTimer=setInterval(tmTick,250);tmTick()}
+ renderNext(cur)}
+function doneSet(cur){var e=cur.e,w=parseFloat($("w-in").value),r=parseInt($("r-in").value,10),hr=parseInt($("h-in").value,10),wu=wuOn;
+ if(isNaN(w)||w<0)w=e.w||0;if(isNaN(r)||r<1)r=e.reps;if(!(hr>0)&&liveHr.samples.length)hr=Math.round(liveHr.samples.reduce(function(a,b){return a+b},0)/liveHr.samples.length);if(!(hr>0))hr=null;liveHr.samples=[];if(!wu){e.w=w;e.reps=r}
+ var xx=X[e.k];if(xx&&xx.tm&&tmS.key===tmKeyOf(cur)){var el2=(Date.now()-tmS.start)/1000;r=el2>=tmS.total?tmS.total:Math.max(1,Math.round(el2))}tmS.key=null;
+ audio();if(restEnd!==null)finishRest(false);var id=uid(),rec={id:id,t:Date.now(),date:today(),rt:cur.rk,ex:e.k,w:w,r:r,hr:hr,rpe:rpe};if(wu)rec.wu=1;else if(cur.side)rec.side=cur.side;S.sets.push(rec);
+ var nx=current();
+ if(nx){if(!wu&&cur.side==="L")toast(L().rightNow);else{var auto=!S.manual;startRest(auto?autoRest(w,r,hr,rpe,e.k):(cur.core?(S.restCore||S.rest):S.rest),auto,id,e.k);if(nx.core&&!cur.core)toast(L().coreStart)}}else stopRest();
+ save();renderWork();renderRest()}
+function skipSet(cur){if(restEnd!==null)finishRest(false);S.skips.push({id:uid(),t:Date.now(),date:today(),rt:cur.rk,ex:cur.e.k});save();toast(L().skippedSet);renderWork();renderRest()}
+function addSet(cur){var k=today()+"|"+cur.rk+"|"+cur.e.k;S.extra[k]=(S.extra[k]||0)+1;save();toast(L().setAdded);renderWork()}
+function undoSet(){var ev=events(),last=ev[ev.length-1];if(!last)return;if(last.k==="s")S.skips=S.skips.filter(function(s){return last.s.g?s.g!==last.s.g:s.id!==last.s.id});else S.sets=S.sets.filter(function(s){return s.id!==last.s.id});stopRest();save();renderWork();renderRest()}
+
+/* calendar: which routine was done on which day */
+var calY=null,calM=null,calSel=null;
+function dayMap(){var m={};S.hist.forEach(function(s){(m[s.date]=m[s.date]||[]).push(s)});if(S.sess)(m[S.sess.date]=m[S.sess.date]||[]).push(S.sess);
+ S.sets.forEach(function(l){if(!m[l.date])m[l.date]=[{date:l.date,rt:null,legacy:1,t:{}}];var a=m[l.date][0];if(a.legacy&&!a.rt&&l.rt&&l.rt.indexOf("core")!==0)a.rt=l.rt});return m}
+function calSheet(){var t=L(),nd=nowD();if(calY===null){calY=nd.getFullYear();calM=nd.getMonth();calSel=today()}
+ openSheet(function(p){var map=dayMap(),h=el("div","calh"),pv=ib("sw","‹",t.prevM,function(){calM--;if(calM<0){calM=11;calY--}calSheet()}),nx=ib("sw","›",t.nextM,function(){calM++;if(calM>11){calM=0;calY++}calSheet()});
+  pv.textContent="‹";nx.textContent="›";h.appendChild(pv);h.appendChild(el("b",null,new Date(calY,calM,1).toLocaleDateString(t.ls,{year:"numeric",month:"long"})));h.appendChild(nx);p.appendChild(h);
+  var box=el("div","sc lst");box.style.maxHeight="66vh";var g=el("div","calg");
+  for(var i=0;i<7;i++)g.appendChild(el("small","cdh",new Date(2024,0,1+i).toLocaleDateString(t.ls,{weekday:"narrow"})));
+  var first=(new Date(calY,calM,1).getDay()+6)%7,dim=new Date(calY,calM+1,0).getDate();
+  for(i=0;i<first;i++)g.appendChild(el("span","cd e"));
+  for(var d=1;d<=dim;d++)(function(d){var key=calY+"-"+String(calM+1).padStart(2,"0")+"-"+String(d).padStart(2,"0"),ss=map[key],b=el("button","cd"+(key===today()?" today":"")+(key===calSel?" sel":""));
+   b.appendChild(document.createTextNode(d));
+   if(ss){var rt=ss[0].rt;if(rt){b.className+=" "+({push:"p",pull:"l",legs:"g",cardio:"c"}[dayOf(rt)]||"");b.appendChild(el("small",null,rname(rt)))}else b.className+=" p";var cl=S.sets.filter(function(x){return x.date===key&&x.rt&&x.rt.indexOf("core")===0&&!x.wu})[0];if(cl)b.appendChild(el("small",null,rname(cl.rt)))}
+   b.addEventListener("click",function(){calSel=key;calSheet()});g.appendChild(b)})(d);
+  box.appendChild(g);var dt=el("div","caldet");
+  var ss=map[calSel];dt.appendChild(el("div","sm",new Date(+calSel.slice(0,4),+calSel.slice(5,7)-1,+calSel.slice(8)).toLocaleDateString(t.ls,{weekday:"long",month:"long",day:"numeric"})));
+  if(!ss)dt.appendChild(el("p","hint",t.noWorkout));
+  else ss.forEach(function(s){var lg=S.sets.filter(function(x){return x.date===calSel&&!x.wu});var cl2=S.sets.filter(function(x){return x.date===calSel&&x.rt&&x.rt.indexOf("core")===0&&!x.wu})[0];dt.appendChild(el("b",null,s.rt?rname(s.rt)+(cl2?" + "+rname(cl2.rt):""):t.workoutL+(s.inc?" ("+t.incomplete+")":"")));
+   if(s.start)dt.appendChild(sessLines(s));
+   var vol=lg.reduce(function(a,x){return a+x.w*x.r},0);dt.appendChild(el("p","hint",t.stats2(lg.length,fmt(vol))))});
+  box.appendChild(dt);p.appendChild(box);var c=el("button","ghost",t.close);c.style.cssText="width:100%;margin-top:8px";c.addEventListener("click",closeSheet);p.appendChild(c)})}
+function routineSheet(){var t=L();openSheet(function(p){p.appendChild(el("h2",null,t.chTitle));var box=el("div","sc lst");
+ box.appendChild(el("div","sm",t.mainR));
+ ROUT.forEach(function(k,i){var b=el("button","li"),d=el("div");d.appendChild(el("b",null,rname(k)));
+  d.appendChild(el("span",null,active(k).slice(0,3).map(function(e){return nm(e.k)}).join(", ")));b.appendChild(d);if(k===R())b.appendChild(el("em","badge",t.today));
+  b.addEventListener("click",function(){closeSess(true);S.ri=ROT.indexOf(k);S.doneOn=null;S.pv=k;stopRest();save();closeSheet();render()});box.appendChild(b)});
+ var cb0=el("button","li"),cd0=el("div");cd0.appendChild(el("b",null,t.cardioDay));cd0.appendChild(el("span",null,t.cardioInfo(S.cardioMin||50)));cb0.appendChild(cd0);if(isCardioDay())cb0.appendChild(el("em","badge",t.today));
+ cb0.addEventListener("click",function(){closeSess(true);S.ri=ROT.indexOf("cardioA");S.doneOn=null;S.pv=pvKey();stopRest();save();closeSheet();render()});box.appendChild(cb0);
+ box.appendChild(el("div","sm",t.coreBlock));var cr=el("div","opts");
+ ["A","B"].forEach(function(l){var on=S.ca===l,b=el("button","opt"+(on?" r":""),(on?"✓ ":"")+rname("core"+l));b.addEventListener("click",function(){S.ca=l;save();render();routineSheet()});cr.appendChild(b)});box.appendChild(cr);box.appendChild(el("p","hint",t.coreAlt));
+ box.appendChild(el("div","sm",t.includeL));
+ [["warm",t.warm],["stretch",t.stretch],["core",t.core],["cardio",t.cardio],["static",t.staticS]].forEach(function(x){var l=el("label","chkrow"),i=el("input");i.type="checkbox";i.checked=incOn(x[0]);l.appendChild(i);l.appendChild(el("span",null,x[1]));
+  i.addEventListener("change",function(){S.inc[x[0]]=i.checked;save();render()});box.appendChild(l)});
+ var rl=el("label","chkrow"),ri=el("input");ri.type="checkbox";ri.checked=S.restDay!==false;rl.appendChild(ri);rl.appendChild(el("span",null,t.restDayL));ri.addEventListener("change",function(){S.restDay=ri.checked;save();render()});box.appendChild(rl);
+ var cmw=el("div");cmw.style.marginTop="8px";cmw.appendChild(fld(t.cardioMin,"cd-min",S.cardioMin||50,5,20,120,true,function(v){S.cardioMin=v;save();render()},undefined,true));box.appendChild(cmw);
+ p.appendChild(box);var c=el("button","ghost",t.close);c.style.cssText="width:100%;margin-top:8px";c.addEventListener("click",closeSheet);p.appendChild(c)})}
+
+/* plan tab */
+var ICON={swap:'<svg viewBox="0 0 24 24"><path d="M17 3l4 4-4 4"/><path d="M3 7h18"/><path d="M7 21l-4-4 4-4"/><path d="M21 17H3"/></svg>',
+ del:'<svg viewBox="0 0 24 24"><path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="M6 7l1 13h10l1-13"/></svg>',
+ dis:'<svg viewBox="0 0 24 24"><path d="M17 14V3"/><path d="M9 18.1l1-4.1H4.5a2 2 0 0 1-1.9-2.5l2.3-7.5A2 2 0 0 1 6.8 2.5H17v11.5l-4 8a2.4 2.4 0 0 1-3.9-1.5z"/></svg>',
+ info:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6"/><path d="M12 7.5v.01"/></svg>',
+ plus:'<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>',
+ check:'<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+ skip:'<svg viewBox="0 0 24 24"><path d="M5 5l9 7-9 7z"/><path d="M18 5v14"/></svg>',
+ cal:'<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>',
+ shield:'<svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8.2-7 10-4-1.8-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg>',
+ thumb:'<svg viewBox="0 0 24 24"><path d="M7 11v9"/><path d="M7 11l4-8a2.4 2.4 0 0 1 2.9 2.8L13 9h5.5a2 2 0 0 1 2 2.4l-1.4 7a2 2 0 0 1-2 1.6H7"/></svg>',
+ grip:'<svg viewBox="0 0 24 24"><path d="M5 7h14"/><path d="M5 12h14"/><path d="M5 17h14"/></svg>'};
+function ib(cls,icon,label,fn){var b=el("button","ib "+cls);b.innerHTML=icon;b.setAttribute("aria-label",label);if(fn)b.addEventListener("click",fn);return b}
+/* hold the three-line handle and drag a workout. The dragged row is only translated (never moved in the DOM), so the touch is never lost. */
+function dragStart(ev,row){ev.preventDefault();var box=$("plist"),h=ev.currentTarget,rows=[].slice.call(box.children),i0=rows.indexOf(row),n=rows.length,startY=ev.clientY,sc0=box.scrollTop,tgt=i0;
+ var stride=n>1?Math.abs(rows[1].getBoundingClientRect().top-rows[0].getBoundingClientRect().top):row.getBoundingClientRect().height+8;if(!stride)stride=58;
+ try{h.setPointerCapture(ev.pointerId)}catch(e){}
+ row.classList.add("drag");rows.forEach(function(r){if(r!==row)r.style.transition="transform .15s"});
+ function mv(m){var br=box.getBoundingClientRect();if(m.clientY<br.top+40)box.scrollTop-=10;else if(m.clientY>br.bottom-40)box.scrollTop+=10;
+  var dy=m.clientY-startY+(box.scrollTop-sc0);row.style.transform="translateY("+dy+"px)";tgt=Math.max(0,Math.min(n-1,Math.round(i0+dy/stride)));
+  rows.forEach(function(r,i){if(r===row)return;var o=0;if(i>i0&&i<=tgt)o=-stride;else if(i<i0&&i>=tgt)o=stride;r.style.transform=o?"translateY("+o+"px)":""})}
+ function end(m){document.removeEventListener("pointermove",mv);document.removeEventListener("pointerup",end);document.removeEventListener("pointercancel",end);
+  rows.forEach(function(r){r.style.transform="";r.style.transition=""});row.classList.remove("drag");
+  if(m&&m.type==="pointerup"&&tgt!==i0){var arr=S.plan[S.pv],pos=[],act=[];arr.forEach(function(x,i){if(!x.del){pos.push(i);act.push(x)}});
+   var it=act.splice(i0,1)[0];act.splice(tgt,0,it);pos.forEach(function(ix,j){arr[ix]=act[j]});save()}renderPlan()}
+ document.addEventListener("pointermove",mv);document.addEventListener("pointerup",end);document.addEventListener("pointercancel",end)}
+function renderPlan(){var t=L(),pv=S.pv;
+ seg($("seg-plan"),CT.map(function(d){return [d,t[d]]}),dayOf(pv),function(d){S.pv=d+S.pv.slice(-1);renderPlan()});
+ seg($("seg-ab"),[["A","A"],["B","B"]],pv.slice(-1),function(v){S.pv=dayOf(S.pv)+v;renderPlan()});
+ $("add").textContent=t.add;$("shuffle").textContent=t.shuffle;
+ var box=$("plist");box.innerHTML="";var list=active(pv);if(!list.length)box.appendChild(el("p","hint",t.emptyPlan));
+ list.forEach(function(e){var r=el("div","prow");r.setAttribute("data-id",e.id);
+  var g=ib("grip",ICON.grip,t.drag);g.addEventListener("pointerdown",function(ev){dragStart(ev,r)});g.addEventListener("contextmenu",function(ev){ev.preventDefault()});r.appendChild(g);
+  var info=el("button","pinfo");var nb=el("b",null,nm(e.k));if(BS[e.k]){var bi=el("i","bsi");bi.innerHTML=ICON.shield;bi.title=t.bsTip;nb.appendChild(bi)}info.appendChild(nb);info.appendChild(el("span",null,sr(X[e.k],e.sets,e.reps)+(e.w>0?" · "+fmt(e.w)+" kg":"")));var ml=el("span","mline");ml.appendChild(musNode(X[e.k]));info.appendChild(ml);info.appendChild(el("span","tag",eqtxt(X[e.k])));info.addEventListener("click",function(){editSheet(e)});r.appendChild(info);
+  var gr=el("div","acts4");gr.appendChild(ib("sw",ICON.info,t.info,function(){infoSheet(e.k)}));gr.appendChild(ib("sw",ICON.swap,t.swap,function(){swapSheet(e)}));
+  gr.appendChild(ib("sw",ICON.dis,t.dis,function(){dislikeRow(e)}));gr.appendChild(ib("dl",ICON.del,t.del,function(){var a=S.plan[S.pv];a.splice(a.indexOf(e),1);save();render();toast(t.removedPlan)}));r.appendChild(gr);box.appendChild(r)})}
+function stepRow(label,val,step,min,max){var r=el("div","strow"),st=el("div","step"),m=el("button",null,"−"),p=el("button",null,"+"),i=el("input");
+ i.type="number";i.inputMode="decimal";i.value=val;i.min=min;i.step=step;swipeAdj(i,step,capOf(step),function(v){i.value=Math.max(min,Math.min(max,Math.round(v*10)/10))},function(){var c=parseFloat(i.value);return isNaN(c)?min:c});
+ function bump(dir,mult){var v=parseFloat(i.value);if(isNaN(v))v=0;v=Math.round((v+dir*step*(mult||1))*10)/10;i.value=Math.max(min,Math.min(max,v))}
+ holdBtn(m,-1,bump,capOf(step));holdBtn(p,1,bump,capOf(step));m.setAttribute("aria-label","−");p.setAttribute("aria-label","+");
+ st.appendChild(m);st.appendChild(i);st.appendChild(p);r.appendChild(el("span",null,label));r.appendChild(st);return {row:r,input:i}}
+function editSheet(e){var t=L();openSheet(function(p){p.appendChild(el("h2",null,nm(e.k)));
+ var a=stepRow(t.sl,e.sets,1,1,20),b=stepRow(X[e.k]&&X[e.k].tm?t.secs:t.reps,e.reps,1,1,300),c=stepRow(t.weight,e.w,wstep(X[e.k]),0,500);[a,b,c].forEach(function(x){p.appendChild(x.row)});
+ var two=el("div","two"),cn=el("button","ghost",t.cancel),sv=el("button","big",t.save);sv.style.margin="0";cn.addEventListener("click",closeSheet);
+ sv.addEventListener("click",function(){var s=parseInt(a.input.value,10),r=parseInt(b.input.value,10),w=parseFloat(c.input.value);
+  if(s>0)e.sets=Math.min(s,20);if(r>0)e.reps=Math.min(r,100);e.w=w>=0?w:0;save();closeSheet();render()});
+ two.appendChild(cn);two.appendChild(sv);p.appendChild(two)})}
+function bsToggle(reopen){var t=L(),r=el("div","strow"),b=el("button","chip",S.bs?t.on:t.off);r.appendChild(el("span",null,t.backSafe));r.appendChild(b);b.addEventListener("click",function(){S.bs=!S.bs;save();fitPlans();render();reopen()});return r}
+function listSheet(title,items,onPick,emptyMsg,onDis,reopen,extra){var t=L();openSheet(function(p){p.appendChild(el("h2",null,title));if(extra)p.appendChild(extra());var box=el("div","sc lst");
+ if(!items.length)box.appendChild(el("p","hint",emptyMsg));
+ items.forEach(function(it){var w=el("div","liw"),b=el("button","li"),d=el("div");d.appendChild(el("b",null,nm(it.x.k)));var sp=el("span");sp.appendChild(musNode(it.x));sp.appendChild(document.createTextNode(" · "+eqtxt(it.x)));d.appendChild(sp);b.appendChild(d);
+  var bd=el("div","bdg");if(it.rec){var up=el("em","badge up");up.innerHTML=ICON.thumb;up.setAttribute("aria-label",t.rec);up.title=t.rec;bd.appendChild(up)}if(BS[it.x.k]){var sh=el("em","badge up bs");sh.innerHTML=ICON.shield;sh.setAttribute("aria-label",t.bsTip);sh.title=t.bsTip;bd.appendChild(sh)}if(bd.firstChild)b.appendChild(bd);b.addEventListener("click",function(){onPick(it.x)});w.appendChild(b);
+  var sk=el("div","stk");sk.appendChild(ib("sw",ICON.info,t.info,function(){infoSheet(it.x.k,reopen)}));
+  if(onDis)sk.appendChild(ib("dl",ICON.dis,t.dis,function(){onDis(it.x)}));w.appendChild(sk);box.appendChild(w)});p.appendChild(box);
+ var c=el("button","ghost",t.cancel);c.style.cssText="width:100%;margin-top:6px";c.addEventListener("click",closeSheet);p.appendChild(c)})}
+function swapSheet(e,rk){rk=rk||S.pv;var t=L();
+ listSheet(t.swapTitle+" · "+nm(e.k),swapOpts(rk,e,3).slice(0,6),function(x){e.k=x.k;e.w=presetW(x.k);save();closeSheet();render()},t.noAlt,function(x){addDis(x.k);save();toast(t.disliked);swapSheet(e,rk);renderPlan()},function(){swapSheet(e,rk)},dayOf(rk)==="core"?function(){return bsToggle(function(){swapSheet(e,rk)})}:null)}
+function addSheet(){var t=L(),used={},cnt={};S.plan[S.pv].forEach(function(x){used[x.k]=1});S.dis.forEach(function(k){used[k]=1});active(S.pv).forEach(function(x){var m=X[x.k];if(m)cnt[m.p]=(cnt[m.p]||0)+1});
+ var opts=[];XL.forEach(function(x){if(x.day===dayOf(S.pv)&&!used[x.k]&&okx(x))opts.push({x:x,rec:(cnt[x.p]||0)<2,n:cnt[x.p]||0})});
+ opts.sort(function(a,b){return (b.rec-a.rec)||(a.n-b.n)});
+ listSheet(t.addTitle+" · "+rname(S.pv),opts,function(x){var w=mk(x.k,x.sets,x.reps);S.plan[S.pv].push(w);save();closeSheet();render();toast(t.added)},t.noAdd,function(x){addDis(x.k);save();toast(t.disliked);addSheet();renderPlan()},addSheet,dayOf(S.pv)==="core"?function(){return bsToggle(addSheet)}:null)}
+function confirmSheet(title,msg,okLabel,fn){var t=L();openSheet(function(p){p.appendChild(el("h2",null,title));p.appendChild(el("p","hint",msg));
+ var two=el("div","two"),c=el("button","ghost",t.cancel),g=el("button","big",okLabel);g.style.cssText="margin:0;background:var(--peach);color:var(--peach-ink)";c.addEventListener("click",closeSheet);
+ g.addEventListener("click",function(){closeSheet();fn()});two.appendChild(c);two.appendChild(g);p.appendChild(two)})}
+/* random all-round mix: every muscle group of the day gets a slot; skips disliked workouts and equipment you don't have */
+function doShuffle(){var t=L(),k=S.pv,day=dayOf(k),slots={core:["abs","abs","obl","lback"],push:["chest","shoulders","triceps","chest","shoulders"],pull:["back","rear","biceps","back","biceps"],legs:["quads","hams","glutes","calves","quads"]}[day],picked={},items=[],bad={};
+ S.dis.forEach(function(x){bad[x]=1});
+ slots.forEach(function(m){var pool=XL.filter(function(x){return x.day===day&&x.p===m&&!picked[x.k]&&!bad[x.k]&&okx(x)});
+  if(!pool.length)pool=XL.filter(function(x){return x.day===day&&!picked[x.k]&&!bad[x.k]&&okx(x)});if(!pool.length)return;
+  var x=pool[Math.floor(Math.random()*pool.length)];picked[x.k]=1;items.push(mk(x.k,x.sets,x.reps))});
+ if(!items.length){toast(t.noAdd);return}
+ S.plan[k]=items.concat(S.plan[k].filter(function(e){return e.del}));save();render();toast(t.shuffled)}
+
+/* how-to popup */
+function infoSheet(k,back){var t=L(),x=X[k],id=PM[k],h=id&&HOW[id][S.lang],nt=NOTES[k]&&NOTES[k][S.lang==="ko"?1:0];
+ openSheet(function(p){p.appendChild(el("h2",null,nm(k)));if(x){var sb=el("div","sub");sb.appendChild(musNode(x));sb.appendChild(document.createTextNode(" · "+eqtxt(x)));p.appendChild(sb)}
+  if(BS[k]){var bl=el("div","bsline");bl.innerHTML=ICON.shield;bl.appendChild(el("span",null,t.bsTip));p.appendChild(bl)}
+  var box=el("div","sc lst");box.style.marginTop="6px";
+  if(h)[[t.hSetup,h[0]],[t.hMove,h[1]],[t.hTip,h[2]]].forEach(function(r){box.appendChild(el("div","sm",r[0]));box.appendChild(el("p","how",r[1]))});
+  if(nt){box.appendChild(el("div","sm",t.hNote));box.appendChild(el("p","how",nt))}
+  p.appendChild(box);var c=el("button","big",back?t.back:t.close);c.style.marginTop="10px";c.addEventListener("click",back?back:closeSheet);p.appendChild(c)})}
+/* dislike from the plan: swap in a similar workout instead of leaving a gap */
+function dislikeRow(e,rk){rk=rk||S.pv;var t=L(),old=e.k,o=swapOpts(rk,e,3);if(!o.length)o=swapOpts(rk,e,2);
+ if(o.length){var nx=o[0].x;e.k=nx.k;e.w=presetW(nx.k);addDis(old);save();render();toast(t.replaced(nm(old),nm(nx.k)))}
+ else{addDis(old);save();render();toast(t.disliked)}}
+
+/* analysis tab */
+var AP="30";
+function dstr(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function pdate(k){var p=k.split("-");return new Date(+p[0],+p[1]-1,+p[2])}
+function avg(a){return a.length?a.reduce(function(x,y){return x+y},0)/a.length:0}
+function renderAna(){var t=L(),body=$("ana-body"),days=+AP,cut="",prevCut="";
+ seg($("seg-ana"),[["1",t.pToday],["7",t.p7],["30",t.p30],["0",t.pall]],AP,function(v){AP=v;renderAna()});body.innerHTML="";
+ var now=nowD(),c0=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+ if(days){var c=new Date(c0.getFullYear(),c0.getMonth(),c0.getDate()-days+1);cut=dstr(c);prevCut=dstr(new Date(c.getFullYear(),c.getMonth(),c.getDate()-days))}
+ var logs=S.sets.filter(function(s){return !s.wu&&(!cut||s.date>=cut)});
+ if(!logs.length){body.appendChild(el("p","hint",t.aNone));return}
+ function vol(a){return a.reduce(function(x,s){return x+s.w*s.r},0)}
+ function card(title){var d=el("div","card");d.style.padding="12px 14px";d.appendChild(el("h2",null,title));d.firstChild.style.marginBottom="8px";body.appendChild(d);return d}
+ var dset={};logs.forEach(function(s){dset[s.date]=1});var nd=Object.keys(dset).length;
+ var hrs=logs.filter(function(s){return s.hr}).map(function(s){return s.hr}),rp=logs.filter(function(s){return s.rpe}).map(function(s){return s.rpe}),rs=logs.filter(function(s){return s.rest!=null}).map(function(s){return s.rest});
+ var tiles=el("div","tiles");[[nd,t.aDays,"s1"],[logs.length,t.aSets,"s2"],[fmt(vol(logs)),t.aVol,"s3"],[hrs.length?Math.round(avg(hrs)):"–",t.aHr,"s3"],[rp.length?avg(rp).toFixed(1):"–",t.aRpe,"s1"],[rs.length?mmss(Math.round(avg(rs))):"–",t.aRest,"s2"]].forEach(function(x){
+  var d=el("div","stat "+x[2]);d.appendChild(el("b",null,x[0]));d.appendChild(el("span",null,x[1]));tiles.appendChild(d)});body.appendChild(tiles);
+ /* volume by week */
+ var m=new Date(c0.getFullYear(),c0.getMonth(),c0.getDate());m.setDate(m.getDate()-((m.getDay()+6)%7));var wk=[];
+ for(var i=5;i>=0;i--){var d=new Date(m.getFullYear(),m.getMonth(),m.getDate()-7*i);wk.push({k:dstr(d),l:(d.getMonth()+1)+"/"+d.getDate(),v:0})}
+ S.sets.forEach(function(s){if(s.wu)return;var d=pdate(s.date);d.setDate(d.getDate()-((d.getDay()+6)%7));var k=dstr(d);wk.forEach(function(x){if(x.k===k)x.v+=s.w*s.r})});
+ var mx=Math.max.apply(null,wk.map(function(x){return x.v}))||1,wc=card(t.aWeek),bars=el("div","wbars");
+ wk.forEach(function(x){var col=el("div","wcol"),b=el("i");b.style.height=Math.max(3,Math.round(x.v/mx*56))+"px";col.appendChild(el("small",null,x.v?(x.v>=1000?(x.v/1000).toFixed(1)+"k":Math.round(x.v)):""));col.appendChild(b);col.appendChild(el("small",null,x.l));bars.appendChild(col)});wc.appendChild(bars);
+ /* muscle balance */
+ var cp={},cs={},cnt={};Object.keys(MU.en).forEach(function(k){cp[k]=0;cs[k]=0});
+ logs.forEach(function(s){var x=X[s.ex];if(x){cp[x.p]++;x.s.forEach(function(m){cs[m]+=.5})}});Object.keys(cp).forEach(function(k){cnt[k]=cp[k]+cs[k]});
+ var mc=card(t.aMuscle),mm=Math.max.apply(null,Object.keys(cnt).map(function(k){return cnt[k]}))||1,lg=el("div","leg");lg.appendChild(el("b","mp",t.prim));lg.appendChild(document.createTextNode(" = 1 set   "));lg.appendChild(el("b","ms",t.sec));lg.appendChild(document.createTextNode(" = ½ set"));mc.appendChild(lg);
+ Object.keys(cnt).forEach(function(k){var r=el("div","mrow");r.appendChild(el("span",null,MU[S.lang][k]));var b=el("div","mbar"),a=el("i","bp"),c2=el("i","bq");a.style.width=(cp[k]/mm*100)+"%";c2.style.width=(cs[k]/mm*100)+"%";b.appendChild(a);b.appendChild(c2);r.appendChild(b);r.appendChild(el("em",null,fmt(cnt[k])));mc.appendChild(r)});
+ /* strength progress: best set per day, first vs latest */
+ var by={};logs.forEach(function(s){(by[s.ex]=by[s.ex]||{})[s.date]=Math.max((by[s.ex]||{})[s.date]||0,s.w>0?s.w*(1+s.r/30):s.r)});
+ var pr=[],up=0;Object.keys(by).forEach(function(k){var ds=Object.keys(by[k]).sort();if(ds.length<2)return;var a=by[k][ds[0]],b=by[k][ds[ds.length-1]],bw=S.sets.some(function(s){return s.ex===k&&s.w>0});
+  var pc=a?Math.round((b-a)/a*100):0;if(pc>0)up++;pr.push({k:k,n:ds.length,a:a,b:b,pc:pc,bw:!bw})});
+ pr.sort(function(x,y){return y.n-x.n});var pg=card(t.aProg);
+ if(!pr.length)pg.appendChild(el("p","hint",t.aProgNone));
+ pr.slice(0,6).forEach(function(x){var r=el("div","prg");r.appendChild(el("b",null,nm(x.k)));r.appendChild(el("span",null,x.bw?Math.round(x.a)+" → "+Math.round(x.b)+" "+t.aReps:Math.round(x.a)+" → "+Math.round(x.b)+" kg"));
+  r.appendChild(el("em","badge"+(x.pc<0?" neg":""),(x.pc>0?"+":"")+x.pc+"%"));pg.appendChild(r)});
+ if(pr.length)pg.appendChild(el("p","hint",t.aProgNote));
+ /* insights */
+ var ins=[],tot=logs.length,lo=null,zero=null;
+ Object.keys(cnt).forEach(function(k){if(!cnt[k]){if(!zero)zero=k}else if(!lo||cnt[k]<cnt[lo])lo=k});
+ if(tot>=10&&zero)ins.push(t.insNone(MU[S.lang][zero]));else if(lo&&cnt[lo]<mm*.4)ins.push(t.insBal(MU[S.lang][lo],cnt[lo]));
+ if(rp.length){var ar=avg(rp).toFixed(1);ins.push(avg(rp)>=9?t.insHard(ar):avg(rp)<=5?t.insEasy(ar):t.insOk(ar))}
+ if(pr.length)ins.push(t.insProg(up,pr.length));
+ var wks=days?days/7:Math.max(1,(c0-pdate(logs.map(function(s){return s.date}).sort()[0]))/6048e5);if(!days||days>=7)ins.push(t.insFreq((nd/Math.max(1,wks)).toFixed(1)));
+ if(days){var pv=vol(S.sets.filter(function(s){return !s.wu&&s.date>=prevCut&&s.date<cut}));if(pv>0)ins.push(t.insVol(Math.round((vol(logs)-pv)/pv*100)))}
+ if(rs.length)ins.push(t.insRest(mmss(Math.round(avg(rs)))));
+ var ic=card(t.aIns);ins.forEach(function(x){ic.appendChild(el("p","ins",x))})}
+
+/* ---------- profile: saved to your private account storage (db) + manual backup file ---------- */
+var cloud={db:null,uid:null,name:"",status:"off",last:0,timer:null,busy:false,pushed:{}};
+function wkKey(k){var d=pdate(k);d.setDate(d.getDate()-((d.getDay()+6)%7));return dstr(d)}
+function parts(){var o=stateObj(),weeks={};function W(k){var w=wkKey(k);return weeks[w]||(weeks[w]={sets:[],hist:[],food:[]})}
+ o.sets.forEach(function(x){W(x.date).sets.push(x)});o.hist.forEach(function(x){W(x.date).hist.push(x)});(o.fl||[]).forEach(function(x){W(x.date).food.push(x)});
+ var prof=Object.assign({},o);delete prof.sets;delete prof.hist;delete prof.fl;prof.sk=(o.sk||[]).slice(-300);prof.v=2;return {prof:prof,weeks:weeks}}
+function schedulePush(){if(!cloud.db)return;clearTimeout(cloud.timer);cloud.timer=setTimeout(cloudPush,3000)}
+function tmo(ms){return new Promise(function(_,rej){setTimeout(function(){rej(new Error("timeout"))},ms)})}
+function markPushed(){var p=parts();cloud.pushed={profile:JSON.stringify(p.prof)};Object.keys(p.weeks).forEach(function(k){cloud.pushed["w-"+k]=JSON.stringify(p.weeks[k])})}
+async function cloudPush(){var c=cloud;if(!c.db)return;if(c.busy){schedulePush();return}c.busy=true;c.status="sync";renderSync();
+ try{var col=c.db.collection("data/users/"+c.uid),p=parts(),ids={};
+  for(var k in p.weeks){var id="w-"+k,j=JSON.stringify(p.weeks[k]);ids[id]=1;if(c.pushed[id]!==j){await col.doc(id).set(p.weeks[k]);c.pushed[id]=j}}
+  var pj=JSON.stringify(p.prof);if(c.pushed.profile!==pj){await col.doc("profile").set(p.prof);c.pushed.profile=pj}
+  for(var id2 in c.pushed){if(id2.indexOf("w-")===0&&!ids[id2]){await col.doc(id2).delete();delete c.pushed[id2]}}
+  c.last=Date.now();c.status="ok"}catch(e){c.status="err"}c.busy=false;renderSync()}
+async function cloudInit(manual){var c=cloud;
+ try{if(typeof claude==="undefined"||!claude.use){c.status="off";renderSync();return}
+  var db=await claude.use("db"),user=await claude.use("user");if(!db||!user){c.status="off";renderSync();if(manual)toast(L().cloudOff);return}
+  var uid=await user.id();if(!uid){c.status="off";renderSync();return}
+  c.db=db;c.uid=uid;try{var me=await user.me();c.name=(me&&me.name)||""}catch(e){}
+  c.status="sync";renderSync();
+  var snap=await Promise.race([db.collection("data/users/"+uid).get(),tmo(10000)]),docs={};snap.docs.forEach(function(d){docs[d.id]=d.data()});
+  var prof=docs.profile,ru=prof?(+prof.upd||0):0;
+  if(prof&&ru>(S.upd||0)){var sets=[],hist=[],food=[];Object.keys(docs).forEach(function(id){if(id.indexOf("w-")===0){sets=sets.concat(docs[id].sets||[]);hist=hist.concat(docs[id].hist||[]);food=food.concat(docs[id].food||[])}});
+   applyState(Object.assign({},prof,{sets:sets,hist:hist,fl:food}));S.upd=ru;writeLocal();markPushed();c.last=ru;c.status="ok";render();return}
+  if(prof&&ru===(S.upd||0)){markPushed();c.last=ru;c.status="ok";renderSync();return}
+  await cloudPush()}catch(e){c.status="err";renderSync()}}
+function renderSync(){var c=$("cloudcard");if(!c)return;var t=L();c.innerHTML="";
+ var st=cloud.status,msg=st==="ok"?t.cloudOk(hhmm(cloud.last||Date.now())):st==="sync"?t.cloudSync:st==="err"?t.cloudErr:t.cloudOff;
+ if(cloud.name)c.appendChild(el("div","sub",t.signedAs(cloud.name)));
+ var m=el("div","hint",msg);m.style.margin="4px 0 8px";c.appendChild(m);
+ var row=el("div","two"),sb=el("button","ghost",t.syncNow),eb=el("button","ghost",t.exportB);row.style.marginTop="0";sb.addEventListener("click",function(){cloudInit(true)});eb.addEventListener("click",exportBackup);row.appendChild(sb);row.appendChild(eb);c.appendChild(row);
+ var im=el("button","ghost",t.importB),fi=el("input");im.style.cssText="width:100%;margin-top:8px";fi.type="file";fi.accept=".json,application/json";fi.hidden=true;
+ im.addEventListener("click",function(){fi.click()});fi.addEventListener("change",function(){var f=fi.files&&fi.files[0];if(!f)return;var r=new FileReader();r.onload=function(){importBackup(String(r.result))};r.readAsText(f)});c.appendChild(im);c.appendChild(fi);
+ c.appendChild(el("p","hint",t.bkHint))}
+async function exportBackup(){var t=L();if(NB){try{NB.postMessage({type:"export",name:"workout-log-backup-"+dstr(nowD())+".json",data:JSON.stringify(stateObj(),null,1)})}catch(e){}return}try{var dl=await claude.use("downloads");if(!dl){toast(t.dlNo);return}
+ await dl.save({filename:"workout-log-backup-"+dstr(nowD())+".json",data:JSON.stringify(stateObj(),null,1)});toast(t.exported)}catch(e){if(!e||e.code!=="declined")toast(t.dlNo)}}
+function importBackup(text){var t=L(),d=null;try{d=JSON.parse(text)}catch(e){}
+ if(!d||!Array.isArray(d.sets)||!d.plan){toast(t.importBad);return}
+ confirmSheet(t.importB,t.importConfirm,t.importB,function(){applyState(d);S.upd=Date.now();save();render();toast(t.imported)})}
+
+/* ---------- native shell bridge: iPhone app + Apple Watch (inert in a normal browser) ---------- */
+var bridgeT=null,lastBridge="";
+function bridgeState(){var c=$("logcard"),tmd=$("tm-done"),big=tmd||c.querySelector(".big"),h2=c.querySelector("h2"),ex=c.querySelector(".exn"),sb=c.querySelector(".sub"),mt=c.querySelector(".meta"),w=$("w-in"),r=$("r-in"),nx=$("nextcard"),nn=nx&&!nx.hidden?nx.querySelector(".nxn"):null,s=S.sess;
+ return {v:1,phase:s?s.ph:(S.doneOn===today()?"done":"idle"),lang:S.lang,routine:todayName(),head:h2?h2.textContent:"",meta:mt?mt.textContent:"",title:ex?ex.textContent:"",sub:sb?sb.textContent:"",weight:w?w.value:"",reps:r?r.value:"",primary:big?big.textContent.trim():"",next:nn?nn.textContent:"",rest:restEnd!==null?{end:restEnd,total:restTotal}:null}}
+function bridgePost(){if(!NB)return;clearTimeout(bridgeT);bridgeT=setTimeout(function(){var st=bridgeState(),j=JSON.stringify(st);if(j!==lastBridge){lastBridge=j;try{NB.postMessage({type:"state",state:st})}catch(e){}}},120)}
+function hrIn(v){v=Math.round(+v);if(!(v>30&&v<240))return;liveHr.v=v;if(restEnd===null)liveHr.samples.push(v);if(liveHr.samples.length>600)liveHr.samples.shift();var e=$("live-hr");if(e)e.textContent="♥ "+v}
+/* commands from the Apple Watch: primary (the big button), skipRest, addRest, hr, sync */
+window.wlReceive=function(m){try{if(!m)return;
+ if(m.cmd==="hr")hrIn(m.v);
+ else if(m.cmd==="primary"){var btn=$("tm-done")||$("logcard").querySelector(".big");if(!btn)return;var h=$("h-in");if(m.avg>0&&h&&!h.value&&btn.textContent.trim()===L().done)h.value=Math.round(m.avg);btn.click()}
+ else if(m.cmd==="skipRest"){if(restEnd!==null){finishRest(false);renderRest();renderDone()}}
+ else if(m.cmd==="addRest")addRest();
+ else if(m.cmd==="sync"){lastBridge="";bridgePost()}}catch(e){}};
+function bridgeInit(){if(!NB)return;try{new MutationObserver(bridgePost).observe($("tab-work"),{childList:true,subtree:true,attributes:true,attributeFilter:["hidden"]})}catch(e){}bridgePost()}
+
+/* ---------- food & nutrition ---------- */
+var FOODRAW="Chicken breast, cooked|닭가슴살|100 g|165|31|0|3.6;Chicken thigh, skinless, cooked|닭다리살 (껍질 제거)|100 g|209|26|0|11;Beef sirloin, lean, cooked|소고기 등심 (살코기)|100 g|206|29|0|9;Lamb, lean, cooked|양고기 (살코기)|100 g|206|27|0|10;Pork tenderloin, cooked|돼지 안심|100 g|143|26|0|3.5;Pork belly, grilled (samgyeopsal)|삼겹살 구이|100 g|450|15|0|43;Salmon, cooked|연어|100 g|206|22|0|12;Mackerel, grilled|고등어구이|100 g|262|24|0|18;White fish, cooked (snapper/cod)|흰살생선|100 g|105|23|0|1;Tuna, canned in water|참치캔 (물)|100 g drained|116|26|0|1;Shrimp, cooked|새우|100 g|99|24|0.2|0.3;Egg|달걀|1 large|72|6.3|0.4|4.8;Egg white|달걀흰자|1 large|17|3.6|0.2|0.1;Steamed egg (gyeran-jjim)|계란찜|1 bowl (150 g)|110|9|3|7;Tofu, firm|두부|100 g|90|10|2|5;Greek yogurt, plain|그릭요거트 (무가당)|170 g pot|100|17|6|0.7;Cottage cheese|코티지치즈|100 g|98|11|3.4|4.3;Whey protein shake|단백질 쉐이크|1 scoop (30 g)|120|24|3|1.5;Protein bar|프로틴바|1 bar (60 g)|200|20|20|7;Milk, low-fat|저지방 우유|250 ml|105|8.5|12|2.4;Soy milk, unsweetened|무가당 두유|250 ml|80|7|4|4;Edamame|풋콩|100 g|121|12|9|5;Cheese, cheddar|체다치즈|30 g|120|7|0.4|10;"+
+"White rice, cooked|밥 (흰쌀밥)|1 bowl (210 g)|273|5.6|59|0.6;Brown rice, cooked|현미밥|1 bowl (210 g)|233|5.3|49|1.9;Oats, dry|오트밀|40 g|150|5|27|3;Sweet potato (kumara), baked|고구마|150 g|135|2.4|31|0.2;Potato, boiled|감자|150 g|130|2.7|30|0.2;Bread, wholegrain|통밀빵|1 slice (35 g)|85|4|15|1.1;Tortilla wrap|토르티야|1 medium (45 g)|140|4|24|3;Pasta, cooked|파스타|1 cup (140 g)|220|8|43|1.3;Soba noodles, cooked|메밀국수 (소바)|1 cup (114 g)|113|6|24|0.1;Quinoa, cooked|퀴노아|1 cup (185 g)|222|8|39|3.6;Rice cake (tteok)|떡|100 g|230|4|50|0.5;Black beans, cooked|검은콩|100 g|132|9|24|0.5;Lentils, cooked|렌틸콩|100 g|116|9|20|0.4;Chickpeas, cooked|병아리콩|100 g|164|9|27|2.6;Hummus|후무스|2 tbsp (30 g)|70|2|6|4;"+
+"Banana|바나나|1 medium|105|1.3|27|0.4;Apple|사과|1 medium|95|0.5|25|0.3;Mandarin|귤|1 medium|50|0.8|13|0.3;Orange|오렌지|1 medium|62|1.2|15|0.2;Blueberries|블루베리|100 g|57|0.7|14|0.3;Strawberries|딸기|100 g|32|0.7|7.7|0.3;Kiwifruit|키위|1 medium|42|0.8|10|0.4;Grapes|포도|100 g|69|0.7|18|0.2;Watermelon|수박|200 g|60|1.2|15|0.3;Avocado|아보카도|half (100 g)|160|2|8.5|14.7;"+
+"Broccoli|브로콜리|100 g|34|2.8|7|0.4;Spinach|시금치|100 g|23|2.9|3.6|0.4;Salad greens|샐러드 채소|100 g|20|1.5|3.5|0.3;Cucumber|오이|100 g|15|0.7|3.6|0.1;Tomato|토마토|1 medium|22|1.1|4.8|0.2;Carrot|당근|100 g|41|0.9|9.6|0.2;Cabbage|양배추|100 g|25|1.3|5.8|0.1;Mushrooms|버섯|100 g|22|3.1|3.3|0.3;Zucchini|애호박|100 g|17|1.2|3.1|0.3;Kimchi|김치|50 g|8|0.6|1.5|0.2;Roasted seaweed snack (gim)|김 (구운 김)|1 pack (5 g)|27|1.4|1.2|2;"+
+"Olive oil|올리브오일|1 tbsp|119|0|0|13.5;Almonds|아몬드|28 g|164|6|6|14;Walnuts|호두|28 g|185|4.3|3.9|18.5;Peanut butter|땅콩버터|1 tbsp (16 g)|94|4|3.2|8;Butter|버터|1 tsp (5 g)|36|0|0|4;Dark chocolate 70%|다크초콜릿|20 g|115|1.6|9|8.5;Honey|꿀|1 tsp|21|0|5.8|0;"+
+"Bibimbap|비빔밥|1 bowl (450 g)|560|18|90|12;Kimchi jjigae|김치찌개|1 bowl (300 g)|180|14|9|10;Doenjang jjigae|된장찌개|1 bowl (300 g)|120|9|9|5;Sundubu jjigae (soft tofu stew)|순두부찌개|1 bowl (350 g)|190|14|8|11;Seaweed soup (miyeok-guk)|미역국|1 bowl (300 g)|90|7|5|5;Bulgogi|불고기|100 g|190|17|9|9;Japchae|잡채|1 serving (200 g)|280|6|44|9;Tteokbokki|떡볶이|1 serving (250 g)|380|8|78|4;Kimbap|김밥|1 roll (230 g)|400|12|70|8;Naengmyeon|냉면|1 bowl (500 g)|520|13|110|3;Ramyeon (instant noodles)|라면|1 pack|500|10|75|17;Fried chicken|후라이드치킨|1 piece (100 g)|260|17|9|17;Pizza slice|피자 한 조각|1 slice (110 g)|285|12|36|10;Burger|햄버거|1 burger (200 g)|540|25|40|30;Fries|감자튀김|medium (115 g)|365|4|48|17;Sushi nigiri|초밥 (니기리)|2 pieces (70 g)|100|6|17|1;"+
+"Black coffee|블랙커피|1 cup|2|0.3|0|0;Latte (milk)|라떼|medium (350 ml)|150|9|14|6;Orange juice|오렌지주스|250 ml|110|1.7|26|0.5;Cola|콜라|330 ml|139|0|35|0;Beer|맥주|330 ml|140|1|11|0;Soju|소주|1 glass (50 ml)|60|0|0|0;Wine|와인|150 ml|125|0.1|3.8|0";
+var FOODS=FOODRAW.split(";").map(function(r){var f=r.split("|");return {n:f[0],k:f[1],s:f[2],kc:+f[3],p:+f[4],c:+f[5],f:+f[6]}}),FD={};FOODS.forEach(function(x){FD[x.n]=x});
+var MEALRAW=[
+["b","Greek yogurt, berries and oats","그릭요거트 + 베리 + 오트밀",[["Greek yogurt, plain",1],["Blueberries",1],["Oats, dry",.75]]],
+["b","Veggie omelette with toast","채소 오믈렛 + 토스트",[["Egg",3],["Spinach",.5],["Mushrooms",.5],["Bread, wholegrain",2],["Olive oil",.5]]],
+["b","Protein oats with banana","프로틴 오트밀 + 바나나",[["Oats, dry",1],["Whey protein shake",1],["Banana",1],["Milk, low-fat",.5]]],
+["b","Egg rice bowl with kimchi","계란밥 + 김치 + 김",[["White rice, cooked",.7],["Egg",2],["Kimchi",1],["Roasted seaweed snack (gim)",1]]],
+["b","Cottage cheese toast with strawberries","코티지치즈 토스트 + 딸기",[["Cottage cheese",1.5],["Bread, wholegrain",2],["Strawberries",1.5]]],
+["b","Tofu scramble on toast","두부 스크램블 토스트",[["Tofu, firm",1.5],["Spinach",.5],["Bread, wholegrain",1],["Olive oil",.5]]],
+["b","Banana peanut butter protein smoothie","바나나 땅콩버터 프로틴 스무디",[["Whey protein shake",1],["Banana",1],["Milk, low-fat",1],["Peanut butter",.5]]],
+["b","Avocado egg toast","아보카도 계란 토스트",[["Avocado",1],["Egg",2],["Bread, wholegrain",1]]],
+["b","Steamed egg, rice and kimchi","계란찜 + 밥 + 김치",[["Steamed egg (gyeran-jjim)",1],["White rice, cooked",.7],["Kimchi",1]]],
+["b","Overnight oats with yogurt","요거트 오버나이트 오트밀",[["Oats, dry",1],["Greek yogurt, plain",1],["Strawberries",1]]],
+["l","Chicken, rice and broccoli bowl","닭가슴살 + 밥 + 브로콜리",[["Chicken breast, cooked",1.5],["White rice, cooked",1],["Broccoli",1.5],["Olive oil",.5]]],
+["l","Tuna salad wrap","참치 샐러드 랩",[["Tuna, canned in water",1],["Tortilla wrap",1],["Salad greens",1.5],["Olive oil",.5]]],
+["l","Bibimbap","비빔밥",[["Bibimbap",1]]],
+["l","Salmon quinoa bowl","연어 퀴노아 보울",[["Salmon, cooked",1.5],["Quinoa, cooked",1],["Salad greens",1.5],["Olive oil",.5]]],
+["l","Bulgogi with rice and greens","불고기 + 밥 + 시금치",[["Bulgogi",1.5],["White rice, cooked",.8],["Kimchi",1],["Spinach",1]]],
+["l","Soba with egg and cucumber","소바 + 계란 + 오이",[["Soba noodles, cooked",1.5],["Egg",2],["Cucumber",1.5]]],
+["l","Big chicken salad","닭가슴살 샐러드",[["Chicken breast, cooked",1.5],["Salad greens",2],["Tomato",1],["Cucumber",1],["Olive oil",1]]],
+["l","Soft tofu stew with rice","순두부찌개 + 밥",[["Sundubu jjigae (soft tofu stew)",1],["White rice, cooked",.8]]],
+["l","Lamb, kumara and broccoli","양고기 + 고구마 + 브로콜리",[["Lamb, lean, cooked",1.5],["Sweet potato (kumara), baked",1.2],["Broccoli",1.5]]],
+["l","Tofu veg stir-fry with brown rice","두부 채소볶음 + 현미밥",[["Tofu, firm",2],["Broccoli",1.5],["Mushrooms",1],["Brown rice, cooked",.8],["Olive oil",.5]]],
+["d","Grilled mackerel set","고등어구이 정식",[["Mackerel, grilled",1.5],["White rice, cooked",.8],["Seaweed soup (miyeok-guk)",1],["Kimchi",1]]],
+["d","Salmon, kumara and greens","연어 + 고구마 + 채소",[["Salmon, cooked",1.5],["Sweet potato (kumara), baked",1.2],["Broccoli",2],["Olive oil",.5]]],
+["d","Chicken thigh, brown rice and veg","닭다리살 + 현미밥 + 채소",[["Chicken thigh, skinless, cooked",1.5],["Brown rice, cooked",.8],["Broccoli",1.5],["Carrot",1]]],
+["d","Kimchi jjigae with rice and steamed egg","김치찌개 + 밥 + 계란찜",[["Kimchi jjigae",1],["White rice, cooked",.8],["Steamed egg (gyeran-jjim)",.5]]],
+["d","Doenjang jjigae with chicken","된장찌개 + 닭가슴살",[["Doenjang jjigae",1],["Chicken breast, cooked",1.5],["White rice, cooked",.7]]],
+["d","Beef and mushroom soba stir-fry","소고기 버섯 소바볶음",[["Beef sirloin, lean, cooked",1.5],["Soba noodles, cooked",1.5],["Mushrooms",1],["Zucchini",1]]],
+["d","Shrimp, quinoa and spinach","새우 + 퀴노아 + 시금치",[["Shrimp, cooked",1.5],["Quinoa, cooked",.8],["Spinach",1.5],["Olive oil",.5]]],
+["d","Pork tenderloin with potato and cabbage","돼지 안심 + 감자 + 양배추",[["Pork tenderloin, cooked",1.5],["Potato, boiled",1],["Cabbage",1.5]]],
+["d","White fish with salad and potato","흰살생선 + 샐러드 + 감자",[["White fish, cooked (snapper/cod)",2],["Salad greens",2],["Olive oil",1],["Potato, boiled",.7]]],
+["d","Bulgogi lettuce wraps","불고기 쌈",[["Bulgogi",1.5],["Salad greens",2],["Kimchi",1],["White rice, cooked",.5]]],
+["s","Greek yogurt with berries","그릭요거트 + 블루베리",[["Greek yogurt, plain",1],["Blueberries",.7]]],
+["s","Apple with peanut butter","사과 + 땅콩버터",[["Apple",1],["Peanut butter",1]]],
+["s","Two boiled eggs and cucumber","삶은 달걀 2개 + 오이",[["Egg",2],["Cucumber",1]]],
+["s","Protein shake and banana","단백질 쉐이크 + 바나나",[["Whey protein shake",1],["Banana",1]]],
+["s","Almonds and a mandarin","아몬드 + 귤",[["Almonds",1],["Mandarin",1]]],
+["s","Cottage cheese and tomato","코티지치즈 + 토마토",[["Cottage cheese",1.5],["Tomato",1]]],
+["s","Edamame","풋콩",[["Edamame",1.2]]],
+["s","Seaweed snacks and a boiled egg","김 + 삶은 달걀",[["Roasted seaweed snack (gim)",3],["Egg",1]]],
+["s","Protein bar","프로틴바",[["Protein bar",1]]],
+["s","Hummus and carrot sticks","후무스 + 당근",[["Hummus",1.5],["Carrot",1.5]]],
+["s","Dark chocolate and strawberries","다크초콜릿 + 딸기",[["Dark chocolate 70%",1],["Strawberries",1.5]]],
+["s","Kiwifruit and cheese","키위 + 치즈",[["Kiwifruit",2],["Cheese, cheddar",.7]]]];
+var MEALS=MEALRAW.map(function(m){var o={t:m[0],n:m[1],k:m[2],items:m[3].filter(function(i){return FD[i[0]]}),kc:0,p:0,c:0,f:0};o.items.forEach(function(i){var x=FD[i[0]];o.kc+=x.kc*i[1];o.p+=x.p*i[1];o.c+=x.c*i[1];o.f+=x.f*i[1]});return o});
+var MT=["b","l","d","s"],ideaMeal=null,foodBusy=false;
+function fname(x){return S.lang==="ko"&&x.k?x.k:x.n}
+function fK(n){return Math.round(n).toLocaleString()}
+function fday(){return S.foodDay||today()}
+function fEntries(d){return S.foodLog.filter(function(e){return e.date===d})}
+function fTot(d){var t={kc:0,p:0,c:0,f:0};fEntries(d).forEach(function(e){t.kc+=e.kc*e.q;t.p+=e.p*e.q;t.c+=e.c*e.q;t.f+=e.f*e.q});return t}
+/* targets: your own numbers, or a rough starting point from body weight */
+function goals(){var g=S.foodGoals||{},bw=S.bw||0,kc=g.kc>0?g.kc:(bw?Math.round(bw*27/50)*50:2000),p=g.p>0?g.p:(bw?Math.round(bw*1.8):120),f=g.f>0?g.f:Math.round(kc*.27/9);return {kc:kc,p:p,f:f,c:Math.max(0,Math.round((kc-4*p-9*f)/4))}}
+function mealNow(){var d=new Date(Date.now()),h=d.getHours()+d.getMinutes()/60;return h<10.5?"b":h<15?"l":h<20.5?"d":"s"}
+function allFoods(){return FOODS.concat(S.foodCustom||[])}
+function addFood(x,meal,q){var e={id:uid(),t:Date.now(),date:fday(),meal:meal,name:x.n,ko:x.k||"",s:x.s||"",kc:x.kc,p:x.p,c:x.c,f:x.f,q:q||1};if(x.est)e.est=1;S.foodLog.push(e);S.foodRecent=[x.n].concat((S.foodRecent||[]).filter(function(n){return n!==x.n})).slice(0,12);save();renderFood();renderFoodBar();return e}
+function mealName(m){return L()["m"+m.toUpperCase()]}
+function foodLine(x,q){q=q||1;return fK(x.kc*q)+" kcal · P "+Math.round(x.p*q)+" · C "+Math.round(x.c*q)+" · F "+Math.round(x.f*q)}
+function renderFoodBar(){var b=$("foodbar");if(!b)return;var t=L(),tot=fTot(today()),g=goals();b.innerHTML="";
+ var lf=el("div","fbl"),l1=el("div","fb1"),bar=el("div","bar"),i=el("i");l1.appendChild(el("b",null,fK(tot.kc)));l1.appendChild(document.createTextNode(" / "+fK(g.kc)+" kcal"));
+ i.style.width=Math.min(100,tot.kc/g.kc*100)+"%";if(tot.kc>g.kc)i.style.background="var(--orange)";bar.appendChild(i);
+ lf.appendChild(l1);lf.appendChild(bar);lf.appendChild(el("div","fb2",t.pcf(Math.round(tot.p),g.p,Math.round(tot.c),g.c,Math.round(tot.f),g.f)));b.appendChild(lf);
+ var add=ib("sw",ICON.plus,t.addFood,function(ev){ev.stopPropagation();foodSheet(null)});b.appendChild(add);
+ b.onclick=function(){S.tab="food";render()}}
+function shiftFoodDay(n){var x=pdate(fday());x.setDate(x.getDate()+n);var k=dstr(x);if(k>today())return;S.foodDay=k===today()?null:k;renderFood()}
+function macroRow(label,v,g,cls){var r=el("div","mrow"),b=el("div","mbar"),i=el("i",cls);i.style.width=Math.min(100,g?v/g*100:0)+"%";b.appendChild(i);r.appendChild(el("span",null,label));r.appendChild(b);r.appendChild(el("em",null,Math.round(v)+" / "+g));r.style.gridTemplateColumns="78px 1fr 70px";return r}
+function renderFood(){var t=L(),box=$("food-body");if(!box)return;var d=fday(),tot=fTot(d),g=goals();box.innerHTML="";
+ var nav=el("div","calh"),pv=ib("sw","‹",t.prevD,function(){shiftFoodDay(-1)}),nx=ib("sw","›",t.nextD,function(){shiftFoodDay(1)});pv.textContent="‹";nx.textContent="›";
+ nav.appendChild(pv);nav.appendChild(el("b",null,d===today()?t.todayL:pdate(d).toLocaleDateString(t.ls,{weekday:"short",month:"short",day:"numeric"})));nav.appendChild(nx);box.appendChild(nav);
+ var sc=el("div","card");sc.style.padding="12px 14px";var big=el("div","fbig");big.appendChild(el("b",null,fK(tot.kc)));big.appendChild(el("span",null," / "+fK(g.kc)+" kcal"));sc.appendChild(big);
+ var left=Math.round(g.kc-tot.kc);sc.appendChild(el("div","sub",t.leftKcal(left)));var bar=el("div","bar"),bi=el("i");bi.style.width=Math.min(100,tot.kc/g.kc*100)+"%";if(left<0)bi.style.background="var(--orange)";bar.appendChild(bi);bar.style.margin="8px 0 10px";sc.appendChild(bar);
+ sc.appendChild(macroRow(t.protL.replace(/ \(g\)/,""),tot.p,g.p,"fp"));sc.appendChild(macroRow(t.carbL.replace(/ \(g\)/,""),tot.c,g.c,"fc"));sc.appendChild(macroRow(t.fatL.replace(/ \(g\)/,""),tot.f,g.f,"ff"));box.appendChild(sc);
+ box.appendChild(el("div","hintl",t.foodTip));
+ MT.forEach(function(m){var es=fEntries(d).filter(function(e){return e.meal===m}),mc=el("div","card");mc.style.padding="10px 14px";
+  var h=el("div","head"),sub=es.reduce(function(a,e){return a+e.kc*e.q},0);h.appendChild(el("h2",null,mealName(m)));h.appendChild(el("span","meta",fK(sub)+" kcal"));
+  var ab=ib("sw",ICON.plus,t.addFood,function(){foodSheet(m)});ab.style.marginLeft="8px";h.appendChild(ab);mc.appendChild(h);
+  if(!es.length)mc.appendChild(el("p","hint",t.noEntries));
+  es.forEach(function(e){var r=el("button","fe");var lf=el("div");lf.appendChild(el("b",null,fname({n:e.name,k:e.ko})+(e.q!==1?" × "+e.q:"")+(e.est?" ≈":"")));lf.appendChild(el("span",null,e.s+" · P "+Math.round(e.p*e.q)+" C "+Math.round(e.c*e.q)+" F "+Math.round(e.f*e.q)));r.appendChild(lf);r.appendChild(el("em",null,fK(e.kc*e.q)));r.addEventListener("click",function(){entrySheet(e)});mc.appendChild(r)});
+  box.appendChild(mc)});
+ /* what to eat next */
+ var ic=el("div","card");ic.style.padding="12px 14px";ic.appendChild(el("h2",null,t.ideasL));
+ var cur=ideaMeal||mealNow(),sg=el("div","seg");sg.style.margin="8px 0";MT.forEach(function(m){var b=el("button",null,mealName(m));b.setAttribute("aria-pressed",m===cur);b.addEventListener("click",function(){ideaMeal=m;renderFood()});sg.appendChild(b)});ic.appendChild(sg);
+ var rem=ideaBudget(cur,d,g,tot);ic.appendChild(el("p","hint",t.ideaBudget(fK(rem.kc),Math.round(rem.p))));
+ ideasFor(cur,rem).forEach(function(m){var r=el("div","idea"),lf=el("div");lf.appendChild(el("b",null,S.lang==="ko"?m.k:m.n));lf.appendChild(el("span",null,foodLine(m)));
+  lf.appendChild(el("small",null,m.items.map(function(i){return fname(FD[i[0]])+(i[1]!==1?" ×"+i[1]:"")}).join(", ")));r.appendChild(lf);
+  var lb=el("button","ghost sm",t.logIt);lb.addEventListener("click",function(){m.items.forEach(function(i){addFood(FD[i[0]],cur,i[1])});toast(t.addedF(S.lang==="ko"?m.k:m.n,mealName(cur)))});r.appendChild(lb);ic.appendChild(r)});
+ if(foodSample!==false){var mb=el("button","ghost",t.moreIdeas);mb.style.cssText="width:100%;margin-top:8px";mb.addEventListener("click",function(){claudeIdeas(cur,rem,ic,mb)});ic.appendChild(mb)}
+ box.appendChild(ic);
+ /* daily targets */
+ var gc=el("div","card");gc.style.padding="12px 14px";gc.appendChild(el("h2",null,t.targetsL));var gg=el("div","fields3");gg.style.marginTop="8px";
+ gg.appendChild(fld(t.kcalL,"g-kc",g.kc,50,800,6000,true,function(v){S.foodGoals.kc=v;save();renderFoodBar();renderFood()},undefined,true));
+ gg.appendChild(fld(t.protShort,"g-p",g.p,5,20,400,true,function(v){S.foodGoals.p=v;save();renderFoodBar();renderFood()},undefined,true));
+ gg.appendChild(fld(t.fatShort,"g-f",g.f,5,10,250,true,function(v){S.foodGoals.f=v;save();renderFoodBar();renderFood()},undefined,true));
+ gc.appendChild(gg);gc.appendChild(el("p","hint",t.carbsAuto(g.c)));gc.appendChild(el("p","hint",t.targetsHint));box.appendChild(gc)}
+/* a meal idea that fits what is left of today */
+function ideaBudget(m,d,g,tot){var es=fEntries(d),done={};es.forEach(function(e){done[e.meal]=1});var left=Math.max(0,g.kc-tot.kc),pl=Math.max(0,g.p-tot.p),mains=["b","l","d"].filter(function(x){return !done[x]||x===m}).length||1;
+ if(m==="s")return {kc:Math.max(100,Math.min(220,left*.12)),p:Math.min(20,pl*.15)};
+ var snack=done.s?0:Math.min(180,left*.1);return {kc:Math.max(250,(left-snack)/mains),p:pl/(mains+1)}}
+function ideasFor(m,b){return MEALS.filter(function(x){return x.t===m}).map(function(x){return {x:x,s:Math.abs(x.kc-b.kc)/b.kc+.5*Math.max(0,(b.p-x.p)/Math.max(10,b.p))}}).sort(function(a,c){return a.s-c.s}).slice(0,4).map(function(o){return o.x})}
+/* add food: search, recent, custom, or let Claude estimate any food */
+var foodSample=null;
+async function checkSample(){try{if(typeof claude==="undefined"||!claude.use){foodSample=false;return}var s=await claude.use("sample");foodSample=s?true:false}catch(e){foodSample=false}renderFood()}
+function foodSheet(meal){var t=L();meal=meal||mealNow();openSheet(function(p){p.appendChild(el("h2",null,t.addFood));
+ var sg=el("div","seg");sg.style.margin="8px 0";MT.forEach(function(m){var b=el("button",null,mealName(m));b.setAttribute("aria-pressed",m===meal);b.addEventListener("click",function(){meal=m;[].forEach.call(sg.children,function(x,i){x.setAttribute("aria-pressed",MT[i]===meal)})});sg.appendChild(b)});p.appendChild(sg);
+ var q=el("input");q.type="text";q.placeholder=t.searchFood;q.autocomplete="off";q.setAttribute("autocapitalize","off");p.appendChild(q);
+ var box=el("div","sc lst");box.style.marginTop="8px";p.appendChild(box);
+ function row(x){var w=el("button","li"),d=el("div");d.appendChild(el("b",null,fname(x)+(x.est?" ≈":"")));d.appendChild(el("span",null,x.s+" · "+foodLine(x)));w.appendChild(d);
+  w.addEventListener("click",function(){addFood(x,meal,1);toast(t.addedF(fname(x),mealName(meal)))});return w}
+ function draw(){box.innerHTML="";var s=q.value.trim().toLowerCase(),all=allFoods(),res;
+  if(s){res=all.filter(function(x){return (x.n+" "+(x.k||"")).toLowerCase().indexOf(s)>=0}).slice(0,40)}
+  else{var rc=(S.foodRecent||[]).map(function(n){return all.filter(function(x){return x.n===n})[0]}).filter(Boolean);res=rc.concat(all.filter(function(x){return rc.indexOf(x)<0}).slice(0,60))}
+  if(!s)box.appendChild(el("div","sm",t.recentsL));
+  res.forEach(function(x){box.appendChild(row(x))});
+  if(s&&!res.length)box.appendChild(el("p","hint",t.noFood));
+  if(s&&s.length>1&&foodSample!==false){var cb=el("button","li");cb.appendChild(el("b",null,t.findClaude(q.value.trim())));cb.addEventListener("click",function(){claudeFood(q.value.trim(),meal,cb)});box.appendChild(cb)}}
+ q.addEventListener("input",draw);draw();
+ var two=el("div","two"),cu=el("button","ghost",t.customFood),dn=el("button","big",t.close);dn.style.margin="0";cu.addEventListener("click",function(){customSheet(meal,q.value.trim())});dn.addEventListener("click",closeSheet);two.appendChild(cu);two.appendChild(dn);p.appendChild(two)})}
+async function claudeFood(qs,meal,btn){var t=L();if(foodBusy)return;foodBusy=true;btn.disabled=true;btn.firstChild.textContent=t.thinking;
+ try{var sm=await claude.use("sample");if(!sm)throw {code:"na"};
+  var r=await sm.json("You are a nutrition database. Estimate the nutrition of ONE typical serving of this food or meal: "+JSON.stringify(qs)+". The person is on a diet and eats Korean and Western home food in New Zealand. Reply with ONLY compact JSON: {\"name\":\"English name\",\"ko\":\"Korean name\",\"serving\":\"short serving text with grams\",\"kcal\":number,\"protein\":number,\"carbs\":number,\"fat\":number} where every number is for that one serving.",{modelTier:"quick"});
+  var x={n:String(r.name||qs).slice(0,60),k:String(r.ko||"").slice(0,40),s:String(r.serving||"1 serving").slice(0,40),kc:+r.kcal,p:+r.protein,c:+r.carbs,f:+r.fat,est:1};
+  if(![x.kc,x.p,x.c,x.f].every(function(v){return isFinite(v)&&v>=0&&v<5000}))throw {code:"bad"};
+  S.foodCustom.push({n:x.n,k:x.k,s:x.s,kc:x.kc,p:x.p,c:x.c,f:x.f,est:1});addFood(x,meal,1);toast(t.addedF(fname(x),mealName(meal)))}
+ catch(e){toast(e&&e.code==="rate_limited"?t.claudeBusy:t.claudeFail)}finally{foodBusy=false;btn.disabled=false;btn.firstChild.textContent=t.findClaude(qs)}}
+async function claudeIdeas(meal,rem,card,btn){var t=L();if(foodBusy)return;foodBusy=true;btn.disabled=true;btn.textContent=t.thinking;
+ try{var sm=await claude.use("sample");if(!sm)throw {code:"na"};
+  var r=await sm.json("Suggest 4 diet-friendly ideas for "+JSON.stringify(mealName(meal))+" for someone eating Korean and Western home food in New Zealand. Budget for this meal: about "+Math.round(rem.kc)+" kcal and at least "+Math.round(rem.p)+" g protein. Reply with ONLY a JSON array of 4 objects: {\"name\":\"English\",\"ko\":\"Korean\",\"serving\":\"what is in it with grams\",\"kcal\":number,\"protein\":number,\"carbs\":number,\"fat\":number}.",{modelTier:"quick"});
+  (Array.isArray(r)?r:[]).slice(0,4).forEach(function(o){var x={n:String(o.name||"").slice(0,60),k:String(o.ko||"").slice(0,40),s:String(o.serving||"1 serving").slice(0,60),kc:+o.kcal,p:+o.protein,c:+o.carbs,f:+o.fat,est:1};
+   if(!x.n||![x.kc,x.p,x.c,x.f].every(function(v){return isFinite(v)&&v>=0&&v<5000}))return;
+   var row=el("div","idea"),lf=el("div");lf.appendChild(el("b",null,fname(x)+" ≈"));lf.appendChild(el("span",null,foodLine(x)));lf.appendChild(el("small",null,x.s));row.appendChild(lf);
+   var lb=el("button","ghost sm",t.logIt);lb.addEventListener("click",function(){S.foodCustom.push({n:x.n,k:x.k,s:x.s,kc:x.kc,p:x.p,c:x.c,f:x.f,est:1});addFood(x,meal,1);toast(t.addedF(fname(x),mealName(meal)))});row.appendChild(lb);card.insertBefore(row,btn)})}
+ catch(e){toast(e&&e.code==="rate_limited"?t.claudeBusy:t.claudeFail)}finally{foodBusy=false;btn.disabled=false;btn.textContent=t.moreIdeas}}
+function customSheet(meal,name){var t=L();openSheet(function(p){p.appendChild(el("h2",null,t.customFood));
+ var nm_=el("input");nm_.type="text";nm_.placeholder=t.nameL;nm_.value=name||"";p.appendChild(nm_);
+ var g=el("div","fields2");g.style.marginTop="8px";var f={};[["kc",t.kcalL],["p",t.protL],["c",t.carbL],["f",t.fatL]].forEach(function(x){var d=el("div"),l=el("label",null,x[1]),i=el("input");i.type="number";i.inputMode="decimal";i.min=0;i.placeholder="0";f[x[0]]=i;d.appendChild(l);d.appendChild(i);g.appendChild(d)});p.appendChild(g);
+ var two=el("div","two"),cn=el("button","ghost",t.cancel),sv=el("button","big",t.saveLog);sv.style.margin="0";cn.addEventListener("click",closeSheet);
+ sv.addEventListener("click",function(){var x={n:nm_.value.trim()||t.customFood,k:"",s:"1 serving",kc:+f.kc.value||0,p:+f.p.value||0,c:+f.c.value||0,f:+f.f.value||0};if(!(x.kc>0||x.p>0||x.c>0||x.f>0))return;
+  S.foodCustom.push(x);addFood(x,meal,1);closeSheet();toast(t.addedF(x.n,mealName(meal)))});two.appendChild(cn);two.appendChild(sv);p.appendChild(two)})}
+function entrySheet(e){var t=L();openSheet(function(p){p.appendChild(el("h2",null,fname({n:e.name,k:e.ko})));p.appendChild(el("div","sub",e.s+" · "+foodLine(e,1)));
+ var sr_=stepRow(t.servings,e.q,.5,.25,20);p.appendChild(sr_.row);var meal=e.meal,sg=el("div","seg");sg.style.margin="8px 0";
+ MT.forEach(function(m){var b=el("button",null,mealName(m));b.setAttribute("aria-pressed",m===meal);b.addEventListener("click",function(){meal=m;[].forEach.call(sg.children,function(x,i){x.setAttribute("aria-pressed",MT[i]===meal)})});sg.appendChild(b)});p.appendChild(sg);
+ var two=el("div","two"),dl=el("button","ghost",t.deleteL),sv=el("button","big",t.save);sv.style.margin="0";dl.style.cssText="color:var(--peach-ink);background:var(--peach);border-color:transparent";
+ dl.addEventListener("click",function(){S.foodLog=S.foodLog.filter(function(x){return x.id!==e.id});save();closeSheet();renderFood();renderFoodBar()});
+ sv.addEventListener("click",function(){var q=parseFloat(sr_.input.value);if(q>0)e.q=q;e.meal=meal;save();closeSheet();renderFood();renderFoodBar()});two.appendChild(dl);two.appendChild(sv);p.appendChild(two)})}
+
+/* settings tab */
+function renderSettings(){var t=L();renderSync();
+ seg($("seg-lang"),[["en","EN"],["ko","한국어"]],S.lang,function(l){S.lang=l;save();render()});
+ $("manual").textContent=S.manual?t.on:t.off;$("bsbtn").textContent=S.bs?t.on:t.off;var rr=$("restrow");rr.innerHTML="";rr.style.display=S.manual?"block":"none";if(S.manual){var rg=el("div","fields2");rg.style.cssText="margin:8px 0 10px";rg.appendChild(fld(t.restMain,"rs-m",S.rest,5,10,600,true,function(v){S.rest=v;save()},undefined,true));rg.appendChild(fld(t.restCoreL,"rs-c",S.restCore||S.rest,5,10,600,true,function(v){S.restCore=v;save()},undefined,true));rr.appendChild(rg)}$("autohint").style.display=S.manual?"none":"block";
+ $("calv").textContent=t.calN(Object.keys(S.rad).filter(function(k){return S.rad[k]}).length);$("calreset").textContent=t.calReset;$("calrow").style.display=S.manual?"none":"flex";$("beep").textContent=S.beep?t.on:t.off;
+ var q=$("eqs");q.innerHTML="";EQK.forEach(function(k){var on=S.eq[k]!==false,b=el("button","opt"+(on?" r":""),(on?"✓ ":"")+EQ[S.lang][k]);b.setAttribute("aria-pressed",on);
+  b.addEventListener("click",function(){S.eq[k]=!on;save();fitPlans();render()});q.appendChild(b)});
+ var pf=$("prof");pf.innerHTML="";var g=el("div","fields2");g.style.cssText="margin:8px 0 10px";
+ function pc(){fillZeros();save()}
+ g.appendChild(fld(t.height,"p-h",S.h||"",1,100,230,true,function(v){S.h=v;pc()},170,true));
+ g.appendChild(fld(t.bweight,"p-w",S.bw||"",.5,30,250,false,function(v){S.bw=v;pc()},70,true));pf.appendChild(g);
+ $("p-h").placeholder="cm";$("p-w").placeholder="kg";$("applyw").textContent=t.applyW;
+ var d=$("dels");d.innerHTML="";
+ S.dis.forEach(function(k){var b=el("button","opt r",nm(k)+" ↺");b.addEventListener("click",function(){removeDis(k);save();render()});d.appendChild(b)});
+ if(!S.dis.length)d.appendChild(el("p","hint",t.noDel));
+ var r=$("recent");r.innerHTML="";var days={},order=[];S.sets.forEach(function(s){if(s.wu)return;if(!days[s.date]){days[s.date]=[];order.push(s.date)}days[s.date].push(s)});
+ order.sort().reverse().slice(0,4).forEach(function(k){var l=days[k],p=k.split("-"),dt=new Date(+p[0],+p[1]-1,+p[2]),names={};l.forEach(function(s){if(s.rt)names[rname(s.rt)]=1});var row=el("div","set-row");
+  row.appendChild(el("span",null,dt.toLocaleDateString(t.ls,{weekday:"short",month:"short",day:"numeric"})+(Object.keys(names).length?" · "+Object.keys(names).join(", "):"")));
+  row.appendChild(el("small",null,t.sc(l.length)+" · "+fmt(l.reduce(function(a,s){return a+s.w*s.r},0))+" kg"));r.appendChild(row)});
+ if(!order.length)r.appendChild(el("p","hint",t.noRecent));$("reset").textContent=t.reset}
+
+function render(){closeStale();rollover();var t=L();document.documentElement.lang=t.ls.slice(0,2);document.title=t.title;$("title").textContent=t.title;
+ [].forEach.call(document.querySelectorAll("[data-i]"),function(n){n.textContent=t[n.getAttribute("data-i")]});
+ var nav=$("tabs");nav.innerHTML="";[["work",t.work],["food",t.food],["plan",t.plan],["ana",t.ana],["set",t.settings]].forEach(function(x){var b=el("button",null,x[1]);b.setAttribute("aria-pressed",S.tab===x[0]);
+  b.addEventListener("click",function(){S.tab=x[0];render()});nav.appendChild(b);$("tab-"+x[0]).classList.toggle("on",S.tab===x[0])});
+ renderWork();renderRest();renderPlan();renderAna();renderFood();renderFoodBar();renderSettings()}
+
+$("add").addEventListener("click",addSheet);
+$("shuffle").addEventListener("click",function(){var t=L();confirmSheet(t.shuffleTitle,t.shuffleMsg(rname(S.pv)),t.shuffle,doShuffle)});
+$("applyw").addEventListener("click",function(){var t=L();if(!S.bw){toast(t.profNeed);return}
+ confirmSheet(t.applyW,t.applyConfirm,t.applyW,function(){PK.forEach(function(r){S.plan[r].forEach(function(e){e.w=presetW(e.k)})});save();render();toast(t.applied)})});
+$("calreset").addEventListener("click",function(){S.rad={};save();renderSettings()});
+$("bsbtn").addEventListener("click",function(){S.bs=!S.bs;save();fitPlans();render()});
+$("manual").addEventListener("click",function(){S.manual=!S.manual;save();renderSettings()});
+$("beep").addEventListener("click",function(){S.beep=!S.beep;if(S.beep){audio();beep(880,.12)}save();renderSettings()});
+$("reset").addEventListener("click",function(){var t=L();confirmSheet(t.reset,t.confirm,t.reset,function(){stopRest();S.sets=[];S.plan=defPlan();S.since={};S.ri=0;S.doneOn=null;S.foodLog=[];S.foodCustom=[];S.foodGoals={kc:0,p:0,f:0};S.foodRecent=[];S.restDay=true;S.cardioMin=50;S.eq={};S.h=null;S.bw=null;S.dis=[];S.restAdj=0;S.rad={};S.skips=[];S.extra={};S.sess=null;S.hist=[];S.bs=false;S.pv=pvKey();save();render()})});
+$("sheet").addEventListener("click",function(e){if(e.target===$("sheet"))closeSheet()});
+/* no pinch zoom; the page itself never scrolls (only lists that outgrow the screen scroll inside themselves) */
+["gesturestart","gesturechange","gestureend"].forEach(function(n){document.addEventListener(n,function(e){e.preventDefault()})});
+function lock(e){if(!(e.target.closest&&e.target.closest(".sc")))e.preventDefault()}
+document.addEventListener("touchmove",function(e){if(e.touches&&e.touches.length>1||!(e.target.closest&&e.target.closest(".sc")))e.preventDefault()},{passive:false});
+document.addEventListener("wheel",function(e){if(e.ctrlKey)e.preventDefault();else lock(e)},{passive:false});
+document.addEventListener("pointerdown",function(e){var a=document.activeElement;if(a&&a.tagName==="INPUT"&&!(e.target.closest&&e.target.closest("input")))a.blur()},true);
+document.addEventListener("keydown",function(e){if(e.key==="Enter"&&e.target.tagName==="INPUT")e.target.blur()});
+document.addEventListener("visibilitychange",function(){if(!document.hidden){tick();phTick()}});
+load();render();cloudInit();bridgeInit();checkSample();
+})();
+</script>
+</body>
+</html>
