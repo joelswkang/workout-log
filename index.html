@@ -1,4 +1,4 @@
-<!-- v1.2 - 11 Nov 2026, 12:49 AM NZDT: Export backup now falls back to a standard web download when the Claude-app downloads API is unavailable (GitHub Pages). Includes v1.1: stretch/static countdown beeps use the pre-rendered WAV (last 5 seconds; Web Audio fallback) -->
+<!-- v1.3 - 11 Nov 2026, 9:59 PM NZDT: Add-workout sheet gains search, primary-muscle filter and sort-by-name. Workout card prefills the last same-routine session max weight with its date (per routine day, warm-up sets excluded). Includes v1.2 (export fallback) and v1.1 (stretch/static beeps) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -112,7 +112,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .exn{font-size:22px;font-weight:800;line-height:1.2}
 .sub{color:var(--muted);font-weight:700;font-size:14px}
 .chips{display:flex;gap:6px;min-height:28px;margin:8px 0 2px;flex-wrap:wrap}
-.chip{font-size:13px;font-weight:700;background:var(--mint);color:var(--mint-ink);border-radius:999px;padding:3px 10px;border:0}
+.chip{font-size:13px;font-weight:700;background:var(--mint);color:var(--mint-ink);border-radius:999px;padding:3px 10px;border:0}.chip.sel{background:var(--peach);color:var(--peach-ink)}.sbx{width:100%;font-size:15px;padding:8px 10px;border:1.5px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);margin:2px 0 2px}
 label{display:block;font-size:13px;font-weight:700;color:var(--muted);margin:0 0 4px}
 input{width:100%;font:inherit;font-weight:700;font-size:17px;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:14px;padding:10px 12px}
 .row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
@@ -185,7 +185,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline
       <div class="sm" data-i="deleted"></div><div class="opts" id="dels"></div>
       <div class="sm" data-i="recent"></div><div id="recent"></div>
       <button class="link" id="reset"></button>
-      <p class="hint" style="text-align:center;margin:14px 0 6px">v1.2 · 11 Nov 2026, 12:49 AM NZDT</p>
+      <p class="hint" style="text-align:center;margin:14px 0 6px">v1.3 · 11 Nov 2026, 9:59 PM NZDT</p>
     </section>
   </div>
   <nav id="tabs"></nav>
@@ -325,7 +325,7 @@ en:{title:"Workout Log",cardioDay:"Cardio day",cardioInfo:function(m){return "Ca
  shuffle:"Shuffle",shuffleTitle:"Shuffle workouts",shuffleMsg:function(n){return "Replace the workouts in "+n+" with a random all-round mix? Disliked workouts and equipment you don’t have are skipped."},shuffled:"Shuffled.",dis:"Dislike",removedPlan:"Removed from the plan.",disliked:"Disliked. Restore it in Settings.",prim:"Primary",sec:"Secondary",doneTitle:"Completed sets",today:"Today",change:"Change",chTitle:"Change routine",drag:"Hold and drag to reorder",nextR:function(n){return "Next: "+n},work:"Workout",plan:"Plan",settings:"Settings",log:"Log a set",weight:"Weight (kg)",reps:"Reps",hr:"Heart rate",bpm:"bpm",rate:"How hard was it? (1 easy – 10 max)",done:"Done",rest:"Rest",restAuto:"Auto",restManual:"Manual",skip:"Skip",undo:"Undo last set",
  complete:"Workout complete",again:"Start again",emptyPlan:"No workouts in this plan. Add or restore some.",push:"Push",pull:"Pull",legs:"Legs",
  swap:"Swap",del:"Delete",swapTitle:"Swap with a similar workout",noAlt:"No similar workouts left to swap in.",save:"Save",cancel:"Cancel",sl:"Sets",removed:"Removed. Restore it in Settings.",
- add:"+ Add workout",sort:"Sort",sortDone:"Done sorting",addTitle:"Add a workout",rec:"Recommended",noAdd:"Nothing left to add for this day.",added:"Added to your plan.",up:"Move up",down:"Move down",
+ add:"+ Add workout",sort:"Sort",sortDone:"Done sorting",addTitle:"Add a workout",rec:"Recommended",noAdd:"Nothing left to add for this day.",searchEx:"Search exercises",allM:"All",sortName:"A-Z",lastW:function(w,d){return "Last "+fmt(w)+" kg · "+d},added:"Added to your plan.",up:"Move up",down:"Move down",
  language:"Language",manualRest:"Manual rest time",rv:"Rest time",autoHint:"Auto: rest is calculated from weight, reps, heart rate and your 1–10 rating.",beeps:"Countdown beeps",on:"On",off:"Off",deleted:"Disliked workouts (tap to restore)",noDel:"No disliked workouts.",
  recent:"Recent days",noRecent:"Past workouts show up here.",reset:"Reset all data",confirm:"Delete all logs and reset the plans? This can’t be undone.",
  stats:function(n,e,v){return n+" sets · "+e+" exercises · "+v+" kg today"},setOf:function(n,m){return "Set "+n+" of "+m},target:function(r){return "Target "+r+" reps"},sc:function(n){return n+(n===1?" set":" sets")},ls:"en-US"},
@@ -346,7 +346,7 @@ ko:{title:"운동 기록",cardioDay:"유산소 데이",cardioInfo:function(m){re
  shuffle:"셔플",shuffleTitle:"운동 셔플",shuffleMsg:function(n){return n+"의 운동을 전신 균형 있는 무작위 조합으로 바꿀까요? 싫어요한 운동과 없는 장비는 제외돼요."},shuffled:"셔플했어요.",dis:"싫어요",removedPlan:"플랜에서 삭제했어요.",disliked:"싫어요 처리했어요. 설정에서 복원할 수 있어요.",prim:"주동근",sec:"보조근",doneTitle:"완료한 세트",today:"오늘",change:"변경",chTitle:"루틴 변경",drag:"길게 눌러 순서 변경",nextR:function(n){return "다음: "+n},work:"운동",plan:"플랜",settings:"설정",log:"세트 기록",weight:"무게 (kg)",reps:"횟수",hr:"심박수",bpm:"bpm",rate:"얼마나 힘들었나요? (1 쉬움 – 10 최대)",done:"완료",rest:"휴식",restAuto:"자동",restManual:"수동",skip:"건너뛰기",undo:"마지막 세트 취소",
  complete:"운동 완료",again:"다시 시작",emptyPlan:"이 플랜에 운동이 없어요. 추가하거나 복원하세요.",push:"푸시",pull:"풀",legs:"레그",
  swap:"교체",del:"삭제",swapTitle:"비슷한 운동으로 교체",noAlt:"교체할 비슷한 운동이 없어요.",save:"저장",cancel:"취소",sl:"세트",removed:"삭제했어요. 설정에서 복원할 수 있어요.",
- add:"+ 운동 추가",sort:"정렬",sortDone:"정렬 완료",addTitle:"운동 추가",rec:"추천",noAdd:"추가할 운동이 더 없어요.",added:"플랜에 추가했어요.",up:"위로",down:"아래로",
+ add:"+ 운동 추가",sort:"정렬",sortDone:"정렬 완료",addTitle:"운동 추가",rec:"추천",noAdd:"추가할 운동이 더 없어요.",searchEx:"운동 검색",allM:"전체",sortName:"이름순",lastW:function(w,d){return "지난 "+fmt(w)+"kg · "+d},added:"플랜에 추가했어요.",up:"위로",down:"아래로",
  language:"언어",manualRest:"휴식 시간 직접 설정",rv:"휴식 시간",autoHint:"자동: 무게, 횟수, 심박수, 1–10 난이도로 휴식 시간을 계산해요.",beeps:"카운트다운 알림음",on:"켜짐",off:"꺼짐",deleted:"싫어요한 운동 (눌러서 복원)",noDel:"싫어요한 운동이 없어요.",
  recent:"최근 기록",noRecent:"지난 운동이 여기에 표시돼요.",reset:"모든 데이터 초기화",confirm:"모든 기록을 삭제하고 플랜을 초기화할까요? 되돌릴 수 없어요.",
  stats:function(n,e,v){return "오늘 "+n+"세트 · "+e+"종목 · "+v+" kg"},setOf:function(n,m){return m+"세트 중 "+n+"번째"},target:function(r){return "목표 "+r+"회"},sc:function(n){return n+"세트"},ls:"ko-KR"}};
@@ -412,6 +412,13 @@ function fitPlans(){var n=0;PK.forEach(function(rk){var arr=S.plan[rk];for(var i
  var o=swapOpts(rk,e,3);if(!o.length)o=swapOpts(rk,e,2);if(o.length){e.k=o[0].x.k;e.w=presetW(e.k);n++}else{arr.splice(i,1);n++}}});
  if(n){save();toast(L().fit(n))}}
 function active(k){return (S.plan[k]||[]).filter(function(e){return !e.del})}
+function fmtD(dstr){var p=dstr.split("-");if(p.length<3)return dstr;var mo=+p[1],da=+p[2];
+ if(S.lang==="ko")return mo+"월 "+da+"일";
+ var M=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];return da+" "+M[mo-1]}
+function lastSess(rk,k){var td=today(),bd="",bw=0;
+ S.sets.forEach(function(s){if(s.rt!==rk||s.ex!==k||s.wu||!(s.w>0)||s.date>=td)return;
+  if(s.date>bd){bd=s.date;bw=s.w}else if(s.date===bd&&s.w>bw)bw=s.w});
+ return bd?{date:bd,w:bw}:null}
 function dayLogs(k){var td=today(),since=S.since[k]||0;return S.sets.filter(function(s){return s.date===td&&s.rt===k&&s.t>=since})}
 function coreKey(){return "core"+(S.ca||"A")}
 function incOn(k){return S.inc[k]!==false}
@@ -624,12 +631,14 @@ function renderWork(){var t=L(),s;renderDone();
  c.appendChild(sub);
  var lastHr=100;for(var q=S.sets.length-1;q>=0;q--)if(S.sets[q].hr){lastHr=S.sets[q].hr;break}
  var f=el("div","fields3"),wIn,rIn;
- f.appendChild(fld(t.weight,"w-in",e.w||0,wstep(x),0,500,false,function(v){if(!wuOn){e.w=v;save()}},undefined,true));
+ var ls=(cur.n===0&&cur.side!=="R")?lastSess(cur.rk,e.k):null;
+ var pw=(ls&&ls.w>0)?ls.w:(e.w||0);
+ f.appendChild(fld(t.weight,"w-in",pw,wstep(x),0,500,false,function(v){if(!wuOn){e.w=v;save()}},undefined,true));
  f.appendChild(fld(tm?t.secs:t.reps,"r-in",e.reps,1,1,300,true,function(v){if(!wuOn){e.reps=v;save();subTxt()}},undefined,true));
  f.appendChild(fld(t.hr,"h-in","",5,30,240,true,function(){},lastHr,true));
  if(cur.n===0&&cur.side!=="R"){var wl=el("label","wu"),cb2=el("input");cb2.type="checkbox";cb2.id="wu-in";wl.appendChild(cb2);wl.appendChild(document.createTextNode(" "+t.wuLabel));
-  cb2.addEventListener("change",function(){wuOn=cb2.checked;var w=$("w-in"),r=$("r-in");if(wuOn){w.value=e.w>0?Math.max(0,Math.round(e.w*.5/wstep(x))*wstep(x)):0}else{w.value=e.w||0}r.value=e.reps});c.appendChild(wl)}
- c.appendChild(f);c.appendChild(el("div","hintl",t.swipeHint));
+  cb2.addEventListener("change",function(){wuOn=cb2.checked;var w=$("w-in"),r=$("r-in");if(wuOn){w.value=pw>0?Math.max(0,Math.round(pw*.5/wstep(x))*wstep(x)):0}else{w.value=pw}r.value=e.reps});c.appendChild(wl)}
+ c.appendChild(f);if(ls)c.appendChild(el("div","hintl",t.lastW(ls.w,fmtD(ls.date))));c.appendChild(el("div","hintl",t.swipeHint));
  f.querySelector("#h-in").placeholder=t.bpm;
  var rl=el("label",null,t.rate);rl.style.margin="10px 0 4px";c.appendChild(rl);c.appendChild(rateCtl());
  var tk=tmKeyOf(cur),running=!!tm&&tmS.key===tk;
@@ -746,10 +755,31 @@ function listSheet(title,items,onPick,emptyMsg,onDis,reopen,extra){var t=L();ope
  var c=el("button","ghost",t.cancel);c.style.cssText="width:100%;margin-top:6px";c.addEventListener("click",closeSheet);p.appendChild(c)})}
 function swapSheet(e,rk){rk=rk||S.pv;var t=L();
  listSheet(t.swapTitle+" · "+nm(e.k),swapOpts(rk,e,3).slice(0,6),function(x){e.k=x.k;e.w=presetW(x.k);save();closeSheet();render()},t.noAlt,function(x){addDis(x.k);save();toast(t.disliked);swapSheet(e,rk);renderPlan()},function(){swapSheet(e,rk)},dayOf(rk)==="core"?function(){return bsToggle(function(){swapSheet(e,rk)})}:null)}
-function addSheet(){var t=L(),used={},cnt={};S.plan[S.pv].forEach(function(x){used[x.k]=1});S.dis.forEach(function(k){used[k]=1});active(S.pv).forEach(function(x){var m=X[x.k];if(m)cnt[m.p]=(cnt[m.p]||0)+1});
+var fltEx={q:"",m:"",abc:false};
+function addSheet(keep){var t=L(),used={},cnt={};if(keep!==true)fltEx={q:"",m:"",abc:false};
+ S.plan[S.pv].forEach(function(x){used[x.k]=1});S.dis.forEach(function(k){used[k]=1});active(S.pv).forEach(function(x){var m=X[x.k];if(m)cnt[m.p]=(cnt[m.p]||0)+1});
  var opts=[];XL.forEach(function(x){if(x.day===dayOf(S.pv)&&!used[x.k]&&okx(x))opts.push({x:x,rec:(cnt[x.p]||0)<2,n:cnt[x.p]||0})});
- opts.sort(function(a,b){return (b.rec-a.rec)||(a.n-b.n)});
- listSheet(t.addTitle+" · "+rname(S.pv),opts,function(x){var w=mk(x.k,x.sets,x.reps);S.plan[S.pv].push(w);save();closeSheet();render();toast(t.added)},t.noAdd,function(x){addDis(x.k);save();toast(t.disliked);addSheet();renderPlan()},addSheet,dayOf(S.pv)==="core"?function(){return bsToggle(addSheet)}:null)}
+ var mus=[];opts.forEach(function(o){if(mus.indexOf(o.x.p)<0)mus.push(o.x.p)});
+ if(fltEx.m)opts=opts.filter(function(o){return o.x.p===fltEx.m});
+ var q=fltEx.q.trim().toLowerCase();
+ if(q)opts=opts.filter(function(o){return (o.x.k+" "+nm(o.x.k)).toLowerCase().indexOf(q)>=0});
+ if(fltEx.abc)opts.sort(function(a,b){return nm(a.x.k).localeCompare(nm(b.x.k),S.lang)});
+ else opts.sort(function(a,b){return (b.rec-a.rec)||(a.n-b.n)});
+ listSheet(t.addTitle+" · "+rname(S.pv),opts,function(x){var w=mk(x.k,x.sets,x.reps);S.plan[S.pv].push(w);save();closeSheet();render();toast(t.added)},t.noAdd,function(x){addDis(x.k);save();toast(t.disliked);addSheet(true);renderPlan()},function(){addSheet(true)},function(){return addCtl(mus)});
+ var rows=document.querySelectorAll("#panel .liw");rows.forEach(function(r,i){if(opts[i])r.setAttribute("data-q",(opts[i].x.k+" "+nm(opts[i].x.k)).toLowerCase())});
+ var sb=document.querySelector("#panel .sbx");
+ if(sb)sb.addEventListener("input",function(){fltEx.q=sb.value;var qq=fltEx.q.trim().toLowerCase();
+  rows.forEach(function(r){var dq=r.getAttribute("data-q")||"";r.style.display=(!qq||dq.indexOf(qq)>=0)?"":"none"})})}
+function addCtl(mus){var t=L(),wrap=el("div");
+ var s=document.createElement("input");s.className="sbx";s.type="search";s.placeholder=t.searchEx;s.value=fltEx.q;s.setAttribute("aria-label",t.searchEx);wrap.appendChild(s);
+ var ch=el("div","chips");
+ function mkChip(lab,on,fn){var b=el("button","chip"+(on?" sel":""),lab);b.type="button";b.addEventListener("click",fn);return b}
+ ch.appendChild(mkChip(t.allM,!fltEx.m,function(){fltEx.m="";addSheet(true)}));
+ mus.forEach(function(m){ch.appendChild(mkChip((MU[S.lang]&&MU[S.lang][m])||m,fltEx.m===m,function(){fltEx.m=(fltEx.m===m?"":m);addSheet(true)}))});
+ ch.appendChild(mkChip(t.sortName,fltEx.abc,function(){fltEx.abc=!fltEx.abc;addSheet(true)}));
+ wrap.appendChild(ch);
+ if(dayOf(S.pv)==="core")wrap.appendChild(bsToggle(function(){addSheet(true)}));
+ return wrap}
 function confirmSheet(title,msg,okLabel,fn){var t=L();openSheet(function(p){p.appendChild(el("h2",null,title));p.appendChild(el("p","hint",msg));
  var two=el("div","two"),c=el("button","ghost",t.cancel),g=el("button","big",okLabel);g.style.cssText="margin:0;background:var(--peach);color:var(--peach-ink)";c.addEventListener("click",closeSheet);
  g.addEventListener("click",function(){closeSheet();fn()});two.appendChild(c);two.appendChild(g);p.appendChild(two)})}
