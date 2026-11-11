@@ -1,4 +1,4 @@
-<!-- v1.5 - 11 Nov 2026, 10:22 PM NZDT: Screen Wake Lock keeps the screen on while the app is visible (Settings toggle, default on; re-acquires on return to the tab). v1.4: adds 9 Smith machine exercises (pull: bent-over row, inverted row; push: upright row, decline press; legs: front squat, deadlift, good morning, Bulgarian split squat, seated calf raise). v1.3: Add-workout sheet gains search, primary-muscle filter and sort-by-name. Workout card prefills the last same-routine session max weight with its date (per routine day, warm-up sets excluded). Includes v1.2 (export fallback) and v1.1 (stretch/static beeps) -->
+<!-- v1.5.1 - 11 Nov 2026, 10:29 PM NZDT: hint now shows when a wake-lock request was refused (chip = preference, not lock state); iOS Home Screen hint corrected (works from iOS 18.4). v1.5: Screen Wake Lock keeps the screen on while the app is visible (Settings toggle, default on; re-acquires on return to the tab). v1.4: adds 9 Smith machine exercises (pull: bent-over row, inverted row; push: upright row, decline press; legs: front squat, deadlift, good morning, Bulgarian split squat, seated calf raise). v1.3: Add-workout sheet gains search, primary-muscle filter and sort-by-name. Workout card prefills the last same-routine session max weight with its date (per routine day, warm-up sets excluded). Includes v1.2 (export fallback) and v1.1 (stretch/static beeps) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -186,7 +186,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline
       <div class="sm" data-i="deleted"></div><div class="opts" id="dels"></div>
       <div class="sm" data-i="recent"></div><div id="recent"></div>
       <button class="link" id="reset"></button>
-      <p class="hint" style="text-align:center;margin:14px 0 6px">v1.5 · 11 Nov 2026, 10:22 PM NZDT</p>
+      <p class="hint" style="text-align:center;margin:14px 0 6px">v1.5.1 · 11 Nov 2026, 10:29 PM NZDT</p>
     </section>
   </div>
   <nav id="tabs"></nav>
@@ -328,7 +328,7 @@ en:{title:"Workout Log",cardioDay:"Cardio day",cardioInfo:function(m){return "Ca
  complete:"Workout complete",again:"Start again",emptyPlan:"No workouts in this plan. Add or restore some.",push:"Push",pull:"Pull",legs:"Legs",
  swap:"Swap",del:"Delete",swapTitle:"Swap with a similar workout",noAlt:"No similar workouts left to swap in.",save:"Save",cancel:"Cancel",sl:"Sets",removed:"Removed. Restore it in Settings.",
  add:"+ Add workout",sort:"Sort",sortDone:"Done sorting",addTitle:"Add a workout",rec:"Recommended",noAdd:"Nothing left to add for this day.",searchEx:"Search exercises",allM:"All",sortName:"A-Z",lastW:function(w,d){return "Last "+fmt(w)+" kg · "+d},added:"Added to your plan.",up:"Move up",down:"Move down",
- language:"Language",manualRest:"Manual rest time",rv:"Rest time",autoHint:"Auto: rest is calculated from weight, reps, heart rate and your 1–10 rating.",beeps:"Countdown beeps",wake:"Keep screen on while using the app",wakeNo:"Screen wake lock is not supported in this browser.",wakePwa:"On iPhone this works in the Safari tab, but may not hold when the app is added to your Home Screen.",on:"On",off:"Off",deleted:"Disliked workouts (tap to restore)",noDel:"No disliked workouts.",
+ language:"Language",manualRest:"Manual rest time",rv:"Rest time",autoHint:"Auto: rest is calculated from weight, reps, heart rate and your 1–10 rating.",beeps:"Countdown beeps",wake:"Keep screen on while using the app",wakeNo:"Screen wake lock is not supported in this browser.",wakePwa:"On iPhone, Home Screen apps need iOS 18.4 or later for this; in the Safari tab it works from iOS 16.4.",wakeFail:"Screen-on is set, but the browser refused it just now (e.g. low battery). It tries again when you return to the app.",on:"On",off:"Off",deleted:"Disliked workouts (tap to restore)",noDel:"No disliked workouts.",
  recent:"Recent days",noRecent:"Past workouts show up here.",reset:"Reset all data",confirm:"Delete all logs and reset the plans? This can’t be undone.",
  stats:function(n,e,v){return n+" sets · "+e+" exercises · "+v+" kg today"},setOf:function(n,m){return "Set "+n+" of "+m},target:function(r){return "Target "+r+" reps"},sc:function(n){return n+(n===1?" set":" sets")},ls:"en-US"},
 ko:{title:"운동 기록",cardioDay:"유산소 데이",cardioInfo:function(m){return "유산소만 · 약 "+m+"분"},cardioHintDay:function(m){return "기구를 고르고 시작을 누르세요. 약 "+m+"분이 목표예요."},restDayL:"레그 데이 다음에 유산소 휴식일 넣기",cardioMin:"유산소 데이 시간 (분)",bike:"자전거",
@@ -349,7 +349,7 @@ ko:{title:"운동 기록",cardioDay:"유산소 데이",cardioInfo:function(m){re
  complete:"운동 완료",again:"다시 시작",emptyPlan:"이 플랜에 운동이 없어요. 추가하거나 복원하세요.",push:"푸시",pull:"풀",legs:"레그",
  swap:"교체",del:"삭제",swapTitle:"비슷한 운동으로 교체",noAlt:"교체할 비슷한 운동이 없어요.",save:"저장",cancel:"취소",sl:"세트",removed:"삭제했어요. 설정에서 복원할 수 있어요.",
  add:"+ 운동 추가",sort:"정렬",sortDone:"정렬 완료",addTitle:"운동 추가",rec:"추천",noAdd:"추가할 운동이 더 없어요.",searchEx:"운동 검색",allM:"전체",sortName:"이름순",lastW:function(w,d){return "지난 "+fmt(w)+"kg · "+d},added:"플랜에 추가했어요.",up:"위로",down:"아래로",
- language:"언어",manualRest:"휴식 시간 직접 설정",rv:"휴식 시간",autoHint:"자동: 무게, 횟수, 심박수, 1–10 난이도로 휴식 시간을 계산해요.",beeps:"카운트다운 알림음",wake:"앱 사용 중 화면 켜짐 유지",wakeNo:"이 브라우저에서는 화면 켜짐 유지를 지원하지 않아요.",wakePwa:"아이폰에서는 Safari 탭에서 동작하지만, 홈 화면에 추가한 앱에서는 유지되지 않을 수 있어요.",on:"켜짐",off:"꺼짐",deleted:"싫어요한 운동 (눌러서 복원)",noDel:"싫어요한 운동이 없어요.",
+ language:"언어",manualRest:"휴식 시간 직접 설정",rv:"휴식 시간",autoHint:"자동: 무게, 횟수, 심박수, 1–10 난이도로 휴식 시간을 계산해요.",beeps:"카운트다운 알림음",wake:"앱 사용 중 화면 켜짐 유지",wakeNo:"이 브라우저에서는 화면 켜짐 유지를 지원하지 않아요.",wakePwa:"아이폰에서는 홈 화면 앱은 iOS 18.4부터, Safari 탭에서는 iOS 16.4부터 동작해요.",wakeFail:"켜짐 유지가 설정돼 있지만 방금 브라우저가 거부했어요(배터리 부족 등). 앱으로 돌아오면 다시 시도해요.",on:"켜짐",off:"꺼짐",deleted:"싫어요한 운동 (눌러서 복원)",noDel:"싫어요한 운동이 없어요.",
  recent:"최근 기록",noRecent:"지난 운동이 여기에 표시돼요.",reset:"모든 데이터 초기화",confirm:"모든 기록을 삭제하고 플랜을 초기화할까요? 되돌릴 수 없어요.",
  stats:function(n,e,v){return "오늘 "+n+"세트 · "+e+"종목 · "+v+" kg"},setOf:function(n,m){return m+"세트 중 "+n+"번째"},target:function(r){return "목표 "+r+"회"},sc:function(n){return n+"세트"},ls:"ko-KR"}};
 var ROUT=["pushA","pullA","legsA","pushB","pullB","legsB"],ROT=["pushA","pullA","legsA","cardioA","pushB","pullB","legsB","cardioB"],TYPES=["push","pull","legs"],CT=["push","pull","legs","core"],PK=["pushA","pullA","legsA","pushB","pullB","legsB","coreA","coreB"],$=function(i){return document.getElementById(i)};
@@ -446,9 +446,9 @@ function beep(f,d){if(!S.beep)return;try{audio();var o=ctx.createOscillator(),g=
 
 /* rest timer (shown below the log box) */
 /* screen wake lock: keep the screen on while the app is visible; iOS Safari 16.4+ (tab; Home-Screen app may not hold it) */
-var wakeLock=null;
+var wakeLock=null,wakeFailed=false;
 function wakeOn(){if(!S.wake||!("wakeLock" in navigator)||document.visibilityState!=="visible"||wakeLock)return;
- try{navigator.wakeLock.request("screen").then(function(l){wakeLock=l;l.addEventListener("release",function(){wakeLock=null})}).catch(function(e){})}catch(e){}}
+ try{navigator.wakeLock.request("screen").then(function(l){wakeLock=l;wakeFailed=false;renderSettings();l.addEventListener("release",function(){wakeLock=null})}).catch(function(e){wakeFailed=true;renderSettings()})}catch(e){wakeFailed=true;renderSettings()}}
 function wakeOff(){if(wakeLock){try{wakeLock.release()}catch(e){}wakeLock=null}}
 document.addEventListener("visibilitychange",function(){if(document.visibilityState==="visible")wakeOn()});
 var wakeBoot=function(){wakeOn();document.removeEventListener("pointerdown",wakeBoot)};document.addEventListener("pointerdown",wakeBoot);
@@ -1078,7 +1078,7 @@ function entrySheet(e){var t=L();openSheet(function(p){p.appendChild(el("h2",nul
 function renderSettings(){var t=L();renderSync();
  seg($("seg-lang"),[["en","EN"],["ko","한국어"]],S.lang,function(l){S.lang=l;save();render()});
  $("manual").textContent=S.manual?t.on:t.off;$("bsbtn").textContent=S.bs?t.on:t.off;var rr=$("restrow");rr.innerHTML="";rr.style.display=S.manual?"block":"none";if(S.manual){var rg=el("div","fields2");rg.style.cssText="margin:8px 0 10px";rg.appendChild(fld(t.restMain,"rs-m",S.rest,5,10,600,true,function(v){S.rest=v;save()},undefined,true));rg.appendChild(fld(t.restCoreL,"rs-c",S.restCore||S.rest,5,10,600,true,function(v){S.restCore=v;save()},undefined,true));rr.appendChild(rg)}$("autohint").style.display=S.manual?"none":"block";
- $("calv").textContent=t.calN(Object.keys(S.rad).filter(function(k){return S.rad[k]}).length);$("calreset").textContent=t.calReset;$("calrow").style.display=S.manual?"none":"flex";$("beep").textContent=S.beep?t.on:t.off;$("wake").textContent=S.wake?t.on:t.off;var wh=$("wakehint");if(!("wakeLock" in navigator)){wh.style.display="block";wh.textContent=t.wakeNo}else if(navigator.standalone===true){wh.style.display="block";wh.textContent=t.wakePwa}else wh.style.display="none";
+ $("calv").textContent=t.calN(Object.keys(S.rad).filter(function(k){return S.rad[k]}).length);$("calreset").textContent=t.calReset;$("calrow").style.display=S.manual?"none":"flex";$("beep").textContent=S.beep?t.on:t.off;$("wake").textContent=S.wake?t.on:t.off;var wh=$("wakehint");if(!("wakeLock" in navigator)){wh.style.display="block";wh.textContent=t.wakeNo}else if(navigator.standalone===true){wh.style.display="block";wh.textContent=t.wakePwa}else if(S.wake&&wakeFailed){wh.style.display="block";wh.textContent=t.wakeFail}else wh.style.display="none";
  var q=$("eqs");q.innerHTML="";EQK.forEach(function(k){var on=S.eq[k]!==false,b=el("button","opt"+(on?" r":""),(on?"✓ ":"")+EQ[S.lang][k]);b.setAttribute("aria-pressed",on);
   b.addEventListener("click",function(){S.eq[k]=!on;save();fitPlans();render()});q.appendChild(b)});
  var pf=$("prof");pf.innerHTML="";var g=el("div","fields2");g.style.cssText="margin:8px 0 10px";
