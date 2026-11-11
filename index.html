@@ -1,4 +1,4 @@
-<!-- v1.4 - 11 Nov 2026, 10:07 PM NZDT: adds 9 Smith machine exercises (pull: bent-over row, inverted row; push: upright row, decline press; legs: front squat, deadlift, good morning, Bulgarian split squat, seated calf raise). v1.3: Add-workout sheet gains search, primary-muscle filter and sort-by-name. Workout card prefills the last same-routine session max weight with its date (per routine day, warm-up sets excluded). Includes v1.2 (export fallback) and v1.1 (stretch/static beeps) -->
+<!-- v1.5 - 11 Nov 2026, 10:22 PM NZDT: Screen Wake Lock keeps the screen on while the app is visible (Settings toggle, default on; re-acquires on return to the tab). v1.4: adds 9 Smith machine exercises (pull: bent-over row, inverted row; push: upright row, decline press; legs: front squat, deadlift, good morning, Bulgarian split squat, seated calf raise). v1.3: Add-workout sheet gains search, primary-muscle filter and sort-by-name. Workout card prefills the last same-routine session max weight with its date (per routine day, warm-up sets excluded). Includes v1.2 (export fallback) and v1.1 (stretch/static beeps) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -178,6 +178,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline
         <p class="hint" id="autohint" style="margin:6px 0"></p>
         <div class="strow" id="calrow"><span data-i="calib"></span><span><b id="calv"></b> <button class="chip" id="calreset"></button></span></div>
         <div class="strow"><span data-i="beeps"></span><button class="chip" id="beep"></button></div>
+        <div class="strow"><span data-i="wake"></span><button class="chip" id="wake"></button></div><div class="hint" id="wakehint" style="display:none"></div>
       </div>
       <div class="sm" data-i="equip"></div><p class="hint" data-i="equipHint" style="margin:0 0 6px"></p><div class="opts" id="eqs"></div>
       <div class="strow" style="margin-top:8px"><span data-i="backSafe"></span><button class="chip" id="bsbtn"></button></div><p class="hint" data-i="bsHint" style="margin:0 0 6px"></p>
@@ -185,7 +186,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline
       <div class="sm" data-i="deleted"></div><div class="opts" id="dels"></div>
       <div class="sm" data-i="recent"></div><div id="recent"></div>
       <button class="link" id="reset"></button>
-      <p class="hint" style="text-align:center;margin:14px 0 6px">v1.4 · 11 Nov 2026, 10:07 PM NZDT</p>
+      <p class="hint" style="text-align:center;margin:14px 0 6px">v1.5 · 11 Nov 2026, 10:22 PM NZDT</p>
     </section>
   </div>
   <nav id="tabs"></nav>
@@ -327,7 +328,7 @@ en:{title:"Workout Log",cardioDay:"Cardio day",cardioInfo:function(m){return "Ca
  complete:"Workout complete",again:"Start again",emptyPlan:"No workouts in this plan. Add or restore some.",push:"Push",pull:"Pull",legs:"Legs",
  swap:"Swap",del:"Delete",swapTitle:"Swap with a similar workout",noAlt:"No similar workouts left to swap in.",save:"Save",cancel:"Cancel",sl:"Sets",removed:"Removed. Restore it in Settings.",
  add:"+ Add workout",sort:"Sort",sortDone:"Done sorting",addTitle:"Add a workout",rec:"Recommended",noAdd:"Nothing left to add for this day.",searchEx:"Search exercises",allM:"All",sortName:"A-Z",lastW:function(w,d){return "Last "+fmt(w)+" kg · "+d},added:"Added to your plan.",up:"Move up",down:"Move down",
- language:"Language",manualRest:"Manual rest time",rv:"Rest time",autoHint:"Auto: rest is calculated from weight, reps, heart rate and your 1–10 rating.",beeps:"Countdown beeps",on:"On",off:"Off",deleted:"Disliked workouts (tap to restore)",noDel:"No disliked workouts.",
+ language:"Language",manualRest:"Manual rest time",rv:"Rest time",autoHint:"Auto: rest is calculated from weight, reps, heart rate and your 1–10 rating.",beeps:"Countdown beeps",wake:"Keep screen on while using the app",wakeNo:"Screen wake lock is not supported in this browser.",wakePwa:"On iPhone this works in the Safari tab, but may not hold when the app is added to your Home Screen.",on:"On",off:"Off",deleted:"Disliked workouts (tap to restore)",noDel:"No disliked workouts.",
  recent:"Recent days",noRecent:"Past workouts show up here.",reset:"Reset all data",confirm:"Delete all logs and reset the plans? This can’t be undone.",
  stats:function(n,e,v){return n+" sets · "+e+" exercises · "+v+" kg today"},setOf:function(n,m){return "Set "+n+" of "+m},target:function(r){return "Target "+r+" reps"},sc:function(n){return n+(n===1?" set":" sets")},ls:"en-US"},
 ko:{title:"운동 기록",cardioDay:"유산소 데이",cardioInfo:function(m){return "유산소만 · 약 "+m+"분"},cardioHintDay:function(m){return "기구를 고르고 시작을 누르세요. 약 "+m+"분이 목표예요."},restDayL:"레그 데이 다음에 유산소 휴식일 넣기",cardioMin:"유산소 데이 시간 (분)",bike:"자전거",
@@ -348,7 +349,7 @@ ko:{title:"운동 기록",cardioDay:"유산소 데이",cardioInfo:function(m){re
  complete:"운동 완료",again:"다시 시작",emptyPlan:"이 플랜에 운동이 없어요. 추가하거나 복원하세요.",push:"푸시",pull:"풀",legs:"레그",
  swap:"교체",del:"삭제",swapTitle:"비슷한 운동으로 교체",noAlt:"교체할 비슷한 운동이 없어요.",save:"저장",cancel:"취소",sl:"세트",removed:"삭제했어요. 설정에서 복원할 수 있어요.",
  add:"+ 운동 추가",sort:"정렬",sortDone:"정렬 완료",addTitle:"운동 추가",rec:"추천",noAdd:"추가할 운동이 더 없어요.",searchEx:"운동 검색",allM:"전체",sortName:"이름순",lastW:function(w,d){return "지난 "+fmt(w)+"kg · "+d},added:"플랜에 추가했어요.",up:"위로",down:"아래로",
- language:"언어",manualRest:"휴식 시간 직접 설정",rv:"휴식 시간",autoHint:"자동: 무게, 횟수, 심박수, 1–10 난이도로 휴식 시간을 계산해요.",beeps:"카운트다운 알림음",on:"켜짐",off:"꺼짐",deleted:"싫어요한 운동 (눌러서 복원)",noDel:"싫어요한 운동이 없어요.",
+ language:"언어",manualRest:"휴식 시간 직접 설정",rv:"휴식 시간",autoHint:"자동: 무게, 횟수, 심박수, 1–10 난이도로 휴식 시간을 계산해요.",beeps:"카운트다운 알림음",wake:"앱 사용 중 화면 켜짐 유지",wakeNo:"이 브라우저에서는 화면 켜짐 유지를 지원하지 않아요.",wakePwa:"아이폰에서는 Safari 탭에서 동작하지만, 홈 화면에 추가한 앱에서는 유지되지 않을 수 있어요.",on:"켜짐",off:"꺼짐",deleted:"싫어요한 운동 (눌러서 복원)",noDel:"싫어요한 운동이 없어요.",
  recent:"최근 기록",noRecent:"지난 운동이 여기에 표시돼요.",reset:"모든 데이터 초기화",confirm:"모든 기록을 삭제하고 플랜을 초기화할까요? 되돌릴 수 없어요.",
  stats:function(n,e,v){return "오늘 "+n+"세트 · "+e+"종목 · "+v+" kg"},setOf:function(n,m){return m+"세트 중 "+n+"번째"},target:function(r){return "목표 "+r+"회"},sc:function(n){return n+"세트"},ls:"ko-KR"}};
 var ROUT=["pushA","pullA","legsA","pushB","pullB","legsB"],ROT=["pushA","pullA","legsA","cardioA","pushB","pullB","legsB","cardioB"],TYPES=["push","pull","legs"],CT=["push","pull","legs","core"],PK=["pushA","pullA","legsA","pushB","pullB","legsB","coreA","coreB"],$=function(i){return document.getElementById(i)};
@@ -363,7 +364,7 @@ function defPlan(){return {
  legsB:[mk("Deadlift",3,5),mk("Front squat",3,8),mk("Bulgarian split squat",3,10),mk("Hip thrust",3,10),mk("Seated calf raise",4,15)],
  coreA:[mk("Hanging leg raise",3,10),mk("Cable crunch",3,12),mk("Plank",3,45),mk("Russian twist",3,20)],
  coreB:[mk("Reverse crunch",3,15),mk("Cable woodchop",3,12),mk("Side plank",3,30),mk("Dead bug",3,12)]}}
-var S={sets:[],plan:defPlan(),ri:0,doneOn:null,pv:"pushA",eq:{},h:null,bw:null,dis:[],restAdj:0,skips:[],extra:{},rad:{},upd:0,restCore:60,restDay:true,cardioMin:50,foodLog:[],foodCustom:[],foodGoals:{kc:0,p:0,f:0},foodRecent:[],foodDay:null,ca:"A",inc:{},coreDone:null,sess:null,hist:[],bs:false,mach:"treadmill",tab:"work",since:{},rest:90,manual:false,beep:true,lang:"en"};
+var S={sets:[],plan:defPlan(),ri:0,doneOn:null,pv:"pushA",eq:{},h:null,bw:null,dis:[],restAdj:0,skips:[],extra:{},rad:{},upd:0,restCore:60,restDay:true,cardioMin:50,foodLog:[],foodCustom:[],foodGoals:{kc:0,p:0,f:0},foodRecent:[],foodDay:null,ca:"A",inc:{},coreDone:null,sess:null,hist:[],bs:false,mach:"treadmill",tab:"work",since:{},rest:90,manual:false,beep:true,wake:true,lang:"en"};
 var restLogId=null,restStart=0,restEnd=null,restTotal=0,restAuto=true,beeped={},timer=null,ctx=null,toastT=null,rpe=null;
 function L(){return T[S.lang]}
 function nm(k){return S.lang==="ko"&&KO[k]?KO[k]:k}
@@ -381,7 +382,7 @@ function todayName(){return rname(R())+(coreOn()&&!isCardioDay()?" + "+rname(cor
 function dayOf(k){return k.slice(0,-1)}
 function rname(k){return dayOf(k)==="cardio"?L().cardioDay:L()[dayOf(k)]+" "+k.slice(-1)}
 function applyState(d){try{
- if(d&&Array.isArray(d.sets)){S.sets=d.sets;S.lang=d.lang==="ko"?"ko":"en";S.since=d.since||{};S.rest=d.rest||90;S.manual=d.manual===true;S.beep=d.beep!==false;
+ if(d&&Array.isArray(d.sets)){S.sets=d.sets;S.lang=d.lang==="ko"?"ko":"en";S.since=d.since||{};S.rest=d.rest||90;S.manual=d.manual===true;S.beep=d.beep!==false;S.wake=d.wake!==false;
   S.ri=ROT.indexOf(d.rt)>=0?ROT.indexOf(d.rt):0;S.doneOn=d.doneOn||null;S.eq=d.eq&&typeof d.eq==="object"?d.eq:{};S.h=d.h||null;S.bw=d.bw||null;S.dis=Array.isArray(d.dis)?d.dis:[];S.restAdj=+d.ra||0;S.skips=Array.isArray(d.sk)?d.sk:[];S.extra=d.ex&&typeof d.ex==="object"?d.ex:{};S.rad=d.rad&&typeof d.rad==="object"?d.rad:{};S.sess=d.sess||null;S.hist=Array.isArray(d.hist)?d.hist:[];S.bs=d.bs===true;S.mach=d.mach||"treadmill";S.ca=d.ca==="B"?"B":"A";S.inc=d.inc&&typeof d.inc==="object"?d.inc:{};S.coreDone=d.cd||null;S.upd=+d.upd||0;S.restCore=+d.rc||60;S.restDay=d.rd!==false;S.cardioMin=+d.cm||50;S.foodLog=Array.isArray(d.fl)?d.fl:[];S.foodCustom=Array.isArray(d.fc)?d.fc:[];S.foodGoals=d.fg&&typeof d.fg==="object"?d.fg:{kc:0,p:0,f:0};S.foodRecent=Array.isArray(d.fr)?d.fr:[];
   if(d.plan&&ROUT.every(function(x){return Array.isArray(d.plan[x])}))S.plan=d.plan;
   else if(d.plan&&Array.isArray(d.plan.push)){var p=defPlan();TYPES.forEach(function(x){if(Array.isArray(d.plan[x]))p[x+"A"]=d.plan[x]});S.plan=p;if(TYPES.indexOf(d.day)>=0)S.ri=ROT.indexOf(d.day+"A")}
@@ -390,7 +391,7 @@ function applyState(d){try{
   S.sets.forEach(function(s){if(!s.rt&&s.day)s.rt=s.day+"A"});
   PK.forEach(function(r){S.plan[r].forEach(function(e){if(e.del&&S.dis.indexOf(e.k)<0)S.dis.push(e.k)})})}}catch(e){}S.pv=pvKey()}
 function load(){try{var raw=localStorage.getItem(KEY);if(raw)applyState(JSON.parse(raw))}catch(e){}S.pv=pvKey()}
-function stateObj(){return {sets:S.sets,plan:S.plan,rt:R(),doneOn:S.doneOn,since:S.since,rest:S.rest,manual:S.manual,beep:S.beep,lang:S.lang,eq:S.eq,h:S.h,bw:S.bw,dis:S.dis,ra:S.restAdj,sk:S.skips,ex:S.extra,rad:S.rad,sess:S.sess,hist:S.hist,bs:S.bs,mach:S.mach,ca:S.ca,inc:S.inc,cd:S.coreDone,rc:S.restCore,rd:S.restDay,cm:S.cardioMin,fl:S.foodLog,fc:S.foodCustom,fg:S.foodGoals,fr:S.foodRecent,upd:S.upd}}
+function stateObj(){return {sets:S.sets,plan:S.plan,rt:R(),doneOn:S.doneOn,since:S.since,rest:S.rest,manual:S.manual,beep:S.beep,wake:S.wake,lang:S.lang,eq:S.eq,h:S.h,bw:S.bw,dis:S.dis,ra:S.restAdj,sk:S.skips,ex:S.extra,rad:S.rad,sess:S.sess,hist:S.hist,bs:S.bs,mach:S.mach,ca:S.ca,inc:S.inc,cd:S.coreDone,rc:S.restCore,rd:S.restDay,cm:S.cardioMin,fl:S.foodLog,fc:S.foodCustom,fg:S.foodGoals,fr:S.foodRecent,upd:S.upd}}
 function writeLocal(){try{localStorage.setItem(KEY,JSON.stringify(stateObj()))}catch(e){}}
 function save(){S.upd=Date.now();writeLocal();schedulePush()}
 /* after a finished routine, the next day moves on to the next routine automatically (Push A, Pull A, Legs A, Push B, ...) */
@@ -444,6 +445,14 @@ function audio(){try{ctx=ctx||new (window.AudioContext||window.webkitAudioContex
 function beep(f,d){if(!S.beep)return;try{audio();var o=ctx.createOscillator(),g=ctx.createGain(),t=ctx.currentTime;o.frequency.value=f;o.type="sine";g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.4,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(ctx.destination);o.start(t);o.stop(t+d+.02)}catch(e){}}
 
 /* rest timer (shown below the log box) */
+/* screen wake lock: keep the screen on while the app is visible; iOS Safari 16.4+ (tab; Home-Screen app may not hold it) */
+var wakeLock=null;
+function wakeOn(){if(!S.wake||!("wakeLock" in navigator)||document.visibilityState!=="visible"||wakeLock)return;
+ try{navigator.wakeLock.request("screen").then(function(l){wakeLock=l;l.addEventListener("release",function(){wakeLock=null})}).catch(function(e){})}catch(e){}}
+function wakeOff(){if(wakeLock){try{wakeLock.release()}catch(e){}wakeLock=null}}
+document.addEventListener("visibilitychange",function(){if(document.visibilityState==="visible")wakeOn()});
+var wakeBoot=function(){wakeOn();document.removeEventListener("pointerdown",wakeBoot)};document.addEventListener("pointerdown",wakeBoot);
+
 /* countdown audio: a pre-rendered sound file so it can keep playing with the screen locked (best effort on iOS); Web Audio beeps are the fallback */
 var rAudio=null,audioOK=false;
 function wavFor(total){var sr=8000,n=Math.round((total+.7)*sr),buf=new ArrayBuffer(44+n),v=new DataView(buf),u=new Uint8Array(buf);
@@ -1069,7 +1078,7 @@ function entrySheet(e){var t=L();openSheet(function(p){p.appendChild(el("h2",nul
 function renderSettings(){var t=L();renderSync();
  seg($("seg-lang"),[["en","EN"],["ko","한국어"]],S.lang,function(l){S.lang=l;save();render()});
  $("manual").textContent=S.manual?t.on:t.off;$("bsbtn").textContent=S.bs?t.on:t.off;var rr=$("restrow");rr.innerHTML="";rr.style.display=S.manual?"block":"none";if(S.manual){var rg=el("div","fields2");rg.style.cssText="margin:8px 0 10px";rg.appendChild(fld(t.restMain,"rs-m",S.rest,5,10,600,true,function(v){S.rest=v;save()},undefined,true));rg.appendChild(fld(t.restCoreL,"rs-c",S.restCore||S.rest,5,10,600,true,function(v){S.restCore=v;save()},undefined,true));rr.appendChild(rg)}$("autohint").style.display=S.manual?"none":"block";
- $("calv").textContent=t.calN(Object.keys(S.rad).filter(function(k){return S.rad[k]}).length);$("calreset").textContent=t.calReset;$("calrow").style.display=S.manual?"none":"flex";$("beep").textContent=S.beep?t.on:t.off;
+ $("calv").textContent=t.calN(Object.keys(S.rad).filter(function(k){return S.rad[k]}).length);$("calreset").textContent=t.calReset;$("calrow").style.display=S.manual?"none":"flex";$("beep").textContent=S.beep?t.on:t.off;$("wake").textContent=S.wake?t.on:t.off;var wh=$("wakehint");if(!("wakeLock" in navigator)){wh.style.display="block";wh.textContent=t.wakeNo}else if(navigator.standalone===true){wh.style.display="block";wh.textContent=t.wakePwa}else wh.style.display="none";
  var q=$("eqs");q.innerHTML="";EQK.forEach(function(k){var on=S.eq[k]!==false,b=el("button","opt"+(on?" r":""),(on?"✓ ":"")+EQ[S.lang][k]);b.setAttribute("aria-pressed",on);
   b.addEventListener("click",function(){S.eq[k]=!on;save();fitPlans();render()});q.appendChild(b)});
  var pf=$("prof");pf.innerHTML="";var g=el("div","fields2");g.style.cssText="margin:8px 0 10px";
@@ -1100,6 +1109,7 @@ $("calreset").addEventListener("click",function(){S.rad={};save();renderSettings
 $("bsbtn").addEventListener("click",function(){S.bs=!S.bs;save();fitPlans();render()});
 $("manual").addEventListener("click",function(){S.manual=!S.manual;save();renderSettings()});
 $("beep").addEventListener("click",function(){S.beep=!S.beep;if(S.beep){audio();beep(880,.12)}save();renderSettings()});
+$("wake").addEventListener("click",function(){S.wake=!S.wake;if(S.wake)wakeOn();else wakeOff();save();renderSettings()});
 $("reset").addEventListener("click",function(){var t=L();confirmSheet(t.reset,t.confirm,t.reset,function(){stopRest();S.sets=[];S.plan=defPlan();S.since={};S.ri=0;S.doneOn=null;S.foodLog=[];S.foodCustom=[];S.foodGoals={kc:0,p:0,f:0};S.foodRecent=[];S.restDay=true;S.cardioMin=50;S.eq={};S.h=null;S.bw=null;S.dis=[];S.restAdj=0;S.rad={};S.skips=[];S.extra={};S.sess=null;S.hist=[];S.bs=false;S.pv=pvKey();save();render()})});
 $("sheet").addEventListener("click",function(e){if(e.target===$("sheet"))closeSheet()});
 /* no pinch zoom; the page itself never scrolls (only lists that outgrow the screen scroll inside themselves) */
@@ -1110,7 +1120,7 @@ document.addEventListener("wheel",function(e){if(e.ctrlKey)e.preventDefault();el
 document.addEventListener("pointerdown",function(e){var a=document.activeElement;if(a&&a.tagName==="INPUT"&&!(e.target.closest&&e.target.closest("input")))a.blur()},true);
 document.addEventListener("keydown",function(e){if(e.key==="Enter"&&e.target.tagName==="INPUT")e.target.blur()});
 document.addEventListener("visibilitychange",function(){if(!document.hidden){tick();phTick()}});
-load();render();cloudInit();bridgeInit();checkSample();
+load();render();cloudInit();bridgeInit();checkSample();wakeOn();
 })();
 </script>
 </body>
