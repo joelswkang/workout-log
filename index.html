@@ -1,4 +1,4 @@
-<!-- v1.6.1 - 11 Nov 2026, 11:23 PM NZDT: conservative eligibility fix - the progression hint now stays silent when a session has no recorded target at log time or the two sessions' targets differ (was: fell back to the current plan target with a disclosure suffix). v1.6 - 11 Nov 2026, 11:15 PM NZDT: weight-progression hint on the workout card (2-for-2: same load, final set beats target by 2+ reps two same-routine sessions running, warm-ups excluded, both sides on one-sided moves; suggest-only, no auto change; sets now also record the planned rep target and whether effort was actually rated). v1.5.2: re-acquires the wake lock if the system releases it while the page stays visible; Settings now shows an "active right now" status line when a lock is actually held (preference vs held-state observability). v1.5.1: hint now shows when a wake-lock request was refused (chip = preference, not lock state); iOS Home Screen hint corrected (works from iOS 18.4). v1.5: Screen Wake Lock keeps the screen on while the app is visible (Settings toggle, default on; re-acquires on return to the tab). v1.4: adds 9 Smith machine exercises (pull: bent-over row, inverted row; push: upright row, decline press; legs: front squat, deadlift, good morning, Bulgarian split squat, seated calf raise). v1.3: Add-workout sheet gains search, primary-muscle filter and sort-by-name. Workout card prefills the last same-routine session max weight with its date (per routine day, warm-up sets excluded). Includes v1.2 (export fallback) and v1.1 (stretch/static beeps) -->
+<!-- v1.6.2 - 11 Nov 2026, 11:29 PM NZDT: timed sets (e.g. plank) now play the same pre-rendered final-5-seconds countdown file as the rest and stretch timers, so the beeps survive screen lock on iPhone (was: Web Audio only, which iOS throttles when locked or backgrounded); skipping a timed set stops its countdown. v1.6.1 - 11 Nov 2026, 11:23 PM NZDT: conservative eligibility fix - the progression hint now stays silent when a session has no recorded target at log time or the two sessions' targets differ (was: fell back to the current plan target with a disclosure suffix). v1.6 - 11 Nov 2026, 11:15 PM NZDT: weight-progression hint on the workout card (2-for-2: same load, final set beats target by 2+ reps two same-routine sessions running, warm-ups excluded, both sides on one-sided moves; suggest-only, no auto change; sets now also record the planned rep target and whether effort was actually rated). v1.5.2: re-acquires the wake lock if the system releases it while the page stays visible; Settings now shows an "active right now" status line when a lock is actually held (preference vs held-state observability). v1.5.1: hint now shows when a wake-lock request was refused (chip = preference, not lock state); iOS Home Screen hint corrected (works from iOS 18.4). v1.5: Screen Wake Lock keeps the screen on while the app is visible (Settings toggle, default on; re-acquires on return to the tab). v1.4: adds 9 Smith machine exercises (pull: bent-over row, inverted row; push: upright row, decline press; legs: front squat, deadlift, good morning, Bulgarian split squat, seated calf raise). v1.3: Add-workout sheet gains search, primary-muscle filter and sort-by-name. Workout card prefills the last same-routine session max weight with its date (per routine day, warm-up sets excluded). Includes v1.2 (export fallback) and v1.1 (stretch/static beeps) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -186,7 +186,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline
       <div class="sm" data-i="deleted"></div><div class="opts" id="dels"></div>
       <div class="sm" data-i="recent"></div><div id="recent"></div>
       <button class="link" id="reset"></button>
-      <p class="hint" style="text-align:center;margin:14px 0 6px">v1.6.1 · 11 Nov 2026, 11:23 PM NZDT</p>
+      <p class="hint" style="text-align:center;margin:14px 0 6px">v1.6.2 · 11 Nov 2026, 11:29 PM NZDT</p>
     </section>
   </div>
   <nav id="tabs"></nav>
@@ -467,7 +467,7 @@ function wakeOff(){if(wakeLock){try{wakeLock.release()}catch(e){}wakeLock=null}}
 document.addEventListener("visibilitychange",function(){if(document.visibilityState==="visible")wakeOn()});
 var wakeBoot=function(){wakeOn();document.removeEventListener("pointerdown",wakeBoot)};document.addEventListener("pointerdown",wakeBoot);
 
-/* countdown audio: a pre-rendered sound file so it can keep playing with the screen locked (best effort on iOS); Web Audio beeps are the fallback */
+/* countdown audio: a pre-rendered sound file (rest, stretch holds, timed sets) so it can keep playing with the screen locked (best effort on iOS); Web Audio beeps are the fallback */
 var rAudio=null,audioOK=false;
 function wavFor(total){var sr=8000,n=Math.round((total+.7)*sr),buf=new ArrayBuffer(44+n),v=new DataView(buf),u=new Uint8Array(buf);
  function ws(o,x){for(var i=0;i<x.length;i++)v.setUint8(o+i,x.charCodeAt(i))}
@@ -535,8 +535,8 @@ var tmS={key:null,start:0,total:0,beeped:{},fin:0},tmTimer=null;
 function tmKeyOf(cur){return cur.rk+"|"+cur.e.k+"|"+cur.n+"|"+(cur.side||"")}
 function tmTick(){if(tmS.key===null)return;var el_=(Date.now()-tmS.start)/1000,rem=Math.ceil(tmS.total-el_),n=$("tm-num");
  if(n)n.textContent=rem>0?rem:L().timeUp;var b=$("tm-bar");if(b)b.style.width=Math.min(100,el_/tmS.total*100)+"%";
- if(rem<=5&&rem>0&&!tmS.beeped[rem]){tmS.beeped[rem]=1;beep(880,.15)}
- if(rem<=0&&!tmS.fin){tmS.fin=1;beep(440,.5);var d=$("tm-done");if(d)d.classList.add("ready")}}
+ if(rem<=5&&rem>0&&!tmS.beeped[rem]){tmS.beeped[rem]=1;if(!audioOK)beep(880,.15)}
+ if(rem<=0&&!tmS.fin){tmS.fin=1;if(!audioOK)beep(440,.5);var d=$("tm-done");if(d)d.classList.add("ready")}}
 var liveHr={v:0,samples:[]},NB=(window.webkit&&window.webkit.messageHandlers&&window.webkit.messageHandlers.wl)||null,wuOn=false,phTimer=null,phFlag={},stEnd=null,stBeep={};
 function fd(ms){var s=Math.round(ms/1000),h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;return h?h+":"+String(m).padStart(2,"0")+":"+String(x).padStart(2,"0"):m+":"+String(x).padStart(2,"0")}
 function hhmm(ts){return new Date(ts).toLocaleTimeString(L().ls,{hour:"2-digit",minute:"2-digit"})}
@@ -668,7 +668,7 @@ function renderWork(){var t=L(),s;renderDone();
  var tk=tmKeyOf(cur),running=!!tm&&tmS.key===tk;
  if(running){var tb=el("div","tmb"),tn=el("div","num"),bar2=el("div","bar"),bi=el("i");tn.id="tm-num";bi.id="tm-bar";bar2.appendChild(bi);tb.appendChild(tn);tb.appendChild(bar2);c.appendChild(tb)}
  var br=el("div","btnrow"),go=el("button","big",(tm&&!running)?t.start:t.done),sk=el("button","ghost sm",t.skipSet),as=el("button","ghost sm",t.addSet);go.style.margin="0";go.id="tm-done";
- go.addEventListener("click",function(){if(tm&&!running){audio();var tot=parseInt($("r-in").value,10)||e.reps;tmS={key:tk,start:Date.now(),total:tot,beeped:{},fin:0};renderWork()}else doneSet(cur)});sk.addEventListener("click",function(){skipSet(cur)});as.addEventListener("click",function(){addSet(cur)});
+ go.addEventListener("click",function(){if(tm&&!running){audio();var tot=parseInt($("r-in").value,10)||e.reps;tmS={key:tk,start:Date.now(),total:tot,beeped:{},fin:0};if(restEnd===null)startAudio(tot,0);renderWork()}else doneSet(cur)});sk.addEventListener("click",function(){skipSet(cur)});as.addEventListener("click",function(){addSet(cur)});
  br.appendChild(go);br.appendChild(sk);br.appendChild(as);c.appendChild(br);
  f.querySelector("#h-in").addEventListener("keydown",function(ev){if(ev.key==="Enter"&&(!tm||running))doneSet(cur)});
  if(running){tmTimer=setInterval(tmTick,250);tmTick()}
@@ -680,7 +680,7 @@ function doneSet(cur){var e=cur.e,w=parseFloat($("w-in").value),r=parseInt($("r-
  var nx=current();
  if(nx){if(!wu&&cur.side==="L")toast(L().rightNow);else{var auto=!S.manual;startRest(auto?autoRest(w,r,hr,rpe,e.k):(cur.core?(S.restCore||S.rest):S.rest),auto,id,e.k);if(nx.core&&!cur.core)toast(L().coreStart)}}else stopRest();
  save();renderWork();renderRest()}
-function skipSet(cur){if(restEnd!==null)finishRest(false);S.skips.push({id:uid(),t:Date.now(),date:today(),rt:cur.rk,ex:cur.e.k});save();toast(L().skippedSet);renderWork();renderRest()}
+function skipSet(cur){tmS.key=null;if(restEnd!==null)finishRest(false);else stopAudio();S.skips.push({id:uid(),t:Date.now(),date:today(),rt:cur.rk,ex:cur.e.k});save();toast(L().skippedSet);renderWork();renderRest()}
 function addSet(cur){var k=today()+"|"+cur.rk+"|"+cur.e.k;S.extra[k]=(S.extra[k]||0)+1;save();toast(L().setAdded);renderWork()}
 function undoSet(){var ev=events(),last=ev[ev.length-1];if(!last)return;if(last.k==="s")S.skips=S.skips.filter(function(s){return last.s.g?s.g!==last.s.g:s.id!==last.s.id});else S.sets=S.sets.filter(function(s){return s.id!==last.s.id});stopRest();save();renderWork();renderRest()}
 
