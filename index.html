@@ -1,4 +1,4 @@
-<!-- v1.6.3 - 12 Nov 2026, 12:43 AM NZDT: static stretch gets a "Previous" button so an accidental Next tap can be undone (static only; stops any running hold timer and its countdown sound). v1.6.2 - 11 Nov 2026, 11:29 PM NZDT: timed sets (e.g. plank) now play the same pre-rendered final-5-seconds countdown file as the rest and stretch timers, so the beeps survive screen lock on iPhone (was: Web Audio only, which iOS throttles when locked or backgrounded); skipping a timed set stops its countdown. v1.6.1 - 11 Nov 2026, 11:23 PM NZDT: conservative eligibility fix - the progression hint now stays silent when a session has no recorded target at log time or the two sessions' targets differ (was: fell back to the current plan target with a disclosure suffix). v1.6 - 11 Nov 2026, 11:15 PM NZDT: weight-progression hint on the workout card (2-for-2: same load, final set beats target by 2+ reps two same-routine sessions running, warm-ups excluded, both sides on one-sided moves; suggest-only, no auto change; sets now also record the planned rep target and whether effort was actually rated). v1.5.2: re-acquires the wake lock if the system releases it while the page stays visible; Settings now shows an "active right now" status line when a lock is actually held (preference vs held-state observability). v1.5.1: hint now shows when a wake-lock request was refused (chip = preference, not lock state); iOS Home Screen hint corrected (works from iOS 18.4). v1.5: Screen Wake Lock keeps the screen on while the app is visible (Settings toggle, default on; re-acquires on return to the tab). v1.4: adds 9 Smith machine exercises (pull: bent-over row, inverted row; push: upright row, decline press; legs: front squat, deadlift, good morning, Bulgarian split squat, seated calf raise). v1.3: Add-workout sheet gains search, primary-muscle filter and sort-by-name. Workout card prefills the last same-routine session max weight with its date (per routine day, warm-up sets excluded). Includes v1.2 (export fallback) and v1.1 (stretch/static beeps) -->
+<!-- v1.6.4 - 12 Nov 2026, 12:48 AM NZDT: stretch holds whose instructions say to switch sides halfway now give a distinct double beep at the midpoint (e.g. 20s left of a 40s hold), embedded in the countdown file with a Web Audio fallback; only holds whose own text says halfway - no cue otherwise. v1.6.3 - 12 Nov 2026, 12:43 AM NZDT: static stretch gets a "Previous" button so an accidental Next tap can be undone (static only; stops any running hold timer and its countdown sound). v1.6.2 - 11 Nov 2026, 11:29 PM NZDT: timed sets (e.g. plank) now play the same pre-rendered final-5-seconds countdown file as the rest and stretch timers, so the beeps survive screen lock on iPhone (was: Web Audio only, which iOS throttles when locked or backgrounded); skipping a timed set stops its countdown. v1.6.1 - 11 Nov 2026, 11:23 PM NZDT: conservative eligibility fix - the progression hint now stays silent when a session has no recorded target at log time or the two sessions' targets differ (was: fell back to the current plan target with a disclosure suffix). v1.6 - 11 Nov 2026, 11:15 PM NZDT: weight-progression hint on the workout card (2-for-2: same load, final set beats target by 2+ reps two same-routine sessions running, warm-ups excluded, both sides on one-sided moves; suggest-only, no auto change; sets now also record the planned rep target and whether effort was actually rated). v1.5.2: re-acquires the wake lock if the system releases it while the page stays visible; Settings now shows an "active right now" status line when a lock is actually held (preference vs held-state observability). v1.5.1: hint now shows when a wake-lock request was refused (chip = preference, not lock state); iOS Home Screen hint corrected (works from iOS 18.4). v1.5: Screen Wake Lock keeps the screen on while the app is visible (Settings toggle, default on; re-acquires on return to the tab). v1.4: adds 9 Smith machine exercises (pull: bent-over row, inverted row; push: upright row, decline press; legs: front squat, deadlift, good morning, Bulgarian split squat, seated calf raise). v1.3: Add-workout sheet gains search, primary-muscle filter and sort-by-name. Workout card prefills the last same-routine session max weight with its date (per routine day, warm-up sets excluded). Includes v1.2 (export fallback) and v1.1 (stretch/static beeps) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -186,7 +186,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline
       <div class="sm" data-i="deleted"></div><div class="opts" id="dels"></div>
       <div class="sm" data-i="recent"></div><div id="recent"></div>
       <button class="link" id="reset"></button>
-      <p class="hint" style="text-align:center;margin:14px 0 6px">v1.6.3 · 12 Nov 2026, 12:43 AM NZDT</p>
+      <p class="hint" style="text-align:center;margin:14px 0 6px">v1.6.4 · 12 Nov 2026, 12:48 AM NZDT</p>
     </section>
   </div>
   <nav id="tabs"></nav>
@@ -467,17 +467,17 @@ function wakeOff(){if(wakeLock){try{wakeLock.release()}catch(e){}wakeLock=null}}
 document.addEventListener("visibilitychange",function(){if(document.visibilityState==="visible")wakeOn()});
 var wakeBoot=function(){wakeOn();document.removeEventListener("pointerdown",wakeBoot)};document.addEventListener("pointerdown",wakeBoot);
 
-/* countdown audio: a pre-rendered sound file (rest, stretch holds, timed sets) so it can keep playing with the screen locked (best effort on iOS); Web Audio beeps are the fallback */
+/* countdown audio: a pre-rendered sound file (rest, stretch holds, timed sets) so it can keep playing with the screen locked (best effort on iOS); Web Audio beeps are the fallback; stretch holds that switch sides halfway also embed a midpoint double beep */
 var rAudio=null,audioOK=false;
-function wavFor(total){var sr=8000,n=Math.round((total+.7)*sr),buf=new ArrayBuffer(44+n),v=new DataView(buf),u=new Uint8Array(buf);
+function wavFor(total,half){var sr=8000,n=Math.round((total+.7)*sr),buf=new ArrayBuffer(44+n),v=new DataView(buf),u=new Uint8Array(buf);
  function ws(o,x){for(var i=0;i<x.length;i++)v.setUint8(o+i,x.charCodeAt(i))}
  ws(0,"RIFF");v.setUint32(4,36+n,true);ws(8,"WAVEfmt ");v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);v.setUint32(24,sr,true);v.setUint32(28,sr,true);v.setUint16(32,1,true);v.setUint16(34,8,true);ws(36,"data");v.setUint32(40,n,true);
  u.fill(128,44);
  function tone(at,f,d){var s0=Math.round(at*sr),len=Math.round(d*sr);for(var i=0;i<len;i++){var j=s0+i;if(j<0||j>=n)break;u[44+j]=128+Math.round(Math.sin(6.2832*f*i/sr)*110*Math.min(1,i/60,(len-i)/60))}}
- for(var k=5;k>=1;k--)if(total-k>=0)tone(total-k,880,.15);tone(total,440,.55);return buf}
+ for(var k=5;k>=1;k--)if(total-k>=0)tone(total-k,880,.15);if(half>5){tone(total-half,880,.12);tone(total-half+.18,880,.12)}tone(total,440,.55);return buf}
 function stopAudio(){if(rAudio){try{rAudio.pause();URL.revokeObjectURL(rAudio.src)}catch(e){}rAudio=null}audioOK=false}
-function startAudio(total,seek){stopAudio();if(!S.beep||typeof Audio==="undefined")return;
- try{var url=URL.createObjectURL(new Blob([wavFor(total)],{type:"audio/wav"})),a=new Audio(url);rAudio=a;
+function startAudio(total,seek,half){stopAudio();if(!S.beep||typeof Audio==="undefined")return;
+ try{var url=URL.createObjectURL(new Blob([wavFor(total,half)],{type:"audio/wav"})),a=new Audio(url);rAudio=a;
   if(seek>0)a.addEventListener("loadedmetadata",function(){try{a.currentTime=seek}catch(e){}},{once:true});
   var p=a.play();if(p&&p.then)p.then(function(){if(rAudio===a)audioOK=true},function(){})}catch(e){}}
 function stopRest(keep){clearInterval(timer);timer=null;restEnd=null;if(keep&&rAudio){var a=rAudio;setTimeout(function(){if(rAudio===a)stopAudio()},1300)}else stopAudio()}
@@ -604,7 +604,7 @@ function track(){var s=S.sess;if(!s||(s.ph!=="main"&&s.ph!=="cardio"))return;var
 function phTick(){var s=S.sess;if(!s){clearInterval(phTimer);phTimer=null;return}
  var key=s.ph==="warm"?"warm":s.ph==="cardio"?"cardio":null;
  if(key&&s.t[key].s){var n=$("ph-num");if(n){var ms=Date.now()-s.t[key].s,tg=key==="cardio"?cardioTarget():phTarget[key];n.textContent=fd(ms);var b=$("ph-bar");if(b)b.style.width=Math.min(100,ms/(tg*10))+"%";if(ms>=tg*1000&&!phFlag[key]){phFlag[key]=1;beep(660,.4)}}}
- if((s.ph==="stretch"||s.ph==="static")&&stEnd!==null){var rem=Math.ceil((stEnd-Date.now())/1000),sn=$("st-num");if(rem<=0){if(!audioOK)beep(440,.5);stEnd=null;stopRest(true);renderWork();return}if(rem<=5&&!stBeep[rem]){stBeep[rem]=1;if(!audioOK)beep(880,.15)}if(sn)sn.textContent=rem}}
+ if((s.ph==="stretch"||s.ph==="static")&&stEnd!==null){var rem=Math.ceil((stEnd-Date.now())/1000),sn=$("st-num");if(rem<=0){if(!audioOK)beep(440,.5);stEnd=null;stopRest(true);renderWork();return}var hh=stHalfCur(s);if(hh&&rem<=hh&&!stBeep.h){stBeep.h=1;if(!audioOK){beep(880,.12);setTimeout(function(){if(!audioOK)beep(880,.12)},180)}}if(rem<=5&&!stBeep[rem]){stBeep[rem]=1;if(!audioOK)beep(880,.15)}if(sn)sn.textContent=rem}}
 function startPh(){clearInterval(phTimer);phTimer=setInterval(phTick,500);phTick()}
 function renderStart(c){var t=L(),d=el("div","mid");d.appendChild(el("div","sub",t.today));d.appendChild(el("div","exn",todayName()));
  d.appendChild(el("div","sub",isCardioDay()?t.cardioInfo(S.cardioMin||50):t.startInfo(active(R()).length,coreOn()?active(coreKey()).length:0)));var b=el("button","big",t.startW);b.addEventListener("click",function(){newSess();render()});d.appendChild(b);c.appendChild(d)}
@@ -625,12 +625,15 @@ function renderMachine(c,key){var t=L(),s=S.sess,p=s.t[key],target=key==="cardio
  else{var m=el("div","mid2");m.appendChild(el("div","sub",t[p.m||mc]));var n=el("div","num");n.id="ph-num";m.appendChild(n);var bar=el("div","bar"),i=el("i");i.id="ph-bar";bar.appendChild(i);m.appendChild(bar);c.appendChild(m);
   var dn=el("button","big",t.done);dn.addEventListener("click",function(){p.e=Date.now();save();if(key==="warm")enterStretch();else afterCardio()});c.appendChild(dn);startPh()}}
 function uTxt(v,u){return L().uf[u](v)}
+/* halfway side-switch cue: only timed holds whose own instructions say to switch halfway */
+function stHalf(it){return it[5]==="t"&&/halfway/i.test(it[2])?it[4]/2:0}
+function stHalfCur(s){var pk=dayOf(s.rt),src=s.ph==="static"?STR2:STR,list=src[pk]||src.push,it=list[Math.min(s.si||0,list.length-1)];return it?stHalf(it):0}
 function renderStretch(c,kind){kind=kind||"stretch";var t=L(),s=S.sess,pk=dayOf(s.rt),src=kind==="static"?STR2:STR,list=src[pk]||src.push,i=Math.min(s.si||0,list.length-1),it=list[i],ko=S.lang==="ko",head=el("div","head");
  head.appendChild(el("h2",null,kind==="static"?t.staticS:t.stretch));head.appendChild(el("span","meta",(i+1)+"/"+list.length));c.appendChild(head);
  c.appendChild(el("div","exn",ko?it[1]:it[0]));c.appendChild(el("div","sub",ko?it[3]:it[2]));
  var box=el("div","mid2");
  if(it[5]==="t"){if(stEnd!==null){var n=el("div","num");n.id="st-num";n.textContent=Math.max(0,Math.ceil((stEnd-Date.now())/1000));box.appendChild(n);startPh()}
-  else{box.appendChild(el("div","nxl",uTxt(it[4],"t")));var b=el("button","ghost",t.start);b.addEventListener("click",function(){audio();stEnd=Date.now()+it[4]*1000;stBeep={};startAudio(it[4],0);renderWork()});box.appendChild(b)}}
+  else{box.appendChild(el("div","nxl",uTxt(it[4],"t")));var b=el("button","ghost",t.start);b.addEventListener("click",function(){audio();stEnd=Date.now()+it[4]*1000;stBeep={};startAudio(it[4],0,stHalf(it));renderWork()});box.appendChild(b)}}
  else{var vv=el("div","num");vv.style.fontSize="30px";vv.textContent=uTxt(it[4],it[5]);box.appendChild(vv)}
  c.appendChild(box);
  function fin(){stEnd=null;stopAudio();s.t[kind]=s.t[kind]||{};s.t[kind].e=Date.now();if(kind==="static")finishSess();else enterMain()}
