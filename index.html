@@ -1,4 +1,4 @@
-<!-- v1.6 - 11 Nov 2026, 11:15 PM NZDT: weight-progression hint on the workout card (2-for-2: same load, final set beats target by 2+ reps two same-routine sessions running, warm-ups excluded, both sides on one-sided moves; suggest-only, no auto change; sets now also record the planned rep target and whether effort was actually rated). v1.5.2: re-acquires the wake lock if the system releases it while the page stays visible; Settings now shows an "active right now" status line when a lock is actually held (preference vs held-state observability). v1.5.1: hint now shows when a wake-lock request was refused (chip = preference, not lock state); iOS Home Screen hint corrected (works from iOS 18.4). v1.5: Screen Wake Lock keeps the screen on while the app is visible (Settings toggle, default on; re-acquires on return to the tab). v1.4: adds 9 Smith machine exercises (pull: bent-over row, inverted row; push: upright row, decline press; legs: front squat, deadlift, good morning, Bulgarian split squat, seated calf raise). v1.3: Add-workout sheet gains search, primary-muscle filter and sort-by-name. Workout card prefills the last same-routine session max weight with its date (per routine day, warm-up sets excluded). Includes v1.2 (export fallback) and v1.1 (stretch/static beeps) -->
+<!-- v1.6.1 - 11 Nov 2026, 11:23 PM NZDT: conservative eligibility fix - the progression hint now stays silent when a session has no recorded target at log time or the two sessions' targets differ (was: fell back to the current plan target with a disclosure suffix). v1.6 - 11 Nov 2026, 11:15 PM NZDT: weight-progression hint on the workout card (2-for-2: same load, final set beats target by 2+ reps two same-routine sessions running, warm-ups excluded, both sides on one-sided moves; suggest-only, no auto change; sets now also record the planned rep target and whether effort was actually rated). v1.5.2: re-acquires the wake lock if the system releases it while the page stays visible; Settings now shows an "active right now" status line when a lock is actually held (preference vs held-state observability). v1.5.1: hint now shows when a wake-lock request was refused (chip = preference, not lock state); iOS Home Screen hint corrected (works from iOS 18.4). v1.5: Screen Wake Lock keeps the screen on while the app is visible (Settings toggle, default on; re-acquires on return to the tab). v1.4: adds 9 Smith machine exercises (pull: bent-over row, inverted row; push: upright row, decline press; legs: front squat, deadlift, good morning, Bulgarian split squat, seated calf raise). v1.3: Add-workout sheet gains search, primary-muscle filter and sort-by-name. Workout card prefills the last same-routine session max weight with its date (per routine day, warm-up sets excluded). Includes v1.2 (export fallback) and v1.1 (stretch/static beeps) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -186,7 +186,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline
       <div class="sm" data-i="deleted"></div><div class="opts" id="dels"></div>
       <div class="sm" data-i="recent"></div><div id="recent"></div>
       <button class="link" id="reset"></button>
-      <p class="hint" style="text-align:center;margin:14px 0 6px">v1.6 · 11 Nov 2026, 11:15 PM NZDT</p>
+      <p class="hint" style="text-align:center;margin:14px 0 6px">v1.6.1 · 11 Nov 2026, 11:23 PM NZDT</p>
     </section>
   </div>
   <nav id="tabs"></nav>
@@ -327,7 +327,7 @@ en:{title:"Workout Log",cardioDay:"Cardio day",cardioInfo:function(m){return "Ca
  shuffle:"Shuffle",shuffleTitle:"Shuffle workouts",shuffleMsg:function(n){return "Replace the workouts in "+n+" with a random all-round mix? Disliked workouts and equipment you don’t have are skipped."},shuffled:"Shuffled.",dis:"Dislike",removedPlan:"Removed from the plan.",disliked:"Disliked. Restore it in Settings.",prim:"Primary",sec:"Secondary",doneTitle:"Completed sets",today:"Today",change:"Change",chTitle:"Change routine",drag:"Hold and drag to reorder",nextR:function(n){return "Next: "+n},work:"Workout",plan:"Plan",settings:"Settings",log:"Log a set",weight:"Weight (kg)",reps:"Reps",hr:"Heart rate",bpm:"bpm",rate:"How hard was it? (1 easy – 10 max)",done:"Done",rest:"Rest",restAuto:"Auto",restManual:"Manual",skip:"Skip",undo:"Undo last set",
  complete:"Workout complete",again:"Start again",emptyPlan:"No workouts in this plan. Add or restore some.",push:"Push",pull:"Pull",legs:"Legs",
  swap:"Swap",del:"Delete",swapTitle:"Swap with a similar workout",noAlt:"No similar workouts left to swap in.",save:"Save",cancel:"Cancel",sl:"Sets",removed:"Removed. Restore it in Settings.",
- add:"+ Add workout",sort:"Sort",sortDone:"Done sorting",addTitle:"Add a workout",rec:"Recommended",noAdd:"Nothing left to add for this day.",searchEx:"Search exercises",allM:"All",sortName:"A-Z",lastW:function(w,d){return "Last "+fmt(w)+" kg · "+d},progUp:function(w){return "You beat your target by 2+ reps on the final set at "+fmt(w)+" kg two sessions in a row. Time for a small increase - use the smallest step your equipment allows."},progCurT:" (against your current plan target)",progRepsOnly:" (based on reps only)",added:"Added to your plan.",up:"Move up",down:"Move down",
+ add:"+ Add workout",sort:"Sort",sortDone:"Done sorting",addTitle:"Add a workout",rec:"Recommended",noAdd:"Nothing left to add for this day.",searchEx:"Search exercises",allM:"All",sortName:"A-Z",lastW:function(w,d){return "Last "+fmt(w)+" kg · "+d},progUp:function(w){return "You beat your target by 2+ reps on the final set at "+fmt(w)+" kg two sessions in a row. Time for a small increase - use the smallest step your equipment allows."},progRepsOnly:" (based on reps only)",added:"Added to your plan.",up:"Move up",down:"Move down",
  language:"Language",manualRest:"Manual rest time",rv:"Rest time",autoHint:"Auto: rest is calculated from weight, reps, heart rate and your 1–10 rating.",beeps:"Countdown beeps",wake:"Keep screen on while using the app",wakeNo:"Screen wake lock is not supported in this browser.",wakePwa:"On iPhone, Home Screen apps need iOS 18.4 or later for this; in the Safari tab it works from iOS 16.4.",wakeFail:"Screen-on is set, but the browser refused it just now (e.g. low battery). It tries again when you return to the app.",wakeOk:"Active right now - the screen stays on while you use the app.",on:"On",off:"Off",deleted:"Disliked workouts (tap to restore)",noDel:"No disliked workouts.",
  recent:"Recent days",noRecent:"Past workouts show up here.",reset:"Reset all data",confirm:"Delete all logs and reset the plans? This can’t be undone.",
  stats:function(n,e,v){return n+" sets · "+e+" exercises · "+v+" kg today"},setOf:function(n,m){return "Set "+n+" of "+m},target:function(r){return "Target "+r+" reps"},sc:function(n){return n+(n===1?" set":" sets")},ls:"en-US"},
@@ -348,7 +348,7 @@ ko:{title:"운동 기록",cardioDay:"유산소 데이",cardioInfo:function(m){re
  shuffle:"셔플",shuffleTitle:"운동 셔플",shuffleMsg:function(n){return n+"의 운동을 전신 균형 있는 무작위 조합으로 바꿀까요? 싫어요한 운동과 없는 장비는 제외돼요."},shuffled:"셔플했어요.",dis:"싫어요",removedPlan:"플랜에서 삭제했어요.",disliked:"싫어요 처리했어요. 설정에서 복원할 수 있어요.",prim:"주동근",sec:"보조근",doneTitle:"완료한 세트",today:"오늘",change:"변경",chTitle:"루틴 변경",drag:"길게 눌러 순서 변경",nextR:function(n){return "다음: "+n},work:"운동",plan:"플랜",settings:"설정",log:"세트 기록",weight:"무게 (kg)",reps:"횟수",hr:"심박수",bpm:"bpm",rate:"얼마나 힘들었나요? (1 쉬움 – 10 최대)",done:"완료",rest:"휴식",restAuto:"자동",restManual:"수동",skip:"건너뛰기",undo:"마지막 세트 취소",
  complete:"운동 완료",again:"다시 시작",emptyPlan:"이 플랜에 운동이 없어요. 추가하거나 복원하세요.",push:"푸시",pull:"풀",legs:"레그",
  swap:"교체",del:"삭제",swapTitle:"비슷한 운동으로 교체",noAlt:"교체할 비슷한 운동이 없어요.",save:"저장",cancel:"취소",sl:"세트",removed:"삭제했어요. 설정에서 복원할 수 있어요.",
- add:"+ 운동 추가",sort:"정렬",sortDone:"정렬 완료",addTitle:"운동 추가",rec:"추천",noAdd:"추가할 운동이 더 없어요.",searchEx:"운동 검색",allM:"전체",sortName:"이름순",lastW:function(w,d){return "지난 "+fmt(w)+"kg · "+d},progUp:function(w){return "마지막 세트에서 "+fmt(w)+"kg으로 목표+2회를 2번 연속 달성했어요. 중량을 조금 올려볼 만해요. 장비에서 가능한 가장 작은 폭으로 직접 올려 보세요."},progCurT:" (현재 플랜 목표 기준)",progRepsOnly:" (반복 횟수 기준)",added:"플랜에 추가했어요.",up:"위로",down:"아래로",
+ add:"+ 운동 추가",sort:"정렬",sortDone:"정렬 완료",addTitle:"운동 추가",rec:"추천",noAdd:"추가할 운동이 더 없어요.",searchEx:"운동 검색",allM:"전체",sortName:"이름순",lastW:function(w,d){return "지난 "+fmt(w)+"kg · "+d},progUp:function(w){return "마지막 세트에서 "+fmt(w)+"kg으로 목표+2회를 2번 연속 달성했어요. 중량을 조금 올려볼 만해요. 장비에서 가능한 가장 작은 폭으로 직접 올려 보세요."},progRepsOnly:" (반복 횟수 기준)",added:"플랜에 추가했어요.",up:"위로",down:"아래로",
  language:"언어",manualRest:"휴식 시간 직접 설정",rv:"휴식 시간",autoHint:"자동: 무게, 횟수, 심박수, 1–10 난이도로 휴식 시간을 계산해요.",beeps:"카운트다운 알림음",wake:"앱 사용 중 화면 켜짐 유지",wakeNo:"이 브라우저에서는 화면 켜짐 유지를 지원하지 않아요.",wakePwa:"아이폰에서는 홈 화면 앱은 iOS 18.4부터, Safari 탭에서는 iOS 16.4부터 동작해요.",wakeFail:"켜짐 유지가 설정돼 있지만 방금 브라우저가 거부했어요(배터리 부족 등). 앱으로 돌아오면 다시 시도해요.",wakeOk:"지금 적용 중이에요. 앱 사용 중에는 화면이 켜져 있어요.",on:"켜짐",off:"꺼짐",deleted:"싫어요한 운동 (눌러서 복원)",noDel:"싫어요한 운동이 없어요.",
  recent:"최근 기록",noRecent:"지난 운동이 여기에 표시돼요.",reset:"모든 데이터 초기화",confirm:"모든 기록을 삭제하고 플랜을 초기화할까요? 되돌릴 수 없어요.",
  stats:function(n,e,v){return "오늘 "+n+"세트 · "+e+"종목 · "+v+" kg"},setOf:function(n,m){return m+"세트 중 "+n+"번째"},target:function(r){return "목표 "+r+"회"},sc:function(n){return n+"세트"},ls:"ko-KR"}};
@@ -421,7 +421,7 @@ function lastSess(rk,k){var td=today(),bd="",bw=0;
  S.sets.forEach(function(s){if(s.rt!==rk||s.ex!==k||s.wu||!(s.w>0)||s.date>=td)return;
   if(s.date>bd){bd=s.date;bw=s.w}else if(s.date===bd&&s.w>bw)bw=s.w});
  return bd?{date:bd,w:bw}:null}
-/* weight-progression hint (2-for-2): same load, final working set beats target by 2+ reps in the last 2 same-routine sessions; both sides must qualify on one-sided moves; never changes any weight itself */
+/* weight-progression hint (2-for-2): same load, final working set beats the target recorded at log time by 2+ reps in the last 2 same-routine sessions; both sides must qualify on one-sided moves; sessions without a recorded target, or with different targets, stay silent; never changes any weight itself */
 function progHint(rk,e){var x=X[e.k];if(!x||x.tm)return null;
  var cut=new Date();cut.setDate(cut.getDate()-35);var cutS=cut.getFullYear()+"-"+("0"+(cut.getMonth()+1)).slice(-2)+"-"+("0"+cut.getDate()).slice(-2);
  var byDay={};S.sets.forEach(function(s){if(s.rt!==rk||s.ex!==e.k||s.wu||!(s.w>0)||s.date<cutS)return;(byDay[s.date]=byDay[s.date]||[]).push(s)});
@@ -430,11 +430,11 @@ function progHint(rk,e){var x=X[e.k];if(!x||x.tm)return null;
   if(UNI[e.k]){var L=ss.filter(function(s){return s.side==="L"}),R=ss.filter(function(s){return s.side==="R"});if(!L.length||!R.length)return null;var l=L[L.length-1],r=R[R.length-1];if(l.w!==r.w)return null;return {w:l.w,pair:[l,r]}}
   var f=ss[ss.length-1];if(f.side)return null;return {w:f.w,pair:[f]}}
  var a=fin(days[0]),b=fin(days[1]);if(!a||!b||a.w!==b.w)return null;
- var usedCur=false,all=a.pair.concat(b.pair);
- for(var i=0;i<all.length;i++){var s2=all[i],tg=(typeof s2.tr==="number"&&s2.tr>0)?s2.tr:e.reps;if(!(typeof s2.tr==="number"&&s2.tr>0))usedCur=true;if(!(s2.r>=tg+2))return null}
+ var all=a.pair.concat(b.pair),tg0=0;
+ for(var i=0;i<all.length;i++){var s2=all[i];if(!(typeof s2.tr==="number"&&s2.tr>0))return null;if(!tg0)tg0=s2.tr;else if(s2.tr!==tg0)return null;if(!(s2.r>=s2.tr+2))return null}
  var effort=all.every(function(s3){return s3.rp===1&&typeof s3.rpe==="number"});
  if(effort)for(var j=0;j<all.length;j++)if(all[j].rpe>8)return null;
- return {w:a.w,usedCur:usedCur,effort:effort}}
+ return {w:a.w,effort:effort}}
 function dayLogs(k){var td=today(),since=S.since[k]||0;return S.sets.filter(function(s){return s.date===td&&s.rt===k&&s.t>=since})}
 function coreKey(){return "core"+(S.ca||"A")}
 function incOn(k){return S.inc[k]!==false}
@@ -662,7 +662,7 @@ function renderWork(){var t=L(),s;renderDone();
  f.appendChild(fld(t.hr,"h-in","",5,30,240,true,function(){},lastHr,true));
  if(cur.n===0&&cur.side!=="R"){var wl=el("label","wu"),cb2=el("input");cb2.type="checkbox";cb2.id="wu-in";wl.appendChild(cb2);wl.appendChild(document.createTextNode(" "+t.wuLabel));
   cb2.addEventListener("change",function(){wuOn=cb2.checked;var w=$("w-in"),r=$("r-in");if(wuOn){w.value=pw>0?Math.max(0,Math.round(pw*.5/wstep(x))*wstep(x)):0}else{w.value=pw}r.value=e.reps});c.appendChild(wl)}
- c.appendChild(f);if(ls)c.appendChild(el("div","hintl",t.lastW(ls.w,fmtD(ls.date))));var ph=progHint(cur.rk,e);if(ph)c.appendChild(el("div","hintl",t.progUp(ph.w)+(ph.usedCur?t.progCurT:"")+(ph.effort?"":t.progRepsOnly)));c.appendChild(el("div","hintl",t.swipeHint));
+ c.appendChild(f);if(ls)c.appendChild(el("div","hintl",t.lastW(ls.w,fmtD(ls.date))));var ph=progHint(cur.rk,e);if(ph)c.appendChild(el("div","hintl",t.progUp(ph.w)+(ph.effort?"":t.progRepsOnly)));c.appendChild(el("div","hintl",t.swipeHint));
  f.querySelector("#h-in").placeholder=t.bpm;
  var rl=el("label",null,t.rate);rl.style.margin="10px 0 4px";c.appendChild(rl);c.appendChild(rateCtl());
  var tk=tmKeyOf(cur),running=!!tm&&tmS.key===tk;
